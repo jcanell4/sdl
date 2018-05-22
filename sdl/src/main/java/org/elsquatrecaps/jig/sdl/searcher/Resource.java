@@ -18,10 +18,16 @@ public abstract class Resource {
        ALTERNATIVE_FORMATS.put("epub", new String[]{"pdf", "txt"});
     }
    
+    private long id;
+    private long searchId;
     private String title;
     private String page;
     private String publicationId;
     private String pageId;
+    private String searchDate;
+    private String editionDate;
+    private String processingAnalysis;
+        
     private ArrayList<String> fragments= new ArrayList<>();
 
     protected String[] getAlternativeFormats(String format){
@@ -105,5 +111,43 @@ public abstract class Resource {
         }
     }
 
+    public void setSearhDate(String searchDate) {
+        this.searchDate = searchDate;
+    }
+    
+    public String getSearchDate() {
+        return this.searchDate;
+    }
 
+    public void setEditionDate(String editionDate) {
+        this.editionDate = editionDate;
+    }
+    
+    public String getEditionDate() {
+        return this.editionDate;
+    }
+    
+    public void setProcessingAnalysis(String processingAnalysis) {
+        this.processingAnalysis = processingAnalysis;
+    }
+    
+    public String getProcessingAnalysis() {
+        return processingAnalysis;
+    }
+    
+    public void setId(long id) {
+        this.id = id;
+    }
+    
+    public long getId() {
+        return this.id;
+    }
+ 
+    public long getSearchId() {
+        return searchId;
+    }
+
+    public void setSearchId(long searchId) {
+        this.searchId = searchId;
+    }
 }

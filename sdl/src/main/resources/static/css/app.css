@@ -1,0 +1,146 @@
+main {
+    margin-top: 71px;
+
+}
+
+.tab-content {
+    border: 1px solid #dee2e6;
+    border-top: none;
+    padding: 15px;
+}
+
+#progress-overlay {
+
+}
+
+#progress-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    filter:alpha(opacity=50);
+    -moz-opacity:0.5;
+    -khtml-opacity: 0.5;
+    opacity: 0.5;
+    z-index: 1900;
+}
+#progress-overlay div.progress-circle {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    margin: -70px;
+    border: 16px solid lightgrey;
+    /* Light grey */
+    border-top: 16px solid #007bff;
+    /* Blue */
+    border-radius: 50%;
+    width: 140px;
+    height: 140px;
+    animation: spin 2s linear infinite;
+    z-index: 2000;
+}
+
+#progress-overlay div.progress-text {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    color: white;
+    width: 140px;
+    height: 20px;
+    margin-left: -70px;
+    margin-top: -10px;
+    text-align: center;
+}
+
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.detall-header {
+    margin-bottom:50px;
+}
+
+.modal-backdrop {
+    z-index: 500;
+}
+
+ .modal-lg {
+ max-width:90%;
+}
+
+ .table {
+     border-collapse: collapse;
+ }
+
+ #detall-recurs, .detall-header {
+     margin: 15px 0;
+     border: 1px solid lightgrey;
+     border-radius: 5px;
+     padding-top:15px;
+     padding-bottom:15px;
+ }
+
+ .modal-body {
+     overflow: scroll;
+ }
+
+ input[type="date"] {
+     border-radius: 0.25rem;
+ }
+
+.no-sort::after { display: none!important; }
+.no-sort::before{ display: none!important; }
+
+.no-sort { pointer-events: none!important; cursor: default!important; }
+
+.btn {
+    width: 100%;
+}
+
+#resources_filter {
+    display: none;
+}
+
+#queries_filter {
+    display:none;
+}
+
+
+#resources_wrapper {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+#queries_wrapper {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+
+#export-modal {
+    background-color: #0007;
+}
+
+table li {
+    padding-left:0;
+    list-style-type: none;
+    display: inline-block;
+}
+
+.modal-content hr {
+    margin: 30px 15px;
+}
+
+div.table-container {
+    overflow-x: scroll;
+}

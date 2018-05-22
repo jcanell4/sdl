@@ -5,14 +5,16 @@
  */
 package org.elsquatrecaps.jig.sdl.controllers;
 
-import java.util.List;
-import org.elsquatrecaps.jig.sdl.controllers.Prova1Properties;
+import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 import org.elsquatrecaps.jig.sdl.model.ProvaDada;
+import org.elsquatrecaps.jig.sdl.model.Search;
+import org.elsquatrecaps.jig.sdl.model.TestResource;
+import org.elsquatrecaps.jig.sdl.searcher.Resource;
 import org.elsquatrecaps.jig.sdl.services.ProvaUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -77,5 +79,72 @@ public class ProvaController {
         this.userService = userService;
     }
 
+    // TESTS Xavi
+    
+    // Inicialització de les dades
+    Search[] resultats = {
+            new Search(0, "Arca", "Marinero", "22/02/2015", "12/08/2017"),
+            new Search(1, "Arca", "Camaleón", "01/04/2018", "02/04/2018"),
+            new Search(2, "BVPH", "Trucha", "11/08/2014", "03/12/2015"),
+        };
+    
+    public static final int numResources = 30;
+    
+    public static Resource[] resources = InitTestResources();
+
+    public static Resource[] InitTestResources() {
+        Resource[] resources = new TestResource[numResources];
+        
+        
+        String[] paraules={"Fluir", "Javelina", "Panteixar", "Llenya", "Duplicat", 
+            "Turó", "Consulta", "Soterrani", "Gaudir", "Prémer"};
+        String[] tipus = {"Revista", "Fascicle", "Publicació", "Diari"};
+        
+        String[] processos = {"", "Atlas-ti", "Selecció AI"};
+        
+        
+        
+        for (int i = 0; i<numResources; i++) {
+            long searchId = ThreadLocalRandom.current().nextInt(0, 4);
+            String title = tipus[ThreadLocalRandom.current().nextInt(0, 4)] + " "
+                    + paraules[ThreadLocalRandom.current().nextInt(0, 10)] + 
+                    " " + (ThreadLocalRandom.current().nextInt(1, 100));
+            
+            String page = ""+ThreadLocalRandom.current().nextInt(1, 1000);
+            
+            String  process = processos[ThreadLocalRandom.current().nextInt(0, 3)];
+            
+            int dia = ThreadLocalRandom.current().nextInt(5, 29);
+            int mes = ThreadLocalRandom.current().nextInt(3, 13);
+            int any = 2000 + ThreadLocalRandom.current().nextInt(0, 19);
+                            
+            String searchDate = dia + "/"+mes + "/" +any;            
+            String editionDate = (dia-4) + "/"+(mes-2) + "/" +(any-3);
+            
+            String[] empty = {};
+            
+            resources[i] = new TestResource(i, searchId, title, page, process, editionDate, searchDate, empty, empty);
+        }
+        
+        
+        return resources;
+    }
+    
+    @GetMapping("/new")
+    public ModelAndView newHandler() {
+        
+        
+        String view = "new";
+        ModelAndView ret = new ModelAndView(view);
+        
+        // TODO[Xavi]: Això s'ha d'obtenir del fitxer application.properties
+        ret.addObject("title","Biblioteques SDL");
+        
+        ret.addObject("resultats",resultats);
+        ret.addObject("resources",resources);
+                
+        return ret;
+    }
+    
     
 }

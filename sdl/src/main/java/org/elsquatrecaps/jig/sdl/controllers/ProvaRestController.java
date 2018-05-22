@@ -8,6 +8,7 @@ import org.elsquatrecaps.jig.sdl.model.ProvaAjaxResponseBody;
 import org.elsquatrecaps.jig.sdl.model.ProvaDada;
 import org.elsquatrecaps.jig.sdl.model.ProvaSearchCriteria;
 import org.elsquatrecaps.jig.sdl.model.ProvaUser;
+import org.elsquatrecaps.jig.sdl.model.TestResource;
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.Resource;
 import org.elsquatrecaps.jig.sdl.searcher.SearchIterator;
@@ -75,4 +76,21 @@ public class ProvaRestController {
         }
         return ret;
     }
+    
+    
+    
+    @RequestMapping(value = "/api/resource")
+    public ArrayList<Resource> getResourceViaAjax(@RequestParam int id){
+        // Resultats de prova, no provenen de la base de dades, es generan aleatoriament en arrancar l'aplicació
+        
+        System.out.println(ProvaController.resources.length);
+        
+        ArrayList<Resource> result = new ArrayList<>();
+        result.add(ProvaController.resources[id]);
+        
+        return result;
+        
+    }
+    
+    
 }
