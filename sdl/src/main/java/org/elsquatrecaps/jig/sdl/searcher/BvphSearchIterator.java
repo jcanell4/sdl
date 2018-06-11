@@ -48,6 +48,8 @@ public class BvphSearchIterator extends SearchIterator{
     @XmlElement
     private String pageFilter = "p strong a";
     @XmlElement
+    private String editionDateBloc = "dt span span.datos_publicacion bdi";
+    @XmlElement
     private String downloadPdfJpg = "http://prensahistorica.mcu.es/es/catalogo_imagenes/iniciar_descarga.cmd";
 
 //    @XmlElement
@@ -296,7 +298,7 @@ public class BvphSearchIterator extends SearchIterator{
         }
 
         private BvphResource getResource(Element a) {       
-            BvphResource ret = new BvphResource(fragmentsFilter, actionsFilter, saveJpgFilter, titleFilter, pageFilter);
+            BvphResource ret = new BvphResource(fragmentsFilter, actionsFilter, saveJpgFilter, titleFilter, pageFilter, editionDateBloc);
             ret.updateFromElement(a, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
             return ret;
         }

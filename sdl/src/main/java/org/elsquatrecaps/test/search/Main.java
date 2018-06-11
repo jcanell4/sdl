@@ -1,7 +1,7 @@
 package org.elsquatrecaps.test.search;
 
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchIterator;
-import org.elsquatrecaps.jig.sdl.searcher.FormatedFile;
+import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import org.elsquatrecaps.jig.sdl.searcher.BvphGetRemoteProcess;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.elsquatrecaps.jig.sdl.searcher.BvphGetRemoteProcess;
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchIterator;
-import org.elsquatrecaps.jig.sdl.searcher.FormatedFile;
+import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 
 /**
  *

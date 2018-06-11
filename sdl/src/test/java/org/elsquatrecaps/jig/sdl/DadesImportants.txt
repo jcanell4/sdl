@@ -1,0 +1,60 @@
+
+PlatformTransactionManager
+
+doInHibernate
+doInTransaction
+
+
+TransactionDefinition transactionDefinition = new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_REQUIRED);
+new TransactionTemplate(transactionManager, transactionDefinition).execute(new TransactionCallback()
+{
+    @Override
+    public Object doInTransaction(TransactionStatus status)
+    {
+        // ... execute transactional code ...
+
+        return null;
+    }
+});
+
+public class ProductServiceImpl implements ProductService {
+
+    private PlatformTransactionManager transactionManager;
+    private ProductDao productDao;
+
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
+
+    public void setProductDao(ProductDao productDao) {
+        this.productDao = productDao;
+    }
+
+    public void increasePriceOfAllProductsInCategory(final String category) {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(this.transactionManager);
+        transactionTemplate.execute(
+            new TransactionCallbackWithoutResult() {
+                public void doInTransactionWithoutResult(TransactionStatus status) {
+                    List productsToChange = productDAO.loadProductsByCategory(category);
+                    ...
+                }
+            }
+        );
+    }
+}
+
+
+Hibernate.initialize
+
+JpaTransactionManager tm = context.getBean(JpaTransactionManager.class);
+EntityManagerFactory emf = tm.getEntityManagerFactory();
+
+TransactionTemplate template = new TransactionTemplate(tm);
+template.execute(status -> {
+    EntityManager em = EntityManagerFactoryUtils.getTransactionalEntityManager(emf);
+    Department department = new Department();
+    department.setId(15);
+    department.setName("Engineering");
+    em.persist(department);
+    return department;
+});

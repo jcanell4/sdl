@@ -10,7 +10,7 @@ import org.elsquatrecaps.jig.sdl.model.ProvaSearchCriteria;
 import org.elsquatrecaps.jig.sdl.model.ProvaUser;
 import org.elsquatrecaps.jig.sdl.model.TestResource;
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchCriteria;
-import org.elsquatrecaps.jig.sdl.searcher.Resource;
+import org.elsquatrecaps.jig.sdl.searcher.SearchResource;
 import org.elsquatrecaps.jig.sdl.searcher.SearchIterator;
 import org.elsquatrecaps.jig.sdl.searcher.cfg.ConfigParserOfSearcher;
 import org.elsquatrecaps.jig.sdl.services.ProvaUserService;
@@ -35,7 +35,7 @@ public class ProvaRestController {
     public Boolean getProvaSearcher() {
         BvphSearchCriteria criteria = new BvphSearchCriteria("soldador", 1970, 1970);
         SearchIterator it = ConfigParserOfSearcher.getIterator("bvph", criteria);
-        Resource res = null;
+        SearchResource res = null;
         
         for(int i=0; i<3 && it.hasNext(); i++){
             res = it.next();
@@ -80,12 +80,12 @@ public class ProvaRestController {
     
     
     @RequestMapping(value = "/api/resource")
-    public ArrayList<Resource> getResourceViaAjax(@RequestParam int id){
+    public ArrayList<TestResource> getResourceViaAjax(@RequestParam int id){
         // Resultats de prova, no provenen de la base de dades, es generan aleatoriament en arrancar l'aplicació
         
         System.out.println(ProvaController.resources.length);
         
-        ArrayList<Resource> result = new ArrayList<>();
+        ArrayList<TestResource> result = new ArrayList<>();
         result.add(ProvaController.resources[id]);
         
         return result;

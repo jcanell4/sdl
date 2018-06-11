@@ -1,4 +1,4 @@
-package org.elsquatrecaps.jig.sdl.controllers;
+package org.elsquatrecaps.jig.sdl.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -6,15 +6,15 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "downloader")
 public class Prova1Properties {
-    private String localReasourceRepo;
+    private String localRepository;
     private String db;
 
     public String getLocalReasourceRepo() {
-        return localReasourceRepo;
+        return localRepository;
     }
 
     public void setLocalReasourceRepo(String localReasourceRepo) {
-        this.localReasourceRepo = localReasourceRepo;
+        this.localRepository = localReasourceRepo;
     }
 
     public String getDb() {

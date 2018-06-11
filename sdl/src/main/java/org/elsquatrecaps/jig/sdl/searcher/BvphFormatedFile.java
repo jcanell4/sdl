@@ -5,6 +5,7 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
+import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;

@@ -1,28 +1,36 @@
 package org.elsquatrecaps.jig.sdl.searcher;
 
+import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class BvphResource extends Resource{
+public class BvphResource extends SearchResource{
     private static final String[] SUPPORTED_FORMATS={"jpg", "txt", "xml"};
     private String fragmentsFilter;
     private String actionsFilter;
     private String saveJpgFilter;
     private String titleFilter;
     private String pageFilter;
+    private String editionDateBlocFilter;
     private String altoXmlUrl;
     private String ocrtextUrl;
     private String jpgTemporalUrl;
 
-    public BvphResource(String fragmentsFilter, String actionsFilter, String saveJpgFilter, String titleFilter, String pageFilter) {
+    public BvphResource() {
+    }
+    
+    public BvphResource(String fragmentsFilter, String actionsFilter, String saveJpgFilter, String titleFilter, String pageFilter, String editionDateBloc) {
         this.fragmentsFilter = fragmentsFilter;
         this.actionsFilter = actionsFilter;
         this.saveJpgFilter = saveJpgFilter;
         this.titleFilter = titleFilter;
         this.pageFilter = pageFilter;
+        this.editionDateBlocFilter = editionDateBloc;
     }
     
     public void updateFromElement(Element elem, String context, Map<String, String> cookies){
@@ -34,6 +42,7 @@ public class BvphResource extends Resource{
         setTitle(dlElement.selectFirst(titleFilter).text());
         setPageId(elem.child(0).attr("id"));
         setPage(elem.selectFirst(pageFilter).text());
+        setEditionDate(getDateFromDbi(dlElement.selectFirst(editionDateBlocFilter).text()));
         frags = new ArrayList<>(elem.select(fragmentsFilter));
         for(int i=0; i<frags.size(); i++){
             addFragment(frags.get(i).text());
@@ -49,6 +58,16 @@ public class BvphResource extends Resource{
         ocrtextUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, ocrtextUrl+"&aceptar=Aceptar");
         altoXmlUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, altoXmlUrl+"&aceptar=Aceptar");
         jpgTemporalUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, jpgTemporalUrl+"&aceptar=Aceptar");
+    }
+    
+    private String getDateFromDbi(String bdi){
+        String ret="00/00/0000";
+        Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{2}[/-]\\d{4}).*");
+        Matcher matcher = pattern.matcher(bdi);
+        if(matcher.find()){
+            ret = matcher.group(1);
+        }
+        return ret;
     }
     
     private Element getToDownloading(String url){
@@ -77,6 +96,7 @@ public class BvphResource extends Resource{
     protected FormatedFile getStrictFormatedFile(String format) {
         String urlFile = null;
         /*http://prensahistorica.mcu.es/es/catalogo_imagenes/iniciar_descarga.cmd?path=4033223&posicion=104&numTotalPags=480*/
+        
         switch(format){
             case "xml":
                 urlFile = altoXmlUrl;
@@ -88,7 +108,17 @@ public class BvphResource extends Resource{
                 urlFile = jpgTemporalUrl;
                 break;
         }
-        return new BvphFormatedFile(urlFile, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
+        return getFormatedFileInstance(urlFile, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
+    }
+    
+    protected FormatedFile getFormatedFileInstance(String url, String format, String name, String fileName){
+        FormatedFile ret;
+        if(format.equals("jpg")){
+            ret = new BvphJpgFile(url, name, fileName);
+        }else{
+            ret = new BvphFormatedFile(url, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
+        }
+        return ret;
     }
 
     @Override

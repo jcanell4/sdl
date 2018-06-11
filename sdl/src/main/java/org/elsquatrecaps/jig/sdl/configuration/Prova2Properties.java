@@ -1,4 +1,4 @@
-package org.elsquatrecaps.jig.sdl.controllers;
+package org.elsquatrecaps.jig.sdl.configuration;
 
 import java.util.ArrayList;
 import java.util.List;

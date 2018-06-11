@@ -13,8 +13,8 @@ public class BvphSearchCriteria extends SearchCriteria{
 
     public BvphSearchCriteria(String text, Integer smaller, Integer bigger){
         super(text);
-        setSmallerYear(smallerYear);
-        setBiggerYear(biggerYear);
+        setSmallerYear(smaller);
+        setBiggerYear(bigger);
     }
 
     public Integer getSmallerYear() {
