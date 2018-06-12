@@ -1,567 +1,557 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title th:text="${title}"></title>
-    <meta name="title" content="Biblioteques">
-    <meta name="description" content="Biblioteques">
+        <title th:text="${title}"></title>
+        <meta name="title" content="Biblioteques">
+        <meta name="description" content="Biblioteques">
 
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
-    <link rel="stylesheet" type="text/css" href="css/fontawesome-all.css"/>
-    <link rel="stylesheet" type="text/css" href="css/datatables.min.css"/>
-    <link rel="stylesheet" type="text/css" href="css/scroller.datatables.min.css"/>
-    <link rel="stylesheet" type="text/css" href="css/datatables.checkboxes.css"/>
-
-
-    <link rel="stylesheet" type="text/css" href="css/app.css">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+        <link rel="stylesheet" type="text/css" href="css/fontawesome-all.css"/>
+        <link rel="stylesheet" type="text/css" href="css/datatables.min.css"/>
+        <link rel="stylesheet" type="text/css" href="css/scroller.datatables.min.css"/>
+        <link rel="stylesheet" type="text/css" href="css/datatables.checkboxes.css"/>
 
 
-</head>
-<body>
-
-<header>
+        <link rel="stylesheet" type="text/css" href="css/app.css">
 
 
-</header>
+    </head>
+    <body>
+
+        <header>
 
 
-<main>
-
-    <div class="container">
-
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="nova-cerca-tab" data-toggle="tab" href="#nova-cerca" role="tab"
-                   aria-controls="home" aria-selected="true">Nova cerca</a>
-            </li>
+        </header>
 
 
-            <li class="nav-item">
-                <a class="nav-link" id="cerques-previes-tab" data-toggle="tab" href="#cerques-previes" role="tab"
-                   aria-controls="cerques-previes" aria-selected="false">Consulta de cerques realitzades</a>
-            </li>
+        <main>
+
+            <div class="container">
+
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="nova-cerca-tab" data-toggle="tab" href="#nova-cerca" role="tab"
+                           aria-controls="home" aria-selected="true">Nova cerca</a>
+                    </li>
 
 
-        </ul>
-
-        <!-- Tab panes -->
-        <div class="tab-content">
-            <div class="tab-pane active" id="nova-cerca" role="tabpanel" aria-labelledby="nova-cerca-tab">
-                <h1>Nova cerca</h1>
-                <div class="row">
-
-                    <div class="col-sm-6 offset-sm-3">
-                        <form>
-                            <div class="form-group">
-                                <label for="repository">Repositori</label>
-                                <select class="form-control" id="repository" name="repository">
-                                </select>
-                            </div>
+                    <li class="nav-item">
+                        <a class="nav-link" id="cerques-previes-tab" data-toggle="tab" href="#cerques-previes" role="tab"
+                           aria-controls="cerques-previes" aria-selected="false">Consulta de cerques realitzades</a>
+                    </li>
 
 
-                            <div class="form-group">
-                                <label for="query">Criteris</label>
-                                <input type="text" class="form-control" id="query" name="query"
-                                       placeholder="Criteris de cerca">
-                            </div>
+                </ul>
 
-                            <div id="extra-params">
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div class="tab-pane active" id="nova-cerca" role="tabpanel" aria-labelledby="nova-cerca-tab">
+                        <h1>Nova cerca</h1>
+                        <div class="row">
 
-                            </div>
-
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">Cercar</button>
-                            </div>
-                        </form>
-
-                    </div>
-                </div>
-
-
-            </div>
-
-            <div class="tab-pane" id="cerques-previes" role="tabpanel" aria-labelledby="cerques-previes-tab">
-                <h1>Consulta de cerques realitzades</h1>
-
-                <div class="row">
-
-
-                    <div class="col-xl-6 col-sm-12">
-                        <div class="form-group">
-                            <label for="filter-repository">Repositori </label>(invertir selecció <input
-                                type="checkbox" aria-label="Checkbox" id="filter-repository-not"/>)
-                            <select class="form-control" id="filter-repository">
-                                <option value="*">qualsevol</option>
-                            </select>
-                        </div>
-
-                    </div>
-                    <div class="col-xl-6 col-sm-12">
-                        <div class="form-group">
-                            <label for="filter-query">Criteris de cerca (separats per espais)</label>
-                            <input type="text" class="form-control" id="filter-query" placeholder="">
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="col-xl-4 col-sm-12">
-                        <div class="filter-date-order">
-                            <label for="filter-query-date-original">Data de cerca original</label>
-                            <select class="form-control" id="filter-query-date-original">
-                                <option value="*">qualsevol</option>
-                                <option value="<">anterior a</option>
-                                <option value=">">posterior a</option>
-                                <option value="=">igual a</option>
-                                <option value="^">entre</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-4 col-sm-12">
-                        <div class="form-group">
-                            <label for="filter-query-date-original-1">Data 1</label>
-                            <input type="date" class="form-control" id="filter-query-date-original-1">
-                        </div>
-                    </div>
-
-                    <div class="col-xl-4 col-sm-12">
-                        <div class="form-group">
-                            <label for="filter-query-date-original-2">Data 2</label>
-                            <input type="date" class="form-control" id="filter-query-date-original-2">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-xl-4 col-sm-12">
-                        <div class="filter-date-order">
-                            <label for="filter-query-date-update">Data d'actualització</label>
-                            <select class="form-control" id="filter-query-date-update">
-                                <option value="*">qualsevol</option>
-                                <option value="<">anterior a</option>
-                                <option value=">">posterior a</option>
-                                <option value="=">igual a</option>
-                                <option value="^">entre</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-4 col-sm-12">
-                        <div class="form-group">
-                            <label for="filter-query-date-update-1">Data 1</label>
-                            <input type="date" class="form-control" id="filter-query-date-update-1">
-                        </div>
-                    </div>
-
-                    <div class="col-xl-4 col-sm-12">
-                        <div class="form-group">
-                            <label for="filter-query-date-update-2">Data 2</label>
-                            <input type="date" class="form-control" id="filter-query-date-update-2">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-6">
-                        <div id="filter-query-execute" class="btn btn-primary ">Filtrar resultats
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <div id="filter-query-remove" class="btn btn-primary ">Eliminar filtres
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="table-container">
-                <table class="table table-striped" id="queries">
-                    <thead>
-                    <tr>
-                        <th>Repositori</th>
-                        <th>Criteri de cerca</th>
-                        <th class="text-center">Data original</th>
-                        <th class="text-center">Darrera actualització</th>
-                        <th class="text-center">Quantitat de resultats</th>
-                        <th class="text-center no-sort">Accions</th>
-                    </tr>
-                    </thead>
-
-                    <tbody th:fragment="cerques-realitzades">
-                        <!-- Aquí comemça el fragment amb les dades de la taula-->
-                        <tr th:each="resultat : ${resultats}">
-                            <td th:text="${resultat.getRepository()}"></td>
-                            <td th:text="${resultat.getSearchCriteria()}"></td>
-                            <td class="text-center" th:text="${resultat.getOriginalDate()}"></td>
-                            <td class="text-center" th:text="${resultat.getUpdateDate()}"></td>
-                            <td class="text-center"> ¿?¿?¿? </td>
-                            <td class="text-center">
-                                <a href="#">
-                                    <i class="fa fa-search" title="Veure detall"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                </div>
-
-            </div>
-
-
-        </div>
-    </div>
-
-</main>
-
-
-<footer class="fixed-bottom">
-    <nav class="container-fluid">
-        <small>&copy; 2018. TODO: Text legal i altre informació rellevant que es vulgui afegir al peu.</small>
-    </nav>
-
-    <div id="progress-overlay">
-        <div class="progress-circle"></div>
-        <div class="progress-text"></div>
-    </div>
-
-
-    <button type="button" class="btn btn-primary" id="demo-overlay">
-        Demo progress
-    </button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog  modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Detall dels resultats de cerca</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                        <div class="row detall-header">
-                            <div class="col-6">
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <b>Repositori</b>:
+                            <div class="col-sm-6 offset-sm-3">
+                                <form id="search-form">
+                                    <div class="form-group">
+                                        <label for="repository">Repositori</label>
+                                        <select class="form-control" id="repository" name="repository">
+                                        </select>
                                     </div>
-                                    <div class="col-sm-6">
-                                        ARCA
+
+
+                                    <div class="form-group">
+                                        <label for="criteria">Criteris</label>
+                                        <input type="text" class="form-control" id="criteria" name="criteria"
+                                               placeholder="Criteris de cerca">
                                     </div>
+
+                                    <div id="extra-params">
+
+                                    </div>
+
+                                    <div class="text-center">
+                                        <button type="submit" id="search-button" class="btn btn-primary">Cercar</button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="tab-pane" id="cerques-previes" role="tabpanel" aria-labelledby="cerques-previes-tab">
+                        <h1>Consulta de cerques realitzades</h1>
+
+                        <div class="row">
+
+
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="filter-repository">Repositori </label>(invertir selecció <input
+                                        type="checkbox" aria-label="Checkbox" id="filter-repository-not"/>)
+                                    <select class="form-control" id="filter-repository">
+                                        <option value="*">qualsevol</option>
+                                    </select>
                                 </div>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <b>Criteri de cerca:</b>
-                                    </div>
 
-                                    <div class="col-sm-6">
-                                        Marinero
-                                    </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group">
+                                    <label for="filter-query">Criteris de cerca (separats per espais)</label>
+                                    <input type="text" class="form-control" id="filter-query" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-xl-4 col-sm-12">
+                                <div class="filter-date-order">
+                                    <label for="filter-query-date-original">Data de cerca original</label>
+                                    <select class="form-control" id="filter-query-date-original">
+                                        <option value="*">qualsevol</option>
+                                        <option value="<">anterior a</option>
+                                        <option value=">">posterior a</option>
+                                        <option value="=">igual a</option>
+                                        <option value="^">entre</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-sm-12">
+                                <div class="form-group">
+                                    <label for="filter-query-date-original-1">Data 1</label>
+                                    <input type="date" class="form-control" id="filter-query-date-original-1">
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-sm-12">
+                                <div class="form-group">
+                                    <label for="filter-query-date-original-2">Data 2</label>
+                                    <input type="date" class="form-control" id="filter-query-date-original-2">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xl-4 col-sm-12">
+                                <div class="filter-date-order">
+                                    <label for="filter-query-date-update">Data d'actualització</label>
+                                    <select class="form-control" id="filter-query-date-update">
+                                        <option value="*">qualsevol</option>
+                                        <option value="<">anterior a</option>
+                                        <option value=">">posterior a</option>
+                                        <option value="=">igual a</option>
+                                        <option value="^">entre</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-sm-12">
+                                <div class="form-group">
+                                    <label for="filter-query-date-update-1">Data 1</label>
+                                    <input type="date" class="form-control" id="filter-query-date-update-1">
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-sm-12">
+                                <div class="form-group">
+                                    <label for="filter-query-date-update-2">Data 2</label>
+                                    <input type="date" class="form-control" id="filter-query-date-update-2">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div id="filter-query-execute" class="btn btn-primary ">Filtrar resultats
                                 </div>
                             </div>
 
                             <div class="col-sm-6">
-                                <div class="row">
-                                    <div class="col-sm-8">
-                                        <b>Data original:</b>
-                                    </div>
-                                    <div class="col-sm-4 text-right">
-                                        22/02/2015
-                                    </div>
+                                <div id="filter-query-remove" class="btn btn-primary ">Eliminar filtres
                                 </div>
+                            </div>
 
-                                <div class="row">
-                                    <div class="col-sm-8 ">
-                                        <b>Darrera actualització:</b>
-                                    </div>
-                                    <div class="col-sm-4 text-right">
-                                        12/08/2017
-                                    </div>
-                                </div>
-
-                                <div class="row">
-
-                                    <div class="col-sm-6">
-                                        <b>Quantitat de resultats:</b>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        128
-                                    </div>
-                                </div>
                         </div>
-                    </div>
 
-
-                    <div class="row">
-                        <div class="col-xl-6 col-sm-12">
-
-                            <h1>Configuració dels filtres</h1>
-
-                            <div class="row">
-
-
-                                <div class="col-xl-6 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="filter-process">Procés d'anàlisi </label>(invertir selecció <input
-                                            type="checkbox" aria-label="Checkbox" id="filter-process-not"/>)
-                                        <select class="form-control" id="filter-process">
-                                            <option value="*">qualsevol</option>
-                                            <option value="-">sense processar</option>
-                                            <option value="Selecció AI">Selecció AI</option>
-                                            <option value="Atlas-ti">Atlas-ti</option>
-                                        </select>
-                                    </div>
-
-                                </div>
-                                <div class="col-xl-6 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="filter-formats">Formats (separats per espais)</label>
-                                        <input type="text" class="form-control" id="filter-formats"
-                                               placeholder="PDF XML Text etc.">
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="row">
-                                <div class="col-xl-4 col-sm-12">
-                                    <div class="filter-date-order">
-                                        <label for="filter-date-order">Data de cerca</label>
-                                        <select class="form-control" id="filter-date-order">
-                                            <option value="*">qualsevol</option>
-                                            <option value="<">anterior a</option>
-                                            <option value=">">posterior a</option>
-                                            <option value="=">igual a</option>
-                                            <option value="^">entre</option>
-                                        </select>
-                                    </div>
-
-
-                                </div>
-
-                                <div class="col-xl-4 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="filter-date-1">Data 1</label>
-                                        <input type="date" class="form-control" id="filter-date-1">
-                                    </div>
-                                </div>
-
-                                <div class="col-xl-4 col-sm-12">
-                                    <div class="form-group">
-                                        <label for="filter-date-2">Data 2</label>
-                                        <input type="date" class="form-control" id="filter-date-2">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div id="filter-execute" class="btn btn-primary ">Filtrar resultats
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div id="filter-remove" class="btn btn-primary ">Eliminar filtres
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <hr />
-
-                            <h1>Llistat de recursos</h1>
-
-                            <div class="table-container">
-                            <table class="table table-striped" id="resources">
+                        <div class="table-container">
+                            <table class="table table-striped" id = "searches" th:fragment="searches">
                                 <thead>
-                                <tr>
-                                    <th>Títol</th>
-                                    <th class="text-center">Pàgina</th>
-                                    <th>Procés d'anàlisi</th>
-                                    <th class="text-center" data-options="field:'date-query'">Data de cerca</th>
-                                    <th class="text-center no-sort">Formats</th>
-                                    <th class="text-center "></th>
-                                    <th class="text-center no-sort">Accions</th>
-
-                                </tr>
+                                    <tr>
+                                        <th>Repositori</th>
+                                        <th>Criteri de cerca</th>
+                                        <th class="text-center">Data original</th>
+                                        <th class="text-center">Darrera actualització</th>
+                                        <th class="text-center">Quantitat de resultats</th>
+                                        <th class="text-center no-sort">Accions</th>
+                                    </tr>
                                 </thead>
 
-                                <tbody th:fragment="llistat-realitzades">
-                                    <tr th:each="resource : ${resources}" th:data-id="${resource.getId()}">
-                                        <td th:text="${resource.getTitle()}"></td>
-                                        <td class="text-center" th:text="${resource.getPage()}"></td>
-                                        <td th:text="${resource.getProcessingAnalysis()}"></td>
-                                        <td th:text="${resource.getSearchDate()}"></td>
-                                        <td>TODO</td>
+                                <tbody >
+                                    <!-- Aquí comemça el fragment amb les dades de la taula-->
+                                    <tr th:each="search: ${searches}">
+                                        <td th:text="${search.getRepository()}"></td>
+                                        <td th:text="${search.getSearchCriteria()}"></td>
+                                        <td class="text-center" th:text="${search.getOriginalDate()}"></td>
+                                        <td class="text-center" th:text="${search.getUpdateDate()}"></td>
+                                        <td class="text-center"> ¿?¿?¿? </td>
                                         <td class="text-center">
-                                        <input type="checkbox" aria-label="Checkbox">
-                                    </td>
-
-                                    <td class="text-center">
-
-                                        <a href="#">
-                                            <i class="fa fa-search" title="Veure detall"></i>
-                                        </a>
-                                    </td>
+                                            <a href="#" th:data-search-id="${search.getId()}">
+                                                <i class="fa fa-search" title="Veure detall"></i>
+                                            </a>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
-                            </div>
-
                         </div>
 
-
-                        <div class="col-xl-6 col-sm-12">
-
-                            <h1>Exportació</h1>
-
-                            <div class="row">
+                    </div>
 
 
-                                <div class="col-sm-12 text-center">
-                                    <div id="export-selected" class="btn btn-primary ">Exportar els recursos
-                                        seleccionats
+                </div>
+            </div>
+
+        </main>
+
+
+        <footer class="fixed-bottom">
+            <nav class="container-fluid">
+                <small>&copy; 2018. TODO: Text legal i altre informació rellevant que es vulgui afegir al peu.</small>
+            </nav>
+
+            <div id="progress-overlay">
+                <div class="progress-circle"></div>
+                <div class="progress-text"></div>
+            </div>
+
+
+            <!-- Modal -->
+            <!-- dialeg que mostra el llistat de recursos d'una cerca -->
+            <div class="modal fade" id="resourcesBySearchDialog" tabindex="-1" role="dialog"
+                 aria-hidden="true" th:fragment="resourcesBySearchDialog"
+                 th:if="${search}" th:object="${search}">    
+                <div class="modal-dialog  modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Detall dels resultats de cerca</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row detall-header">
+                                <div class="col-6">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <b>Repositori</b>:
+                                        </div>
+                                        <div class="col-sm-6" th:text="${search.getRepository()}">
+                                            ARCA
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <b>Criteri de cerca:</b>
+                                        </div>
+
+                                        <div class="col-sm-6" th:text="${search.getSearchCriteria()}">
+                                            Unes partides
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <b>Data original:</b>
+                                        </div>
+                                        <div class="col-sm-4 text-right" th:text="${search.getOriginalDate()}">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-8 ">
+                                            <b>Darrera actualització:</b>
+                                        </div>
+                                        <div class="col-sm-4 text-right" th:text="${search.getUpdateDate()}">                                
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+
+                                        <div class="col-sm-6">
+                                            <b>Quantitat de resultats:</b>
+                                        </div>
+                                        <div class="col-sm-6" th:text="${resourcesCount}">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <hr />
 
-                            <h1>Detall del recurs</h1>
+                            <div class="row">
+                                <div class="col-xl-6 col-sm-12">
+
+                                    <h1>Configuració dels filtres</h1>
+
+                                    <div class="row">
 
 
-                            <div class="row" id="detall-recurs">
-                                <div class="col-sm-3 ">
-                                    <b>Títol:</b>
-                                </div>
-                                <div class="col-sm-3">
-                                    Diari 2
+                                        <div class="col-xl-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="filter-process">Procés d'anàlisi </label>(invertir selecció <input
+                                                    type="checkbox" aria-label="Checkbox" id="filter-process-not"/>)
+                                                <select class="form-control" id="filter-process">
+                                                    <option value="*">qualsevol</option>
+                                                    <option value="-">sense processar</option>
+                                                    <option value="Selecció AI">Selecció AI</option>
+                                                    <option value="Atlas-ti">Atlas-ti</option>
+                                                </select>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="filter-formats">Formats (separats per espais)</label>
+                                                <input type="text" class="form-control" id="filter-formats"
+                                                       placeholder="PDF XML Text etc.">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+                                        <div class="col-xl-4 col-sm-12">
+                                            <div class="filter-date-order">
+                                                <label for="filter-date-order">Data de cerca</label>
+                                                <select class="form-control" id="filter-date-order">
+                                                    <option value="*">qualsevol</option>
+                                                    <option value="<">anterior a</option>
+                                                    <option value=">">posterior a</option>
+                                                    <option value="=">igual a</option>
+                                                    <option value="^">entre</option>
+                                                </select>
+                                            </div>
+
+
+                                        </div>
+
+                                        <div class="col-xl-4 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="filter-date-1">Data 1</label>
+                                                <input type="date" class="form-control" id="filter-date-1">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-4 col-sm-12">
+                                            <div class="form-group">
+                                                <label for="filter-date-2">Data 2</label>
+                                                <input type="date" class="form-control" id="filter-date-2">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div id="filter-execute" class="btn btn-primary ">Filtrar resultats
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div id="filter-remove" class="btn btn-primary ">Eliminar filtres
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <hr />
+
+                                    <h1>Llistat de recursos</h1>
+
+                                    <div class="table-container">
+                                        <table class="table table-striped" id="resources">
+                                            <thead>
+                                                <tr>
+                                                    <th>Títol</th>
+                                                    <th class="text-center">Pàgina</th>
+                                                    <th>Procés d'anàlisi</th>
+                                                    <th class="text-center" data-options="field:'date-query'">Data de cerca</th>
+                                                    <th class="text-center no-sort">Formats</th>
+                                                    <th class="text-center "></th>
+                                                    <th class="text-center no-sort">Accions</th>
+
+                                                </tr>
+                                            </thead>
+
+                                            <tbody th:fragment="llistat-realitzades" th:if="${resources}" th:object="${resources}">
+                                                <tr th:each="resource : ${resources}" th:data-id="${resource.getId()}">
+                                                    <td th:text="${resource.getTitle()}"></td>
+                                                    <td class="text-center" th:text="${resource.getPage()}"></td>
+                                                    <td th:text="${resource.getProcessingAnalysis()}"></td>
+                                                    <td th:text="${resource.getSearchDate()}"></td>
+                                                    <td th:text="${resource.getSupportedFormatsAsSingleString()}"></td>
+
+
+                                                    <td class="text-center">
+                                                        <input type="checkbox" aria-label="Checkbox">
+                                                    </td>
+
+                                                    <td class="text-center">
+
+                                                        <a href="#" th:data-resource-id="${resource.getId()}">
+                                                            <i class="fa fa-search" title="Veure detall"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
                                 </div>
 
-                                <div class="col-sm-3">
-                                    <b>Pàgina:</b>
-                                </div>
-                                
-                                <div class="col-sm-3">
-                                    42
-                                </div>
 
-                                <div class="col-sm-3">
-                                    <b>Any d'edició</b>
-                                </div>
-                                
-                                <div class="col-sm-3">
-                                    1983
-                                </div>
-                                
-                                <div class="col-sm-3 ">
-                                    <b>Procés d'anàlisi:</b>
-                                </div>
-                                <div class="col-sm-3">
-                                    Selecció AI
-                                </div>
+                                <div class="col-xl-6 col-sm-12">
 
-                                <div class="col-sm-3">
-                                    <b>Data de cerca:</b>
-                                </div>
-                                <div class="col-sm-3">
-                                    21/02/2018
+                                    <h1>Exportació</h1>
+
+                                    <div class="row">
+
+
+                                        <div class="col-sm-12 text-center">
+                                            <div id="export-selected" class="btn btn-primary ">Exportar els recursos
+                                                seleccionats
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr />
+
+                                    <div id="resourceDetail">
+                                        <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
+                                            <h1>Detall del recurs</h1>
+
+
+                                            <div class="row" id="detall-recurs">
+                                                <div class="col-sm-3 ">
+                                                    <b>Títol:</b>
+                                                </div>
+                                                <div class="col-sm-3" th:text="${resource.getTitle()}">
+                                                    Títol
+                                                </div>
+
+                                                <div class="col-sm-3" >
+                                                    <b>Pàgina:</b>
+                                                </div>
+
+                                                <div class="col-sm-3" th:text="${resource.getPage()}">
+                                                    42
+                                                </div>
+
+                                                <div class="col-sm-3">
+                                                    <b>Any d'edició</b>
+                                                </div>
+
+                                                <div class="col-sm-3" th:text="${resource.getEditionDate()}">
+                                                    1983
+                                                </div>
+
+                                                <div class="col-sm-3 ">
+                                                    <b>Procés d'anàlisi:</b>
+                                                </div>
+                                                <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
+                                                    Selecció AI
+                                                </div>
+
+                                                <div class="col-sm-3">
+                                                    <b>Data de cerca:</b>
+                                                </div>
+                                                <div class="col-sm-3" th:text="${resource.getSearchDate()}">
+                                                    21/02/2018
+                                                </div>
+                                            </div>
+
+
+                                            <h3>Fragments:</h3>
+
+                                            <ul>
+                                                <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
+                                                    nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
+                        </div>
+                        <!--<div class="modal-footer">-->
+                        <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+                        <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                        <!--</div>-->
+                    </div>
+                </div>
+            </div>
 
-                            <h3>Fragments:</h3>
-                            <ul>
-                                <li>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
-                                    nisl interdum vulputate. Duis interdum vitae dui sed ullamcorper.
-                                </li>
-                                <li>
-                                    Sed ut dolor quis dolor cursus blandit. Sed id dapibus eros. Cras tincidunt mauris
-                                    vel porta iaculis. Phasellus neque est, tristique sit amet massa ut, sagittis
-                                    convallis sapien
-                                </li>
-                                <li>
-                                    Aenean sit amet consequat massa. Aliquam et erat venenatis, elementum urna sed,
-                                    suscipit nisl.
-                                </li>
-                                <li>
-                                    Donec euismod mi non venenatis ornare. Praesent sollicitudin, nulla ut consectetur
-                                    mattis, elit massa ornare velit, id imperdiet metus enim a ipsum.
-                                </li>
-                            </ul>
 
+
+            <!-- Modal: Exportar -->
+            <div class="modal fade" id="export-modal" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Exportar recursos</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!--<h1>Exportar recursos seleccionats</h1>-->
+                            <p>S'han seleccionat <span id="export-count">0</span> recursos.</p>
+
+                            <div class="form-group">
+                                <label for="export-process">Procés d'anàlisi </label>
+                                <select class="form-control" id="export-process">
+                                    <option value="Selecció AI">Selecció AI</option>
+                                    <option value="Atlas-ti">Atlas-ti</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="export-formats">Formats (separats per espai)</label>
+                                <input type="text" class="form-control" id="export-formats" placeholder="PDF XML Text etc."/>
+                            </div>
+                        </div>
+
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel·lar</button>
+                            <button type="button" class="btn btn-primary" id="export-execute">Exportar</button>
                         </div>
                     </div>
-
-                </div>
-                <!--<div class="modal-footer">-->
-                <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
-                <!--<button type="button" class="btn btn-primary">Save changes</button>-->
-                <!--</div>-->
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Modal: Exportar -->
-    <div class="modal fade" id="export-modal" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Exportar recursos</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!--<h1>Exportar recursos seleccionats</h1>-->
-                    <p>S'han seleccionat <span id="export-count">0</span> recursos.</p>
-
-                    <div class="form-group">
-                        <label for="export-process">Procés d'anàlisi </label>
-                        <select class="form-control" id="export-process">
-                            <option value="Selecció AI">Selecció AI</option>
-                            <option value="Atlas-ti">Atlas-ti</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="export-formats">Formats (separats per espai)</label>
-                        <input type="text" class="form-control" id="export-formats" placeholder="PDF XML Text etc."/>
-                    </div>
-                </div>
-
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel·lar</button>
-                    <button type="button" class="btn btn-primary" id="export-execute">Exportar</button>
                 </div>
             </div>
-        </div>
-    </div>
 
-</footer>
+        </footer>
 
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/bootstrap.js"></script>
-<script type="text/javascript" src="js/moment.js"></script>
-<script type="text/javascript" src="js/datatables.min.js"></script>
-<script type="text/javascript" src="js/datatables.datetime-moment.js"></script>
-<script type="text/javascript" src="js/datatables.scroller.min.js"></script>
-<script type="text/javascript" src="js/datatables.checkboxes.min.js"></script>
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script type="text/javascript" src="js/moment.js"></script>
+        <script type="text/javascript" src="js/datatables.min.js"></script>
+        <script type="text/javascript" src="js/datatables.datetime-moment.js"></script>
+        <script type="text/javascript" src="js/datatables.scroller.min.js"></script>
+        <script type="text/javascript" src="js/datatables.checkboxes.min.js"></script>
 
-<script src="js/app.js"></script>
+        <script src="js/app.js"></script>
 
 
-</body>
+    </body>
 
 </html>
