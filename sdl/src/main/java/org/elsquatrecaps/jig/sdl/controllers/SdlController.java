@@ -26,6 +26,7 @@ import org.elsquatrecaps.jig.sdl.searcher.BvphSearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchIterator;
 import org.elsquatrecaps.jig.sdl.searcher.SearchResource;
 import org.elsquatrecaps.jig.sdl.searcher.cfg.ConfigParserOfSearcher;
+import org.elsquatrecaps.jig.sdl.services.ExportService;
 import org.elsquatrecaps.jig.sdl.services.PersistenceService;
 import org.elsquatrecaps.jig.sdl.services.ProvaUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,7 +156,12 @@ public class SdlController {
 
         ModelAndView ret = new ModelAndView("new :: searches");
         
-        iterate(criteria, quantity, repository);
+        if (criteria.length()>0) {
+            iterate(criteria, quantity, repository);
+        } else {
+            // TODO[Xavi] Enviar un dialeg amb un missatge d'error
+        }
+        
 
         PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
         List<Search> searches = instance.findAllSearch();
@@ -294,4 +300,36 @@ public class SdlController {
         pService.saveSearch(search);
     }
         
+    
+    @RequestMapping({"/export"})
+    public ModelAndView searchHandler(
+            @RequestParam(defaultValue = "", name = "ids[]") String[] ids,
+            @RequestParam(defaultValue = "", name = "format") String format,
+            @RequestParam(defaultValue = "", name = "process") String process        
+    ) {
+
+        // TODO: Carregar un missatge de confirmiació o alguna altre cosa
+        
+        ModelAndView ret = new ModelAndView("new :: searches");
+        
+        
+        ExportService instance = new ExportService(resourceRepository, this.dp);
+        
+        
+        instance.exportResourcesById(ids, format); // De moment no fem servir el proces per a res
+        
+        //List<Search> searches = instance.findAllSearch();
+        //ret.addObject("searches", searches);
+        
+        
+        //Optional<Search> optional = searchRepository.findOne(repository, criteria);
+        
+        //if (optional.isPresent()) {
+            //ret.addObject("selected", optional.get().getId());
+        //}
+        
+
+        return ret;
+    }
+    
 }

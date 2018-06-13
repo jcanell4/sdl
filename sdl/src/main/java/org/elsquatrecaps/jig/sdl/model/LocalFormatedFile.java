@@ -5,6 +5,10 @@
  */
 package org.elsquatrecaps.jig.sdl.model;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +31,21 @@ public class LocalFormatedFile implements FormatedFile{
 
     @Override
     public InputStream getImInputStream() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String path = this.downloaderProperties.getLocalReasourceRepo();
+        File file = new File(path, this.filename);
+        
+        FileInputStream in;
+                
+        try {
+            in = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            //throw new FileNotFoundException();
+            throw new UnsupportedOperationException("TEST: File not found."); //To change body of generated methods, choose Tools | Templates.
+        }
+        
+        
+        return in;
+        
     }
 
     @Override

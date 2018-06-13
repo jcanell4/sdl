@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "downloader")
 public class DownloaderProperties {
     private String localRepository;
+    private String localExportPath;
     private String db;
 
     public String getLocalReasourceRepo() {
@@ -21,6 +22,16 @@ public class DownloaderProperties {
     public void setLocalRepository(String localReasourceRepo) {
         this.localRepository = localReasourceRepo;
     }
+    
+    
+    public String getLocalExportPath() {
+        return localExportPath;
+    }
+
+    public void setLocalExportPath(String localExportPath) {
+        this.localExportPath = localExportPath;
+    }
+    
 
     public String getDb() {
         return db;

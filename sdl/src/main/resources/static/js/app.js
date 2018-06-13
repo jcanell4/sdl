@@ -121,8 +121,8 @@ var sendSearchDetailRequest = function(id) {
                 
                 
                 // TODO: Afegir els handlers als botons del dialeg dialeg
-                initSearchDetail(); // de moment només reactiva el datatable
-                
+                initSearchDetail();
+                initExportButton();
             });
             
             console.log("petició enviada");
@@ -274,7 +274,6 @@ var sendSearchDetailRequest = function(id) {
         $('#search-button').on('click', function(e) {
             e.preventDefault();
          
-            // TODO: mostrar indicador progress
             showOverlay("Cercant");
          
          $.ajax(
@@ -327,6 +326,8 @@ var sendSearchDetailRequest = function(id) {
 
     var updateFilterDate = function ($operator, $date1, $date2) {
         var selected = $operator.val();
+        
+        console.log("Actualitant filtre data");
 
         switch (selected) {
             case '*':
@@ -370,6 +371,7 @@ var sendSearchDetailRequest = function(id) {
 
         $('#filter-query-remove').on('click', function (e) {
             e.preventDefault();
+            console.log("Eliminant filtre");
 
             $('#filter-repository').val('*');
             $('#filter-repository-not').prop('checked', false);
@@ -388,7 +390,7 @@ var sendSearchDetailRequest = function(id) {
 
         });
 
-        $filterQueryDateOriginal.on('change', function () {
+        $filterQueryDateOriginal.on('change', function () {ç
             updateFilterDate($filterQueryDateOriginal, $filterQueryDateOriginal1, $filterQueryDateOriginal2);
         });
         updateFilterDate($filterQueryDateOriginal, $filterQueryDateOriginal1, $filterQueryDateOriginal2);
