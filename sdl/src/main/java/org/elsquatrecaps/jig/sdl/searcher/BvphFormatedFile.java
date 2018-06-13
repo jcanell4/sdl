@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 
 /**
@@ -52,6 +53,11 @@ public class BvphFormatedFile implements FormatedFile{
     @Override
     public String getFileName() {
         return fileName;
+    }
+
+    @Override
+    public InputStream getImInputStream(DownloaderProperties dp) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

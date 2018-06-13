@@ -6,6 +6,7 @@
 package org.elsquatrecaps.jig.sdl.model;
 
 import java.io.InputStream;
+import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 
 /**
  *
@@ -13,6 +14,7 @@ import java.io.InputStream;
  */
 public interface FormatedFile{
     InputStream getImInputStream();
+    InputStream getImInputStream(DownloaderProperties dp);
     String getFormat();
     String getName();
     String getFileName();

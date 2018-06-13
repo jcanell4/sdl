@@ -284,7 +284,7 @@ var sendSearchDetailRequest = function(id) {
                     }
             ).done(function (data) {
                 console.log("AJAX done");
-                $('#searches').replaceWith($(data));
+                $('#searches-container').replaceWith($(data));
                 
                 initSearches();
             
@@ -479,12 +479,16 @@ var sendSearchDetailRequest = function(id) {
         return rowsSelectedIndex;
     };
 
+    
+
     var initExportButton = function () {
         var $exportButton = $('#export-selected');
         var $selectedCounter = $('#export-count');
         var $exportDialog = $('#export-modal');
         var $exportExecute = $('#export-execute');
 
+
+        $exportButton.off();
         $exportButton.on('click', function (e) {
             e.preventDefault();
 
@@ -496,13 +500,64 @@ var sendSearchDetailRequest = function(id) {
 
         });
 
+
+
+        $exportExecute.off();
+        
         $exportExecute.on('click', function (e) {
             e.preventDefault();
+            
 
             $exportDialog.modal('hide');
+            
+            
+            
+            
+            var selectedIndex = getSelectedIndex(tables.resourcesTable);
+            var count = selectedIndex.length;
             // TODO: enviar petició per començar a exportar els recursos.
-            showOverlay("0/" + $selectedCounter.text());
+            // http://localhost:8888/export?ids[]=dl_11000417829_img1002981340&format=xml
+            var formats = $('#export-formats').val();
+            
+            //showOverlay("0/" + $selectedCounter.text());
+            
+            //showOverlay("Exportant recursos " + count+ " recursos amb els formats " + formats);
+            showOverlay("Exportant");
 
+                        
+            console.log("Selected index:", selectedIndex, formats);
+            var ids=[];
+            for (var i=0; i<selectedIndex.length; i++) {
+                //console.log($(tables.resourcesTable.row(selectedIndex[i]).nodes()[0]).attr('data-id'));
+                ids.push($(tables.resourcesTable.row(selectedIndex[i]).nodes()[0]).attr('data-id'));
+            }
+            
+            
+            console.log("Iniciat export");
+            
+            formats = formats.replace(' ', ',');
+            
+            $.ajax(
+                    {
+                        url: "/export",
+                        type: "POST",
+                        data: {'ids[]': ids,'formats': formats}
+                    }
+            ).done(function (data) {
+                console.log("AJAX done");
+                //$('#searches').replaceWith($(data));
+
+                
+                console.log("Export finalitzat");
+                showOverlay();
+            }).error(function(error) {
+                console.error(error);
+                alert(error);
+            });
+            
+            
+            
+            
         });
 
 
@@ -667,14 +722,14 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
         case '<':
 
-            if (dataRow > data1) {
+            if (dataRow < data1) {
 
                 return false;
             }
             break;
 
         case '>':
-            if (dataRow < data1) {
+            if (dataRow > data1) {
                 return false;
             }
 

@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  *
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class LocalFormatedFile implements FormatedFile{
     private String filename;
+    
+    
     private DownloaderProperties downloaderProperties;
 
     public LocalFormatedFile() {
@@ -30,22 +33,29 @@ public class LocalFormatedFile implements FormatedFile{
     }
 
     @Override
+    public InputStream getImInputStream(DownloaderProperties dp) {
+        this.downloaderProperties = dp;
+        return this.getImInputStream();
+    }
+    
+    @Override
     public InputStream getImInputStream() {
         String path = this.downloaderProperties.getLocalReasourceRepo();
         File file = new File(path, this.filename);
         
-        FileInputStream in;
+        FileInputStream in = null;
                 
         try {
             in = new FileInputStream(file);
         } catch (FileNotFoundException e) {
             //throw new FileNotFoundException();
-            throw new UnsupportedOperationException("TEST: File not found."); //To change body of generated methods, choose Tools | Templates.
+            System.err.println("TEST: File not found." + this.filename);
+            //throw new UnsupportedOperationException("TEST: File not found." + this.filename); //To change body of generated methods, choose Tools | Templates.
         }
         
         
         return in;
-        
+                
     }
 
     @Override
@@ -63,8 +73,7 @@ public class LocalFormatedFile implements FormatedFile{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    @Autowired
-    protected void setDownloaderProperies(DownloaderProperties dp) {
-        this.downloaderProperties = dp;
-    }
+    
+    
+    
 }

@@ -304,7 +304,7 @@ public class SdlController {
     @RequestMapping({"/export"})
     public ModelAndView searchHandler(
             @RequestParam(defaultValue = "", name = "ids[]") String[] ids,
-            @RequestParam(defaultValue = "", name = "format") String format,
+            @RequestParam(defaultValue = "", name = "formats") String formats,
             @RequestParam(defaultValue = "", name = "process") String process        
     ) {
 
@@ -315,8 +315,11 @@ public class SdlController {
         
         ExportService instance = new ExportService(resourceRepository, this.dp);
         
+        String[] formatArray = formats.split(",");
+        for (String format : formatArray) {
+            instance.exportResourcesById(ids, format); // De moment no fem servir el proces per a res
+        }
         
-        instance.exportResourcesById(ids, format); // De moment no fem servir el proces per a res
         
         //List<Search> searches = instance.findAllSearch();
         //ret.addObject("searches", searches);

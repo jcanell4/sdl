@@ -185,7 +185,7 @@ public class Resource implements Serializable{
 
     @JsonIgnore
     protected FormatedFile getStrictFormatedFile(String format){
-        LocalFormatedFile ff = new LocalFormatedFile(this.getFileName());
+        LocalFormatedFile ff = new LocalFormatedFile(this.getFileName().concat(".").concat(format));
         return ff;
     }
 
