@@ -234,8 +234,8 @@
             <!-- Modal -->
             <!-- dialeg que mostra el llistat de recursos d'una cerca -->
             <div class="modal fade" id="resourcesBySearchDialog" tabindex="-1" role="dialog"
-                 aria-hidden="true" th:fragment="resourcesBySearchDialog"
-                 th:if="${search}" th:object="${search}">    
+                 aria-hidden="true">    
+            <div th:fragment="resourcesBySearchDialog" th:if="${search}" th:object="${search}">    
                 <div class="modal-dialog  modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -498,6 +498,7 @@
                         <!--</div>-->
                     </div>
                 </div>
+            </div>
             </div>
 
 

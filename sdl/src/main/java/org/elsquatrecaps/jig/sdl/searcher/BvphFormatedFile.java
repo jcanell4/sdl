@@ -54,10 +54,4 @@ public class BvphFormatedFile implements FormatedFile{
     public String getFileName() {
         return fileName;
     }
-
-    @Override
-    public InputStream getImInputStream(DownloaderProperties dp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
 }

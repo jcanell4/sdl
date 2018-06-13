@@ -14,7 +14,6 @@ import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
  */
 public interface FormatedFile{
     InputStream getImInputStream();
-    InputStream getImInputStream(DownloaderProperties dp);
     String getFormat();
     String getName();
     String getFileName();

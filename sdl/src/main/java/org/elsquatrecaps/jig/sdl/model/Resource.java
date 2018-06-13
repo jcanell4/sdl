@@ -17,6 +17,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OrderColumn;
+import javax.persistence.Transient;
 import org.elsquatrecaps.jig.sdl.searcher.FormatedResourceUtils;
 import org.elsquatrecaps.jig.sdl.searcher.SearchResource;
 
@@ -40,8 +41,8 @@ public class Resource implements Serializable{
     @CollectionTable(name="RESOURCE_FRAGMENT")
     @OrderColumn
     private List<String> fragments= new ArrayList<String>();
-//    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private Search ownerSearch;
+    @Transient
+    private String localFilePath;
 
     public Resource() {        
     }
@@ -185,7 +186,7 @@ public class Resource implements Serializable{
 
     @JsonIgnore
     protected FormatedFile getStrictFormatedFile(String format){
-        LocalFormatedFile ff = new LocalFormatedFile(this.getFileName().concat(".").concat(format));
+        LocalFormatedFile ff = new LocalFormatedFile(this.getLocalFilePath(), this.getFileName().concat(".").concat(format), format, this.getFileName());
         return ff;
     }
 
@@ -228,5 +229,13 @@ public class Resource implements Serializable{
 
     protected void setSupportedFormats(List<String> supportedFormats) {
         this.supportedFormats = supportedFormats;
+    }
+
+    public String getLocalFilePath() {
+        return localFilePath;
+    }
+
+    public void setLocalFilePath(String localFilePath) {
+        this.localFilePath = localFilePath;
     }
 }

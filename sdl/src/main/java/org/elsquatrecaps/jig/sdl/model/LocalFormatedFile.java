@@ -8,11 +8,8 @@ package org.elsquatrecaps.jig.sdl.model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -20,27 +17,24 @@ import org.springframework.stereotype.Component;
  */
 public class LocalFormatedFile implements FormatedFile{
     private String filename;
-    
-    
-    private DownloaderProperties downloaderProperties;
+    private String path;
+    private String format;
+    private String name;
 
-    public LocalFormatedFile() {
-        
-    }
-    
-    public LocalFormatedFile(String filename) {
+
+    public LocalFormatedFile(String repository, String filename, String format, String name) {
         this.filename = filename;
+        this.path = repository;
+        this.format = format;
+        this.name = name;
     }
 
-    @Override
     public InputStream getImInputStream(DownloaderProperties dp) {
-        this.downloaderProperties = dp;
         return this.getImInputStream();
     }
     
     @Override
     public InputStream getImInputStream() {
-        String path = this.downloaderProperties.getLocalReasourceRepo();
         File file = new File(path, this.filename);
         
         FileInputStream in = null;
@@ -60,20 +54,16 @@ public class LocalFormatedFile implements FormatedFile{
 
     @Override
     public String getFormat() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return format;
     }
 
     @Override
     public String getName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return name;
     }
 
     @Override
     public String getFileName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return  filename;
     }
-    
-    
-    
-    
 }
