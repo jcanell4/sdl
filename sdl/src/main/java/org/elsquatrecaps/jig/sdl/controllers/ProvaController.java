@@ -14,11 +14,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
-import org.elsquatrecaps.jig.sdl.configuration.Prova1Properties;
 import org.elsquatrecaps.jig.sdl.configuration.Prova2Properties;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
@@ -54,8 +51,6 @@ public class ProvaController {
     SearchRepository searchRepository;
     @Autowired(required = true)
     PlatformTransactionManager transactionManager;
-    
-    
     
     
     @RequestMapping(value = "/")
@@ -199,12 +194,6 @@ public class ProvaController {
         if(!expected.equals(search)){
             throw new RuntimeException("Error! No s'ha obtingt l'objecte adequat");
         }
-        if(search.getResourceList().size()!=4){
-            throw new RuntimeException("Error! No s'ha obtingt l'objecte adequat");
-        }
-
-        
-        
     }
     
     @RequestMapping("/test/test4")
@@ -340,11 +329,16 @@ public class ProvaController {
             search.addResource(resource);
             String[] formats = resource.getSupportedFormats();
             
+            System.out.println("Resource: " + resource);
+            
             for(String format: formats){
                 FileOutputStream fileOutputStream = null;
                 File path = new File(fileRepositoryPath);
                 File file = new File(fileRepositoryPath, res.getFileName().concat(".").concat(format));
                 FormatedFile ff = res.getFormatedFile(format);
+                
+                System.out.println("\t- File: " + file.toString());
+                
                 if(!path.exists()){
                     path.mkdirs();
                 }

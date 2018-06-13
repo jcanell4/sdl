@@ -5,18 +5,18 @@
     <class>org.elsquatrecaps.jig.sdl.model.Resource</class>
     <class>org.elsquatrecaps.jig.sdl.model.Search</class>
     <properties>
-      <!--property name="javax.persistence.schema-generation.database.action" value="create"/-->
+      <!--property name="javax.persistence.schema-generation.database.action" value="create"/>
       <property name="javax.persistence.jdbc.url" value="jdbc:derby:sdldb;create=true;user=app;password=app"/>
       <property name="javax.persistence.jdbc.user" value="app"/>
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
-      <property name="javax.persistence.jdbc.password" value="app"/>
+      <property name="javax.persistence.jdbc.password" value="app"/-->
       <!--property name="derby.drda.startNetworkServer" value="true"/>
       <property name="derby.system.home" value="db"/>
       <property name="derby.drda.portNumber" value="1515"/-->
-      <property name="spring.jpa.properties.hibernate.dialect" value="org.hibernate.dialect.DerbyTenSevenDialect"/>
+      <!--property name="spring.jpa.properties.hibernate.dialect" value="org.hibernate.dialect.DerbyTenSevenDialect"/>
       <property name="spring.data.jpa.repositories.enabled" value="true"/>
-      <property name="spring.jpa.hibernate.ddl-auto" value="update"/>
-      <property name="javax.persistence.schema-generation.database.action" value="create"/>
+      <property name="spring.jpa.hibernate.ddl-auto" value="update"/-->
+      <!--property name="javax.persistence.schema-generation.database.action" value="create"/-->
     </properties>
   </persistence-unit>
 </persistence>

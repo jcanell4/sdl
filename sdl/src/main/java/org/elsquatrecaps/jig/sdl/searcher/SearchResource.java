@@ -22,6 +22,8 @@ public abstract class SearchResource{
         Pattern pattern2 = Pattern.compile(
                               "[+-.:,;<>\\{\\}\\[\\]\\*\\^\\¿\\?\\=\\)\\(\\/\\&\\%ºº$\\·\\#\\@\\|\\\\!\"]+");
         strBuffer.append(publicationId);
+        strBuffer.append("_");
+        strBuffer.append(pageId);
         locTitle = Normalizer.normalize(this.title, Normalizer.Form.NFD);
         locTitle = pattern1.matcher(locTitle).replaceAll("");
         locTitle = pattern2.matcher(locTitle).replaceAll("");

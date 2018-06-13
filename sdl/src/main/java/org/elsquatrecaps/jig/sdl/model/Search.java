@@ -117,17 +117,20 @@ public class Search implements Serializable {
         this.updateDate = updateData;
     }
 
-    public void addResource(Resource resources) {
-        this.resources.add(resources);
+    public void addResource(Resource resource) {
+        String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
+        resource.setSearchDate(date);
+        this.resources.add(resource);
     }
     
     public void addAllResources(List<Resource> resources) {
         for(Resource resource : resources){
-            if(!this.resources.contains(resource)){
-                String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
-                resource.setSearchDate(date);
-                this.resources.add(resource);
-            }
+            addResource(resource);
+//            if(!this.resources.contains(resource)){
+//                String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
+//                resource.setSearchDate(date);
+//                this.resources.add(resource);
+//            }
         }
     }
     

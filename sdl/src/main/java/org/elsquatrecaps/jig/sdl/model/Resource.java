@@ -61,7 +61,7 @@ public class Resource implements Serializable{
     }
 
     public Resource(SearchResource resource) {
-        id = resource.getPublicationId();
+        id = resource.getPublicationId().concat("_").concat(resource.getPageId());
         title = resource.getTitle();
         page = resource.getPage();
         editionDate = resource.getEditionDate();
@@ -190,8 +190,12 @@ public class Resource implements Serializable{
         StringBuilder strb =  new StringBuilder();
         strb.append("Resource with title: '");
         strb.append(this.title);
+        strb.append("', page:  '");
+        strb.append(this.page);
         strb.append("' and id:  ");
         strb.append(this.id);
+        strb.append(". Searched on; ");
+        strb.append(this.searchDate);
         strb.append(" )");
         return strb.toString();
     }

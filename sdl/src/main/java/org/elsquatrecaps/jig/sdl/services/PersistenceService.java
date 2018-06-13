@@ -7,6 +7,8 @@ package org.elsquatrecaps.jig.sdl.services;
 
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.elsquatrecaps.jig.sdl.exception.EntityNotFoundException;
 import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
@@ -44,28 +46,25 @@ public class PersistenceService {
     public Page<Search> findAllSearch(int pageNum,  int maxElements){
         return searchRepository.findAll(PageRequest.of(pageNum, maxElements));
     }
-    
+
     public Search saveSearch(Search search){
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
-        return transaction.execute(new TransactionCallback<Search>(){
-            @Override
-            public Search doInTransaction(TransactionStatus status) {
-                Search toSave;
-                Optional<Search> optional = searchRepository.findOne(search.getRepository(), search.getSearchCriteria());
-                if(optional.isPresent()){
-                    String updateDate = search.getOriginalDate();
-                    List<Resource> resources = search.getResourceList();
-                    toSave = optional.get();
-                    toSave.setUpdateDate(updateDate);
-                    if(resources!=null && resources.size()>0){
-                        toSave.addAllResources(resources);
-                    }
-                }else{
-                    toSave = search;
-                    searchRepository.saveAndFlush(toSave);
+        return transaction.execute((TransactionStatus status) -> {
+            Search toSave;
+            Optional<Search> optional = searchRepository.findOne(search.getRepository(), search.getSearchCriteria());
+            if(optional.isPresent()){
+                String updateDate = search.getOriginalDate();
+                List<Resource> resources = search.getResourceList();
+                toSave = optional.get();
+                toSave.setUpdateDate(updateDate);
+                if(resources!=null && resources.size()>0){
+                    toSave.addAllResources(resources);
                 }
-                return toSave;
+            }else{
+                toSave = search;
+                searchRepository.saveAndFlush(toSave);
             }
+            return toSave;
         });
     }
     
