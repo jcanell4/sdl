@@ -27,37 +27,14 @@ var bibliotequesAPI = (function () {
             name: "Arca"
         }
     };
-
-
-    var showOverlay = (function () {
-
-        var $overlayNode = $('#progress-overlay');
-        var $text = $overlayNode.find('.progress-text');
-
-        return function (text) {
-            if (text) {
-                $text.html(text);
-                $overlayNode.css('display', 'block');
-
-            } else {
-                $overlayNode.css('display', 'none');
-            }
-        }
-
-    })();
-
-
-    var initDataTables = function () {
-        $.fn.dataTable.moment('DD/MM/YYYY');
-
-
-        var defaultOptions = {
+    
+    var defaultOptions = {
 
             // dom: "Blfrtip",
 
             dom: "<'row'<'col-sm-3'l><'col-sm-6 text-center'B><'col-sm-3'f>>" +
-            "<'row'<'col-sm-12'tr>>" +
-            "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-5'i><'col-sm-7'p>>",
 
             buttons: [],
 
@@ -109,11 +86,70 @@ var bibliotequesAPI = (function () {
         };
 
 
-        var $queryTable = $('table#queries');
+    var showOverlay = (function () {
+
+        var $overlayNode = $('#progress-overlay');
+        var $text = $overlayNode.find('.progress-text');
+
+        return function (text) {
+            if (text) {
+                $text.html(text);
+                $overlayNode.css('display', 'block');
+
+            } else {
+                $overlayNode.css('display', 'none');
+            }
+        }
+
+    })();
+
+
+var sendSearchDetailRequest = function(id) {
+    var url = '/searchDetail/' + id; // TODO: extreure la ruta per facilitar onfigurar-la
+
+            // AJAX per carregar el dialeg dins d'aquest contenidor
+            // En acabar mostrar-lo
+            $.ajax(
+                    {
+                        url: url,
+                        type: "GET"
+                    }
+            ).done(function (data) {
+                console.log("AJAX done");
+                $('#resourcesBySearchDialog').replaceWith($(data));
+                $('#resourcesBySearchDialog').modal();
+                
+                
+                // TODO: Afegir els handlers als botons del dialeg dialeg
+                initSearchDetail(); // de moment només reactiva el datatable
+                
+            });
+            
+            console.log("petició enviada");
+}
+
+    
+    var initSearches = function () {
+        $.fn.dataTable.moment('DD/MM/YYYY');
+        var $queryTable = $('table#searches');
         tables.queryTable = $queryTable.DataTable(defaultOptions);
 
 
-        defaultOptions['columnDefs'] = [
+            $queryTable.find('td a').on('click', function (e) {
+            e.preventDefault();
+            console.log("Click detectat");
+            var id = $(this).attr('data-search-id');
+            
+            sendSearchDetailRequest(id);
+
+        });
+    };
+    
+    var initSearchDetail = function () {
+        
+        var options = $.extend(true, {}, defaultOptions);
+        
+        options['columnDefs'] = [
             {
                 'targets': 5,
                 'checkboxes': {
@@ -123,57 +159,51 @@ var bibliotequesAPI = (function () {
 
             }];
 
-        defaultOptions['select'] = {
+        options['select'] = {
             style: 'multi'
         };
 
-        defaultOptions['order'] = [[3, 'desc']];
+        options['order'] = [[3, 'desc']];
 
 
         var $resourcesDatatable = $('table#resources');
-        // tables.resourcesTable = $resourcesDatatable.DataTable(defaultOptions
-        //     // {
-        //     //     'columnDefs': [
-        //     //         {
-        //     //             'targets': 5,
-        //     //             'checkboxes': true
-        //     //         }
-        //     //     ],
-        //     //     'order': [[1, 'asc']]
-        //     // }
-        // );
 
-
-        tables.resourcesTable = $resourcesDatatable.DataTable(
-            {
-                'columnDefs': [
-                    {
-                        'targets': 5,
-                        'checkboxes': {
-                            'selectRow': true
-                        }
-                    }
-                ],
-                'select': {
-                    'style': 'multi'
-                },
-                'order': [[3, 'desc']]
-
-
-            }
-        );
-
-        return tables;
-    };
-
-
-    var initDialogs = function () {
-        $('#cerques-previes a').on('click', function (e) {
+        tables.resourcesTable = $resourcesDatatable.DataTable(options);
+        
+        
+        
+        // TODO: Inicialitzar els botons
+        $('#resources td a').on('click', function (e) {
             e.preventDefault();
-            $('#exampleModalCenter').modal();
+            e.stopPropagation();
+            console.log("Click detectat");
+            
+            var id = $(this).attr('data-resource-id');
+            var url = '/resourceDetail/' + id; // TODO: extreure la ruta per facilitar onfigurar-la
+
+            // AJAX per carregar el dialeg dins d'aquest contenidor
+            // En acabar mostrar-lo
+            $.ajax(
+                    {
+                        url: url,
+                        type: "GET"
+                    }
+            ).done(function (data) {
+                console.log("AJAX done");
+                $('#resourceDetail').html($(data));
+                
+                
+                console.log("Actualitzades les dades del recurs");
+            });
+            
+            console.log("petició enviada");
+
         });
 
-    };
+    }
+
+
+    
 
 
     var updateSearchForm = function () {
@@ -240,6 +270,46 @@ var bibliotequesAPI = (function () {
         updateSearchForm();
 
         $repository.on('change', updateSearchForm);
+        
+        $('#search-button').on('click', function(e) {
+            e.preventDefault();
+         
+            // TODO: mostrar indicador progress
+            showOverlay("Cercant");
+         
+         $.ajax(
+                    {
+                        url: "/search",
+                        type: "POST",
+                        data: $("#search-form").serialize(),
+                    }
+            ).done(function (data) {
+                console.log("AJAX done");
+                $('#searches').replaceWith($(data));
+                
+                initSearches();
+            
+            
+            
+                var id = $('#searches').attr('data-selected-id');
+                
+                
+                sendSearchDetailRequest(id);
+                
+                
+            
+                // TODO: initTabla searches i botons. Compte! els botons del fitres estaran lligats a la taula original (comprovar també l'altra taula, pasara el mateix)
+                
+                console.log("Actualitzat el llistat de cerques");
+                
+                // TODO: desactivar indicador progress
+                showOverlay();
+            });
+            
+            
+            
+        });
+        
     };
 
     var initQueryForm = function () {
@@ -437,29 +507,19 @@ var bibliotequesAPI = (function () {
     };
 
 
-    var initProves = function () {
-        // Codi de proves
-        $('#demo-overlay').on('click', function (e) {
-            e.preventDefault();
-            showOverlay("123/345");
-        });
-
-        $(document).on("keydown", function (e) {
-
-            showOverlay();
-        });
-    };
 
     var init = function () {
-        initDataTables();
-        initDialogs();
+        console.log("Init");
+        
+        initSearches();
+        initSearchDetail();
+        
+        
         initSearchForm();
         initFilter();
         initExportButton();
 
 
-        // Codi de proves
-        initProves();
 
     };
 
@@ -480,218 +540,217 @@ $(document).ready(function () {
 $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
 
-        // Aquest filtre només s'aplica a la taula resources
-        if (settings.sTableId !== "queries") {
-            return true;
-        }
+    // Aquest filtre només s'aplica a la taula resources
+    if (settings.sTableId !== "searches") {
+        return true;
+    }
 
-        var COL_REPOSITORY = 0,
+    var COL_REPOSITORY = 0,
             COL_QUERY = 1,
             COL_DATE_ORIGINAL = 2,
             COL_DATE_UPDATE = 3;
 
-        var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd
-            var timeTokens = dateString.split(/[/\-]/);
-            var day, month, year;
+    var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd
+        var timeTokens = dateString.split(/[/\-]/);
+        var day, month, year;
 
-            if (reverse) {// aaaa/mm/dd
-                day = Number(timeTokens[2]) - 1;
-                month = Number(timeTokens[1]) - 1;
-                year = Number(timeTokens[0]) - 1;
-            }
-            else {
-                day = Number(timeTokens[0]) - 1;
-                month = Number(timeTokens[1]) - 1;
-                year = Number(timeTokens[2]) - 1;
-            }
-
-            return new Date(year, month, day);
-        };
-
-
-        var textContainsAnyToken = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
-
-            tokenString = tokenString.toLowerCase();
-            text = text.toLowerCase();
-
-            if (!separator) {
-                separator = ' ';
-            }
-
-            var tokens = tokenString.split(separator);
-
-            for (var token in tokens) {
-                if (text.indexOf(tokens[token]) > -1) {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
-        var textContainsAllTokens = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
-
-            tokenString = tokenString.toLowerCase();
-            text = text.toLowerCase();
-
-            console.log(tokenString, text);
-
-            if (!separator) {
-                separator = ' ';
-            }
-
-            var tokens = tokenString.split(separator);
-
-            for (var token in tokens) {
-                if (text.indexOf(tokens[token]) == -1) {
-                    return false;
-                }
-            }
-
-            return true;
-        };
-
-
-        // Procés d'análisi
-        var $filterProcess = $('#filter-repository');
-        var filterProcessNot = $('#filter-repository-not').prop('checked'); // checkbox per invertir
-
-        var $filterDateOriginal = $('#filter-query-date-original'); // igual, anterior, posterior
-        var $filterDateOriginal1 = $('#filter-query-date-original-1');
-        var $filterDateOriginal2 = $('#filter-query-date-original-2');
-
-        var $filterDateUpdate = $('#filter-query-date-update'); // igual, anterior, posterior
-        var $filterDateUpdate1 = $('#filter-query-date-update-1');
-        var $filterDateUpdate2 = $('#filter-query-date-update-2');
-
-        var $filterQuery = $('#filter-query');
-
-
-        // Filtre per repository
-        var tokenFound;
-
-        if ($filterProcess.val() === '*') {
-            tokenFound = true;
+        if (reverse) {// aaaa/mm/dd
+            day = Number(timeTokens[2]) - 1;
+            month = Number(timeTokens[1]) - 1;
+            year = Number(timeTokens[0]) - 1;
         } else {
-            tokenFound = data[COL_REPOSITORY].toLowerCase() === $filterProcess.val().toLowerCase();
+            day = Number(timeTokens[0]) - 1;
+            month = Number(timeTokens[1]) - 1;
+            year = Number(timeTokens[2]) - 1;
         }
 
-        if (filterProcessNot) {
-            tokenFound = !tokenFound;
+        return new Date(year, month, day);
+    };
+
+
+    var textContainsAnyToken = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
+
+        tokenString = tokenString.toLowerCase();
+        text = text.toLowerCase();
+
+        if (!separator) {
+            separator = ' ';
         }
 
-        if (!tokenFound) {
-            return false;
+        var tokens = tokenString.split(separator);
+
+        for (var token in tokens) {
+            if (text.indexOf(tokens[token]) > -1) {
+                return true;
+            }
         }
 
+        return false;
+    };
 
-        // Filtre per data original
-        var dateOrder = $filterDateOriginal.val();
-        var data1 = stringToDate($filterDateOriginal1.val(), true);
-        var data2 = stringToDate($filterDateOriginal2.val(), true);
-        var dataRow = stringToDate(data[COL_DATE_ORIGINAL]);
+    var textContainsAllTokens = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
 
-        switch (dateOrder) {
+        tokenString = tokenString.toLowerCase();
+        text = text.toLowerCase();
 
-            case '*':
-                // No cal comprovar res;
-                break;
+        console.log(tokenString, text);
 
-            case '=':
-                if (dataRow.getTime() !== data1.getTime()) {
-                    return false;
-                }
-
-                break;
-
-            case '<':
-
-                if (dataRow > data1) {
-
-                    return false;
-                }
-                break;
-
-            case '>':
-                if (dataRow < data1) {
-                    return false;
-                }
-
-                break;
-
-            case '^':
-                if (dataRow < data1 || dataRow > data2) {
-                    return false;
-                }
-
-                break;
-
+        if (!separator) {
+            separator = ' ';
         }
 
+        var tokens = tokenString.split(separator);
 
-        // Filtre per data update
-        dateOrder = $filterDateUpdate.val();
-        data1 = stringToDate($filterDateUpdate1.val(), true);
-        data2 = stringToDate($filterDateUpdate2.val(), true);
-        dataRow = stringToDate(data[COL_DATE_UPDATE]);
-
-        switch (dateOrder) {
-
-            case '*':
-                // No cal comprovar res;
-                break;
-
-            case '=':
-                if (dataRow.getTime() !== data1.getTime()) {
-                    return false;
-                }
-
-                break;
-
-            case '<':
-
-                if (dataRow > data1) {
-
-                    return false;
-                }
-                break;
-
-            case '>':
-                if (dataRow < data1) {
-                    return false;
-                }
-
-                break;
-
-            case '^':
-                if (dataRow < data1 || dataRow > data2) {
-                    return false;
-                }
-
-                break;
-
+        for (var token in tokens) {
+            if (text.indexOf(tokens[token]) == -1) {
+                return false;
+            }
         }
 
-
-        // Filtre per criteris
-
-
-        var querySelected = $filterQuery.val();
+        return true;
+    };
 
 
-        if (querySelected.length > 0) {
+    // Procés d'análisi
+    var $filterProcess = $('#filter-repository');
+    var filterProcessNot = $('#filter-repository-not').prop('checked'); // checkbox per invertir
 
-            console.log(querySelected, data[COL_QUERY]);
+    var $filterDateOriginal = $('#filter-query-date-original'); // igual, anterior, posterior
+    var $filterDateOriginal1 = $('#filter-query-date-original-1');
+    var $filterDateOriginal2 = $('#filter-query-date-original-2');
 
-            if (!textContainsAllTokens(querySelected, data[COL_QUERY])) {
+    var $filterDateUpdate = $('#filter-query-date-update'); // igual, anterior, posterior
+    var $filterDateUpdate1 = $('#filter-query-date-update-1');
+    var $filterDateUpdate2 = $('#filter-query-date-update-2');
+
+    var $filterQuery = $('#filter-query');
+
+
+    // Filtre per repository
+    var tokenFound;
+
+    if ($filterProcess.val() === '*') {
+        tokenFound = true;
+    } else {
+        tokenFound = data[COL_REPOSITORY].toLowerCase() === $filterProcess.val().toLowerCase();
+    }
+
+    if (filterProcessNot) {
+        tokenFound = !tokenFound;
+    }
+
+    if (!tokenFound) {
+        return false;
+    }
+
+
+    // Filtre per data original
+    var dateOrder = $filterDateOriginal.val();
+    var data1 = stringToDate($filterDateOriginal1.val(), true);
+    var data2 = stringToDate($filterDateOriginal2.val(), true);
+    var dataRow = stringToDate(data[COL_DATE_ORIGINAL]);
+
+    switch (dateOrder) {
+
+        case '*':
+            // No cal comprovar res;
+            break;
+
+        case '=':
+            if (dataRow.getTime() !== data1.getTime()) {
                 return false;
             }
 
+            break;
+
+        case '<':
+
+            if (dataRow > data1) {
+
+                return false;
+            }
+            break;
+
+        case '>':
+            if (dataRow < data1) {
+                return false;
+            }
+
+            break;
+
+        case '^':
+            if (dataRow < data1 || dataRow > data2) {
+                return false;
+            }
+
+            break;
+
+    }
+
+
+    // Filtre per data update
+    dateOrder = $filterDateUpdate.val();
+    data1 = stringToDate($filterDateUpdate1.val(), true);
+    data2 = stringToDate($filterDateUpdate2.val(), true);
+    dataRow = stringToDate(data[COL_DATE_UPDATE]);
+
+    switch (dateOrder) {
+
+        case '*':
+            // No cal comprovar res;
+            break;
+
+        case '=':
+            if (dataRow.getTime() !== data1.getTime()) {
+                return false;
+            }
+
+            break;
+
+        case '<':
+
+            if (dataRow > data1) {
+
+                return false;
+            }
+            break;
+
+        case '>':
+            if (dataRow < data1) {
+                return false;
+            }
+
+            break;
+
+        case '^':
+            if (dataRow < data1 || dataRow > data2) {
+                return false;
+            }
+
+            break;
+
+    }
+
+
+    // Filtre per criteris
+
+
+    var querySelected = $filterQuery.val();
+
+
+    if (querySelected.length > 0) {
+
+        console.log(querySelected, data[COL_QUERY]);
+
+        if (!textContainsAllTokens(querySelected, data[COL_QUERY])) {
+            return false;
         }
 
-        // S'ha complert amb tots els filtres, es mostra la fila
-        return true;
     }
+
+    // S'ha complert amb tots els filtres, es mostra la fila
+    return true;
+}
 );
 
 
@@ -699,140 +758,139 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
 
-        // Aquest filtre només s'aplica a la taula resources
-        if (settings.sTableId !== "resources") {
-            return true;
-        }
+    // Aquest filtre només s'aplica a la taula resources
+    if (settings.sTableId !== "resources") {
+        return true;
+    }
 
-        var COL_PROCESS = 2,
+    var COL_PROCESS = 2,
             COL_DATA = 3,
             COL_FORMATS = 4;
 
-        var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd
-            var timeTokens = dateString.split(/[/\-]/);
-            var day, month, year;
+    var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd
+        var timeTokens = dateString.split(/[/\-]/);
+        var day, month, year;
 
-            if (reverse) {// aaaa/mm/dd
-                day = Number(timeTokens[2]) - 1;
-                month = Number(timeTokens[1]) - 1;
-                year = Number(timeTokens[0]) - 1;
-            }
-            else {
-                day = Number(timeTokens[0]) - 1;
-                month = Number(timeTokens[1]) - 1;
-                year = Number(timeTokens[2]) - 1;
-            }
-
-            return new Date(year, month, day);
-        };
-
-
-        var textContainsAnyToken = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
-
-            if (!separator) {
-                separator = ' ';
-            }
-
-            var tokens = tokenString.split(separator);
-
-            for (var token in tokens) {
-                if (text.indexOf(tokens[token]) > -1) {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
-        // Procés d'análisi
-        var $filterProcess = $('#filter-process');
-        var filterProcessNot = $('#filter-process-not').prop('checked'); // checkbox per invertir
-
-        var $filterDateOrder = $('#filter-date-order'); // igual, anterior, posterior
-        var $filterDate1 = $('#filter-date-1');
-        var $filterDate2 = $('#filter-date-2');
-
-        var $filterFormats = $('#filter-formats');
-
-
-        // Filtre per procès d'anàlisi
-        var tokenFound;
-
-        if ($filterProcess.val() === '*') {
-            tokenFound = true;
+        if (reverse) {// aaaa/mm/dd
+            day = Number(timeTokens[2]) - 1;
+            month = Number(timeTokens[1]) - 1;
+            year = Number(timeTokens[0]) - 1;
         } else {
+            day = Number(timeTokens[0]) - 1;
+            month = Number(timeTokens[1]) - 1;
+            year = Number(timeTokens[2]) - 1;
+        }
 
-            if ($filterProcess.val() === '-') {
-                tokenFound = data[COL_PROCESS].length === 0;
-            } else {
-                tokenFound = data[COL_PROCESS] === $filterProcess.val();
+        return new Date(year, month, day);
+    };
+
+
+    var textContainsAnyToken = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
+
+        if (!separator) {
+            separator = ' ';
+        }
+
+        var tokens = tokenString.split(separator);
+
+        for (var token in tokens) {
+            if (text.indexOf(tokens[token]) > -1) {
+                return true;
             }
         }
 
-        if (filterProcessNot) {
-            tokenFound = !tokenFound;
+        return false;
+    };
+
+    // Procés d'análisi
+    var $filterProcess = $('#filter-process');
+    var filterProcessNot = $('#filter-process-not').prop('checked'); // checkbox per invertir
+
+    var $filterDateOrder = $('#filter-date-order'); // igual, anterior, posterior
+    var $filterDate1 = $('#filter-date-1');
+    var $filterDate2 = $('#filter-date-2');
+
+    var $filterFormats = $('#filter-formats');
+
+
+    // Filtre per procès d'anàlisi
+    var tokenFound;
+
+    if ($filterProcess.val() === '*') {
+        tokenFound = true;
+    } else {
+
+        if ($filterProcess.val() === '-') {
+            tokenFound = data[COL_PROCESS].length === 0;
+        } else {
+            tokenFound = data[COL_PROCESS] === $filterProcess.val();
         }
+    }
 
-        if (!tokenFound) {
-            return false;
-        }
+    if (filterProcessNot) {
+        tokenFound = !tokenFound;
+    }
+
+    if (!tokenFound) {
+        return false;
+    }
 
 
-        // Filtre per data
-        var dateOrder = $filterDateOrder.val();
-        var data1 = stringToDate($filterDate1.val(), true);
-        var data2 = stringToDate($filterDate2.val(), true);
-        var dataRow = stringToDate(data[COL_DATA]);
+    // Filtre per data
+    var dateOrder = $filterDateOrder.val();
+    var data1 = stringToDate($filterDate1.val(), true);
+    var data2 = stringToDate($filterDate2.val(), true);
+    var dataRow = stringToDate(data[COL_DATA]);
 
-        switch (dateOrder) {
+    switch (dateOrder) {
 
-            case '*':
-                // No cal comprovar res;
-                break;
+        case '*':
+            // No cal comprovar res;
+            break;
 
-            case '=':
-                if (dataRow.getTime() !== data1.getTime()) {
-                    return false;
-                }
-
-                break;
-
-            case '<':
-
-                if (dataRow > data1) {
-
-                    return false;
-                }
-                break;
-
-            case '>':
-                if (dataRow < data1) {
-                    return false;
-                }
-
-                break;
-
-            case '^':
-                if (dataRow < data1 || dataRow > data2) {
-                    return false;
-                }
-
-                break;
-
-        }
-
-        // Filtre per format
-
-        var formatsSelected = $filterFormats.val();
-        if (formatsSelected.length > 0) {
-
-            if (!textContainsAnyToken(formatsSelected.toLowerCase(), data[COL_FORMATS].toLowerCase())) {
+        case '=':
+            if (dataRow.getTime() !== data1.getTime()) {
                 return false;
             }
 
+            break;
+
+        case '<':
+
+            if (dataRow > data1) {
+
+                return false;
+            }
+            break;
+
+        case '>':
+            if (dataRow < data1) {
+                return false;
+            }
+
+            break;
+
+        case '^':
+            if (dataRow < data1 || dataRow > data2) {
+                return false;
+            }
+
+            break;
+
+    }
+
+    // Filtre per format
+
+    var formatsSelected = $filterFormats.val();
+    if (formatsSelected.length > 0) {
+
+        if (!textContainsAnyToken(formatsSelected.toLowerCase(), data[COL_FORMATS].toLowerCase())) {
+            return false;
         }
 
-        // S'ha complert amb tots els filtres, es mostra la fila
-        return true;
     }
+
+    // S'ha complert amb tots els filtres, es mostra la fila
+    return true;
+}
 );

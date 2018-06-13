@@ -1,0 +1,26 @@
+----------------------------------------------------------------
+Tue Jun 12 21:28:59 CEST 2018:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.1.0 - (1808820): instance a816c00e-0163-f579-04b5-000004979d10 
+on database directory /Users/xavier/Google Drive/Projectes/Biblioteques/sdl/sdl/sdldb with class loader sun.misc.Launcher$AppClassLoader@2a139a55 
+Loaded from file:/Users/xavier/.m2/repository/org/apache/derby/derby/10.14.1.0/derby-10.14.1.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_131-b11
+user.dir=/Users/xavier/Google Drive/Projectes/Biblioteques/sdl/sdl
+os.name=Mac OS X
+os.arch=x86_64
+os.version=10.13.4
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
+----------------------------------------------------------------
+Tue Jun 12 21:29:01 CEST 2018:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.1.0 - (1808820): instance 79f80040-0163-f579-04b5-000004979d10 
+on database directory memory:/Users/xavier/Google Drive/Projectes/Biblioteques/sdl/sdl/testdb with class loader sun.misc.Launcher$AppClassLoader@2a139a55 
+Loaded from file:/Users/xavier/.m2/repository/org/apache/derby/derby/10.14.1.0/derby-10.14.1.0.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_131-b11
+user.dir=/Users/xavier/Google Drive/Projectes/Biblioteques/sdl/sdl
+os.name=Mac OS X
+os.arch=x86_64
+os.version=10.13.4
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

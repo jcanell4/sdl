@@ -95,4 +95,16 @@ public class PersistenceService {
         }
         return ret;
     }
+    
+    //searchs
+    public Search findSearchById(long id){
+        Search ret;
+        Optional<Search> optional = searchRepository.findById(id);
+        if(optional.isPresent()){
+            ret = optional.get();
+        }else{
+            throw new EntityNotFoundException("Search", "id", id);
+        }
+        return ret;       
+    }
 }

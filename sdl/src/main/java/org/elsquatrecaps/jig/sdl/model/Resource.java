@@ -137,6 +137,10 @@ public class Resource implements Serializable{
         }
     }
     
+    public String getSupportedFormatsAsSingleString() {
+        return String.join(" ", getSupportedFormats());
+    }
+    
     public String[] getSupportedFormats() {
         String[] ret = new String[supportedFormats.size()];
         return supportedFormats.toArray(ret);
