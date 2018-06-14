@@ -116,7 +116,7 @@ var sendSearchDetailRequest = function(id) {
                     }
             ).done(function (data) {
                 console.log("AJAX done");
-                $('#resourcesBySearchDialog').replaceWith($(data));
+                $('#resourcesBySearchDialog').html($(data));
                 $('#resourcesBySearchDialog').modal();
                 
                 
