@@ -56,18 +56,14 @@ public class SdlController {
 
     // TESTS Xavi
     @GetMapping("/get")
-    public ModelAndView newHandler() { // TODO: Canviar el nom a index o alguna cosa així
+    public ModelAndView newHandler() {
 
         
 
         String view = "new";
         ModelAndView ret = new ModelAndView(view);
 
-        // TODO[Xavi]: Això s'ha d'obtenir del fitxer application.properties
         ret.addObject("title", "Biblioteques SDL");
-
-        //List<Search> searches = instance.findAllSearch();
-        //ret.addObject("searches", searches);
                 
         ret.addObject("searches", getAllSearches());
         
@@ -80,10 +76,7 @@ public class SdlController {
         PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
         List<SearchAndCount> searchesWithCounter = instance.findAllSearchWithResourceCounter();        
         
-        for (SearchAndCount searchWithCounter : searchesWithCounter) {
-            Hibernate.initialize(searchWithCounter);
-        }
-        
+
         return searchesWithCounter;
     }
     

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SearchRepository extends JpaRepository<Search, Long>{
     
-    @Query("SELECT s, COUNT(r) FROM Search s JOIN s.resources r GROUP BY s.id")
+    @Query("SELECT s as search, COUNT(r) as count FROM Search s JOIN s.resources r GROUP BY s.id")
     List<SearchAndCount> findAllWithResourcesCount();
     
     @Query("SELECT s FROM Search s WHERE s.repository = :repository AND s.searchCriteria = :searchCriteria")
