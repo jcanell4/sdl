@@ -8,6 +8,7 @@ package org.elsquatrecaps.jig.sdl.controllers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import org.elsquatrecaps.jig.sdl.exception.UnsupportedFormat;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
+import org.elsquatrecaps.jig.sdl.model.SearchAndCount;
 import org.elsquatrecaps.jig.sdl.persistence.ResourceRepository;
 import org.elsquatrecaps.jig.sdl.persistence.SearchRepository;
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchCriteria;
@@ -25,6 +27,7 @@ import org.elsquatrecaps.jig.sdl.searcher.cfg.ConfigParserOfSearcher;
 import org.elsquatrecaps.jig.sdl.services.ExportService;
 import org.elsquatrecaps.jig.sdl.services.PersistenceService;
 import org.elsquatrecaps.jig.sdl.util.Utils;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -55,7 +58,7 @@ public class SdlController {
     @GetMapping("/get")
     public ModelAndView newHandler() { // TODO: Canviar el nom a index o alguna cosa així
 
-        PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
+        
 
         String view = "new";
         ModelAndView ret = new ModelAndView(view);
@@ -63,29 +66,30 @@ public class SdlController {
         // TODO[Xavi]: Això s'ha d'obtenir del fitxer application.properties
         ret.addObject("title", "Biblioteques SDL");
 
-        List<Search> searches = instance.findAllSearch();
+        //List<Search> searches = instance.findAllSearch();
+        //ret.addObject("searches", searches);
+                
+        ret.addObject("searches", getAllSearches());
+        
 
-        ret.addObject("searches", searches);
-
-        // TODO[Xavi] Això s'haurà d'obtenir pel resultat clicat via JSONs, d'entrada no ha de carregar el llistat, ni cap cerca        
-        Search search = searches.size()>0?searches.get(0):null;
-        ret.addObject("search", search);
-
-        if(search!=null){
-            long id = search.getId();
-            List<Resource> resources = instance.findAllResourceBySerach(id);
-            ret.addObject("resources", resources);
-            ret.addObject("resourcesCount", resources.size());
-
-            Resource resource = instance.findResourceById(resources.get(0).getId());
-            ret.addObject("resource", resource);
-        }
 
         return ret;
     }
 
+    private List<SearchAndCount> getAllSearches() {
+        PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
+        List<SearchAndCount> searchesWithCounter = instance.findAllSearchWithResourceCounter();        
+        
+        for (SearchAndCount searchWithCounter : searchesWithCounter) {
+            Hibernate.initialize(searchWithCounter);
+        }
+        
+        return searchesWithCounter;
+    }
+    
+    
     @RequestMapping(value = "/searchDetail/{id}")
-    public ModelAndView searchHandler(@PathVariable("id") int id) { // TODO: Canviar el nom per un més adient
+    public ModelAndView searchHandler(@PathVariable("id") int id) { 
         PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
 
         String view = "new :: resourcesBySearchDialog";
@@ -142,8 +146,9 @@ public class SdlController {
         
 
         PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
-        List<Search> searches = instance.findAllSearch();
-        ret.addObject("searches", searches);
+        //List<Search> searches = instance.findAllSearch();        
+        //ret.addObject("searches", searches);
+        ret.addObject("searches", getAllSearches());
         
         
         Optional<Search> optional = searchRepository.findOne(repository, criteria);

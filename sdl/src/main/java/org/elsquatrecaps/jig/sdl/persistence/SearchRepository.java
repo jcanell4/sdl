@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
+import org.elsquatrecaps.jig.sdl.model.SearchAndCount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SearchRepository extends JpaRepository<Search, Long>{
+    
+    @Query("SELECT s, COUNT(r) FROM Search s JOIN s.resources r GROUP BY s.id")
+    List<SearchAndCount> findAllWithResourcesCount();
+    
     @Query("SELECT s FROM Search s WHERE s.repository = :repository AND s.searchCriteria = :searchCriteria")
     Optional<Search> findOne(@Param("repository") String repository, @Param("searchCriteria") String searchCriteria);
     

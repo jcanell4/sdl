@@ -195,13 +195,13 @@
                                 <tbody >
                                     <!-- Aquí comemça el fragment amb les dades de la taula-->
                                     <tr th:each="search: ${searches}">
-                                        <td th:text="${search.getRepository()}"></td>
-                                        <td th:text="${search.getSearchCriteria()}"></td>
-                                        <td class="text-center" th:text="${search.getOriginalDate()}"></td>
-                                        <td class="text-center" th:text="${search.getUpdateDate()}"></td>
-                                        <td class="text-center"> ¿?¿?¿? </td>
+                                        <td th:text="${search.getSearch().getRepository()}"></td>
+                                        <td th:text="${search.getSearch().getSearchCriteria()}"></td>
+                                        <td class="text-center" th:text="${search.getSearch().getOriginalDate()}"></td>
+                                        <td class="text-center" th:text="${search.getSearch().getUpdateDate()}"></td>
+                                        <td class="text-center" th:text="${search.getCount()}"> ¿?¿?¿? </td>
                                         <td class="text-center">
-                                            <a href="#" th:data-search-id="${search.getId()}">
+                                            <a href="#" th:data-search-id="${search.getSearch().getId()}">
                                                 <i class="fa fa-search" title="Veure detall"></i>
                                             </a>
                                         </td>

@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.elsquatrecaps.jig.sdl.exception.EntityNotFoundException;
 import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
+import org.elsquatrecaps.jig.sdl.model.SearchAndCount;
 import org.elsquatrecaps.jig.sdl.persistence.ResourceRepository;
 import org.elsquatrecaps.jig.sdl.persistence.SearchRepository;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,11 @@ public class PersistenceService {
     //searchs
     public List<Search> findAllSearch(){
         List<Search> list = searchRepository.findAll();
+        return list;
+    }
+    
+    public List<SearchAndCount> findAllSearchWithResourceCounter(){
+        List<SearchAndCount> list = searchRepository.findAllWithResourcesCount();
         return list;
     }
     

@@ -22,4 +22,7 @@ public interface ResourceRepository extends JpaRepository<Resource, String>{
 
     @Query("SELECT r FROM Search s INNER JOIN  s.resources r WHERE s.id = :searchId")
     Page<Resource> findBySearchId(@Param("searchId") Long id, Pageable pageable);
+    
+    @Query("SELECT COUNT(r) FROM Search s INNER JOIN s.resources r WHERE s.id = :searchId")
+    int countResourcesFromSearch(@Param("searchId") Long id);
 }
