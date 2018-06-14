@@ -419,162 +419,177 @@
 
                                     <div class="col-xl-6 col-sm-12">
 
+
                                         <h1>Exportació</h1>
 
                                         <div class="row">
 
-
-                                            <div class="col-sm-12 text-center">
-                                                <div id="export-selected" class="btn btn-primary ">Exportar els recursos
-                                                    seleccionats
+                                            <div id="exportMessages" class="col-12">
+                                                <div th:fragment="exportMessages">
+                                                    <div th:if="${errorExportMessage}" class="alert alert-danger"  role="alert">
+                                                        <h1>Error</h1>
+                                                        <p th:text="${errorExportMessage}"></p>
+                                                    </div>                                                
+                                                    <div th:if="${successExportMessage}" class="alert alert-success"  role="alert">
+                                                        <h1>Éxit</h1>
+                                                        <p th:text="${successExportMessage}"></p>
+                                                    </div>
                                                 </div>
                                             </div>
+
                                         </div>
 
-                                        <hr />
-
-                                        <div id="resourceDetail">
-                                            <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
-                                                <h1>Detall del recurs</h1>
-
-
-                                                <div class="row" id="detall-recurs">
-                                                    <div class="col-sm-3 ">
-                                                        <b>Títol:</b>
-                                                    </div>
-                                                    <div class="col-sm-3" th:text="${resource.getTitle()}">
-                                                        Títol
-                                                    </div>
-
-                                                    <div class="col-sm-3" >
-                                                        <b>Pàgina:</b>
-                                                    </div>
-
-                                                    <div class="col-sm-3" th:text="${resource.getPage()}">
-                                                        42
-                                                    </div>
-
-                                                    <div class="col-sm-3">
-                                                        <b>Any d'edició</b>
-                                                    </div>
-
-                                                    <div class="col-sm-3" th:text="${resource.getEditionDate()}">
-                                                        1983
-                                                    </div>
-
-                                                    <div class="col-sm-3 ">
-                                                        <b>Procés d'anàlisi:</b>
-                                                    </div>
-                                                    <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
-                                                        Selecció AI
-                                                    </div>
-
-                                                    <div class="col-sm-3">
-                                                        <b>Data de cerca:</b>
-                                                    </div>
-                                                    <div class="col-sm-3" th:text="${resource.getSearchDate()}">
-                                                        21/02/2018
-                                                    </div>
-                                                </div>
-
-
-                                                <h3>Fragments:</h3>
-
-                                                <ul>
-                                                    <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
-                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
-                                                        nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
-                                                    </li>
-
-                                                </ul>
+                                        <div class="col-sm-12 text-center">
+                                            <div id="export-selected" class="btn btn-primary ">Exportar els recursos
+                                                seleccionats
                                             </div>
                                         </div>
                                     </div>
+
+                                    <hr />
+
+                                    <div id="resourceDetail">
+                                        <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
+                                            <h1>Detall del recurs</h1>
+
+
+                                            <div class="row" id="detall-recurs">
+                                                <div class="col-sm-3 ">
+                                                    <b>Títol:</b>
+                                                </div>
+                                                <div class="col-sm-3" th:text="${resource.getTitle()}">
+                                                    Títol
+                                                </div>
+
+                                                <div class="col-sm-3" >
+                                                    <b>Pàgina:</b>
+                                                </div>
+
+                                                <div class="col-sm-3" th:text="${resource.getPage()}">
+                                                    42
+                                                </div>
+
+                                                <div class="col-sm-3">
+                                                    <b>Any d'edició</b>
+                                                </div>
+
+                                                <div class="col-sm-3" th:text="${resource.getEditionDate()}">
+                                                    1983
+                                                </div>
+
+                                                <div class="col-sm-3 ">
+                                                    <b>Procés d'anàlisi:</b>
+                                                </div>
+                                                <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
+                                                    Selecció AI
+                                                </div>
+
+                                                <div class="col-sm-3">
+                                                    <b>Data de cerca:</b>
+                                                </div>
+                                                <div class="col-sm-3" th:text="${resource.getSearchDate()}">
+                                                    21/02/2018
+                                                </div>
+                                            </div>
+
+
+                                            <h3>Fragments:</h3>
+
+                                            <ul>
+                                                <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
+                                                    nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
-
                             </div>
-                            <!--<div class="modal-footer">-->
-                            <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
-                            <!--<button type="button" class="btn btn-primary">Save changes</button>-->
-                            <!--</div>-->
+
+                        </div>
+                        <!--<div class="modal-footer">-->
+                        <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+                        <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                        <!--</div>-->
+                    </div>
+                </div>
+            </div>
+
+            <div th:unless="${resourcesCount &gt; 0}">
+                <div class="modal-dialog  modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">No s'ha trobat cap recurs</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            No s'ha trobat cap recurs que coincideixi amb aquest criteri.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
                         </div>
                     </div>
                 </div>
 
-                <div th:unless="${resourcesCount &gt; 0}">
-                    <div class="modal-dialog  modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLongTitle">No s'ha trobat cap recurs</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                No s'ha trobat cap recurs que coincideixi amb aquest criteri.
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
             </div>
         </div>
     </div>
+</div>
 
 
 
-    <!-- Modal: Exportar -->
-    <div class="modal fade" id="export-modal" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Exportar recursos</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!--<h1>Exportar recursos seleccionats</h1>-->
-                    <p>S'han seleccionat <span id="export-count">0</span> recursos.</p>
+<!-- Modal: Exportar -->
+<div class="modal fade" id="export-modal" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Exportar recursos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!--<h1>Exportar recursos seleccionats</h1>-->
+                <p>S'han seleccionat <span id="export-count">0</span> recursos.</p>
 
-                    <div class="form-group">
-                        <label for="export-process">Procés d'anàlisi </label>
-                        <select class="form-control" id="export-process">
-                            <option value="Selecció AI">Selecció AI</option>
-                            <option value="Atlas-ti">Atlas-ti</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="export-formats">Formats (separats per espai)</label>
-                        <input type="text" class="form-control" id="export-formats" placeholder="PDF XML Text etc."/>
-                    </div>
+                <div class="form-group">
+                    <label for="export-process">Procés d'anàlisi </label>
+                    <select class="form-control" id="export-process">
+                        <option value="Selecció AI">Selecció AI</option>
+                        <option value="Atlas-ti">Atlas-ti</option>
+                    </select>
                 </div>
 
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel·lar</button>
-                    <button type="button" class="btn btn-primary" id="export-execute">Exportar</button>
+                <div class="form-group">
+                    <label for="export-formats">Formats (separats per espai)</label>
+                    <input type="text" class="form-control" id="export-formats" placeholder="PDF XML Text etc."/>
                 </div>
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel·lar</button>
+                <button type="button" class="btn btn-primary" id="export-execute">Exportar</button>
             </div>
         </div>
     </div>
+</div>
 
 
-    <script src="js/jquery-3.3.1.min.js"></script>
-    <script src="js/bootstrap.js"></script>
-    <script type="text/javascript" src="js/moment.js"></script>
-    <script type="text/javascript" src="js/datatables.min.js"></script>
-    <script type="text/javascript" src="js/datatables.datetime-moment.js"></script>
-    <script type="text/javascript" src="js/datatables.scroller.min.js"></script>
-    <script type="text/javascript" src="js/datatables.checkboxes.min.js"></script>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/moment.js"></script>
+<script type="text/javascript" src="js/datatables.min.js"></script>
+<script type="text/javascript" src="js/datatables.datetime-moment.js"></script>
+<script type="text/javascript" src="js/datatables.scroller.min.js"></script>
+<script type="text/javascript" src="js/datatables.checkboxes.min.js"></script>
 
-    <script src="js/app.js"></script>
+<script src="js/app.js"></script>
 
 
 </body>

@@ -546,13 +546,12 @@ var sendSearchDetailRequest = function(id) {
             ).done(function (data) {
                 console.log("AJAX done");
                 //$('#searches').replaceWith($(data));
+                
+                $('#exportMessages').html($(data));
 
                 
                 console.log("Export finalitzat");
                 showOverlay();
-            }).error(function(error) {
-                console.error(error);
-                alert(error);
             });
             
             

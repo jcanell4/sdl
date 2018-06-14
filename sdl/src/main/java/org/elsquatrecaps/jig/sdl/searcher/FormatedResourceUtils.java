@@ -48,7 +48,11 @@ public class FormatedResourceUtils {
             formatDef = formats.pop();
             found = isFormatSupported(formatDef, supportedFormats);
             if (!found) {
-                formats.addAll(Arrays.asList(getAlternativeFormats(formatDef)));
+                String[] alternativeFormats = getAlternativeFormats(formatDef);
+                if (alternativeFormats != null) {
+                    formats.addAll(Arrays.asList(alternativeFormats));
+                } 
+                
             }
         }
         if (!found) {

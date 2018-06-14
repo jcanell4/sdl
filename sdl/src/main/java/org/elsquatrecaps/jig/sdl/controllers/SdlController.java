@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
+import org.elsquatrecaps.jig.sdl.exception.UnsupportedFormat;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
@@ -204,14 +205,34 @@ public class SdlController {
 
         // TODO: Carregar un missatge de confirmiació o alguna altre cosa
         
-        ModelAndView ret = new ModelAndView("new :: searches");
+        ModelAndView ret = new ModelAndView("new :: exportMessages");
         
         
         ExportService instance = new ExportService(resourceRepository, this.dp);
         
         String[] formatArray = formats.split(",");
+        
+        String errorMessage = null;
+        
         for (String format : formatArray) {
-            instance.exportResourcesById(ids, format); // De moment no fem servir el proces per a res
+            try {
+                instance.exportResourcesById(ids, format);
+                
+            } catch (UnsupportedFormat e) {
+                if (errorMessage == null) {
+                    errorMessage = "Format no suportat: ".concat(format);
+                } else {
+                    errorMessage.concat(", ".concat(format));
+                }
+                
+            }
+            
+        }
+        
+        if (errorMessage !=null) {
+            ret.addObject("errorExportMessage", errorMessage);
+        } else {
+            ret.addObject("successExportMessage", "Recursos exportats amb éxit");
         }
         
 

@@ -17,6 +17,7 @@ import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
 public class Utils {
     
     public static void copyToFile(InputStream in, FileOutputStream out) {
+        
         copyToFile(in, out, true, true);
     }
     
@@ -28,8 +29,8 @@ public class Utils {
                 out.write(buffer, 0, len);
                 len = in.read(buffer);
             }
-        } catch (IOException ex) {
-            throw new ErrorCopyingFileFormaException(ex);
+        } catch (IOException | NullPointerException ex) {
+            throw new ErrorCopyingFileFormaException(ex);        
         } finally {
             if(closein && in!=null){
                 try {
