@@ -192,8 +192,7 @@
                                     </tr>
                                 </thead>
 
-                                <tbody >
-                                    <!-- Aquí comemça el fragment amb les dades de la taula-->
+                                <tbody >                                    
                                     <tr th:each="search: ${searches}">
                                         <td th:text="${search.getSearch().getRepository()}"></td>
                                         <td th:text="${search.getSearch().getSearchCriteria()}"></td>
@@ -264,6 +263,7 @@
                                             <div class="col-sm-6" th:text="${search.getSearchCriteria()}">
                                                 Unes partides
                                             </div>
+                                            <input type="hidden" id="export-criteria" th:value="${search.getSearchCriteria()}"/>
                                         </div>
                                     </div>
 
@@ -571,6 +571,7 @@
                 </div>
             </div>
 
+            
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel·lar</button>

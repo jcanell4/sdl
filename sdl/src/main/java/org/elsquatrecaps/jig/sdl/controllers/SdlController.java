@@ -103,7 +103,7 @@ public class SdlController {
     }
 
     @RequestMapping(value = "/resourceDetail/{id}")
-    public ModelAndView resoruceDetailHandler(@PathVariable("id") String id) { // TODO: Canviar el nom per un més adient
+    public ModelAndView resoruceDetailHandler(@PathVariable("id") String id) { 
         PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
 
         String view = "new :: resourceDetail";
@@ -121,7 +121,6 @@ public class SdlController {
     
     
     @RequestMapping({"/search"})
-    //public ModelAndView testIteratorBvPh(@RequestParam(defaultValue = "false", name="li") boolean li, @RequestParam(defaultValue = "", name = "criteria") String criteria, @RequestParam(defaultValue = "3", name = "quant") int quantity) {
     public ModelAndView searchHandler(
             @RequestParam(defaultValue = "", name = "criteria") String criteria,
             @RequestParam(defaultValue = "BVPH", name = "repository") String repository,
@@ -134,13 +133,11 @@ public class SdlController {
         if (criteria.length()>0) {
             iterate(criteria, quantity, repository);
         } else {
-            // TODO[Xavi] Enviar un dialeg amb un missatge d'error
+            // TODO[Xavi] Enviar un dialeg amb un missatge d'error?
         }
         
 
         PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
-        //List<Search> searches = instance.findAllSearch();        
-        //ret.addObject("searches", searches);
         ret.addObject("searches", getAllSearches());
         
         
@@ -150,7 +147,6 @@ public class SdlController {
             ret.addObject("selected", optional.get().getId());
         }
         
-
         return ret;
     }
     
@@ -198,7 +194,8 @@ public class SdlController {
     public ModelAndView searchHandler(
             @RequestParam(defaultValue = "", name = "ids[]") String[] ids,
             @RequestParam(defaultValue = "", name = "formats") String formats,
-            @RequestParam(defaultValue = "", name = "process") String process        
+            @RequestParam(defaultValue = "", name = "process") String process,
+            @RequestParam(defaultValue = "", name = "criteria") String criteria
     ) {
 
         // TODO: Carregar un missatge de confirmiació o alguna altre cosa
@@ -214,7 +211,7 @@ public class SdlController {
         
         for (String format : formatArray) {
             try {
-                instance.exportResourcesById(ids, format);
+                instance.exportResourcesById(ids, format, criteria);
                 
             } catch (UnsupportedFormat e) {
                 if (errorMessage == null) {

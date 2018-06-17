@@ -515,43 +515,39 @@ var sendSearchDetailRequest = function(id) {
             
             var selectedIndex = getSelectedIndex(tables.resourcesTable);
             var count = selectedIndex.length;
-            // TODO: enviar petició per començar a exportar els recursos.
-            // http://localhost:8888/export?ids[]=dl_11000417829_img1002981340&format=xml
             var formats = $('#export-formats').val();
             
-            //showOverlay("0/" + $selectedCounter.text());
-            
-            //showOverlay("Exportant recursos " + count+ " recursos amb els formats " + formats);
             showOverlay("Exportant");
 
                         
             console.log("Selected index:", selectedIndex, formats);
             var ids=[];
             for (var i=0; i<selectedIndex.length; i++) {
-                //console.log($(tables.resourcesTable.row(selectedIndex[i]).nodes()[0]).attr('data-id'));
                 ids.push($(tables.resourcesTable.row(selectedIndex[i]).nodes()[0]).attr('data-id'));
             }
             
+            var criteria = $('#export-criteria').val();
             
             console.log("Iniciat export");
             
-            formats = formats.replace(' ', ',');
+            formats = formats.replace(new RegExp(' ', 'g'), ',');
             
             $.ajax(
                     {
                         url: "/export",
                         type: "POST",
-                        data: {'ids[]': ids,'formats': formats}
+                        data: {'ids[]': ids,'formats': formats, criteria: criteria}
                     }
             ).done(function (data) {
                 console.log("AJAX done");
-                //$('#searches').replaceWith($(data));
+                
+                showOverlay();
                 
                 $('#exportMessages').html($(data));
 
                 
                 console.log("Export finalitzat");
-                showOverlay();
+                
             });
             
             

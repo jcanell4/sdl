@@ -39,6 +39,8 @@ public class LocalFormatedFile implements FormatedFile{
         
         FileInputStream in = null;
                 
+        
+        
         try {
             in = new FileInputStream(file);
         } catch (FileNotFoundException e) {
@@ -46,6 +48,12 @@ public class LocalFormatedFile implements FormatedFile{
             System.err.println("TEST: File not found." + this.filename);
             //throw new UnsupportedOperationException("TEST: File not found." + this.filename); //To change body of generated methods, choose Tools | Templates.
         }
+        
+        
+        System.out.println("Existeix el fitxer?"+file.exists());
+
+        System.out.println("Es pot escriure al fitxer?"+file.canWrite());
+        System.out.println("Es pot llegir el fitxer?"+file.canRead());
         
         
         return in;
