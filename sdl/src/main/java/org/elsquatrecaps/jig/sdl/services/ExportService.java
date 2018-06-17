@@ -71,17 +71,15 @@ public class ExportService {
         FileOutputStream fileOutputStream = null;
         File path = new File(fileExportPath);
         
-        String baseName = ret.getFileName();
-        
+        // ALERTA[Xavi] només cal per les imatges jpg (de moment)
+        String baseName = ret.getFileName();        
         if (format.equals("jpg") && criteria.length()>0) {
             baseName = baseName.concat("_").concat(criteria);
         }
         
         File file = new File(fileExportPath, baseName.concat(".").concat(format));
         
-        
-        
-        ret.setLocalFilePath(dp.getLocalExportPath());
+        ret.setLocalFilePath(dp.getLocalReasourceRepo());
         FormatedFile ff = ret.getFormatedFile(format);
         if (!path.exists()) {
             path.mkdirs();
