@@ -9,7 +9,9 @@
 	<packaging>jar</packaging>
 
 	<name>sdl</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Social Downloader
+
+This is an application built with Spring boot framework</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -136,6 +138,11 @@
 	  <artifactId>hsqldb</artifactId>
 	  <version>2.4.0</version>
 	 </dependency>
+         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.197</version>
+        </dependency>
 	</dependencies>
 
 	<build>

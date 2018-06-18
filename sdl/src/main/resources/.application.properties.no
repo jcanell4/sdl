@@ -1,9 +1,10 @@
-server.port=8888
+server.port=8889
 
 #Downloader
 downloader.localRepository=resourcefiles
 downloader.localExportPath=export
 downloader.db=sdldb
+downloader.maxResourcesPerSearch=4
 
 #Prova
 prova.prova1=Hola

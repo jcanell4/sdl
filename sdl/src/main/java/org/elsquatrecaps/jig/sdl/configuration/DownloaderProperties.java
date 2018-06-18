@@ -6,6 +6,7 @@
 package org.elsquatrecaps.jig.sdl.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,6 +15,7 @@ public class DownloaderProperties {
     private String localRepository;
     private String localExportPath;
     private String db;
+    private String maxResourcesPerSearch = "0";
 
     public String getLocalReasourceRepo() {
         return localRepository;
@@ -40,4 +42,22 @@ public class DownloaderProperties {
     public void setDb(String db) {
         this.db = db;
     }    
+
+    public String getMaxResourcesPerSearch() {
+        return maxResourcesPerSearch;
+    }
+
+    public int getQuantity() {
+        int ret;
+        try{
+            ret = Integer.parseInt(maxResourcesPerSearch);
+        }catch(NumberFormatException e){
+            ret = 0;
+        }
+        return ret;
+    }
+
+    public void setMaxResourcesPerSearch(String maxResourcesPerSearch) {
+        this.maxResourcesPerSearch = maxResourcesPerSearch;
+    }
 }

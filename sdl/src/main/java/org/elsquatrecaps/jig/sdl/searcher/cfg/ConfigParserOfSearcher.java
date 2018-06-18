@@ -1,7 +1,6 @@
 package org.elsquatrecaps.jig.sdl.searcher.cfg;
 
 import java.io.File;
-import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -13,14 +12,10 @@ import org.elsquatrecaps.jig.sdl.searcher.GetRemoteProcess;
 import org.elsquatrecaps.jig.sdl.searcher.SearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.SearchIterator;
 
-/**
- *
- * @author josep
- */
 public class ConfigParserOfSearcher {
     private static final String SEARCH_ITERATOR = "SearchIterator";
     private static final String GET_REMOTE_PROCESS = "GetRemoteProcess";
-    private static final String CGF_DIR = "conf";
+    private static final String CGF_DIR = "config";
     File file;
 
     private ConfigParserOfSearcher(String filename) {

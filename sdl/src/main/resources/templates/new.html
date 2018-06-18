@@ -444,64 +444,63 @@
                                                 seleccionats
                                             </div>
                                         </div>
-                                    </div>
+                                        <hr />
 
-                                    <hr />
-
-                                    <div id="resourceDetail">
-                                        <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
-                                            <h1>Detall del recurs</h1>
+                                        <div id="resourceDetail">
+                                            <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
+                                                <h1>Detall del recurs</h1>
 
 
-                                            <div class="row" id="detall-recurs">
-                                                <div class="col-sm-3 ">
-                                                    <b>Títol:</b>
-                                                </div>
-                                                <div class="col-sm-3" th:text="${resource.getTitle()}">
-                                                    Títol
+                                                <div class="row" id="detall-recurs">
+                                                    <div class="col-sm-3 ">
+                                                        <b>Títol:</b>
+                                                    </div>
+                                                    <div class="col-sm-3" th:text="${resource.getTitle()}">
+                                                        Títol
+                                                    </div>
+
+                                                    <div class="col-sm-3" >
+                                                        <b>Pàgina:</b>
+                                                    </div>
+
+                                                    <div class="col-sm-3" th:text="${resource.getPage()}">
+                                                        42
+                                                    </div>
+
+                                                    <div class="col-sm-3">
+                                                        <b>Any d'edició</b>
+                                                    </div>
+
+                                                    <div class="col-sm-3" th:text="${resource.getEditionDate()}">
+                                                        1983
+                                                    </div>
+
+                                                    <div class="col-sm-3 ">
+                                                        <b>Procés d'anàlisi:</b>
+                                                    </div>
+                                                    <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
+                                                        Selecció AI
+                                                    </div>
+
+                                                    <div class="col-sm-3">
+                                                        <b>Data de cerca:</b>
+                                                    </div>
+                                                    <div class="col-sm-3" th:text="${resource.getSearchDate()}">
+                                                        21/02/2018
+                                                    </div>
                                                 </div>
 
-                                                <div class="col-sm-3" >
-                                                    <b>Pàgina:</b>
-                                                </div>
 
-                                                <div class="col-sm-3" th:text="${resource.getPage()}">
-                                                    42
-                                                </div>
+                                                <h3>Fragments:</h3>
 
-                                                <div class="col-sm-3">
-                                                    <b>Any d'edició</b>
-                                                </div>
+                                                <ul>
+                                                    <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
+                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
+                                                        nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
+                                                    </li>
 
-                                                <div class="col-sm-3" th:text="${resource.getEditionDate()}">
-                                                    1983
-                                                </div>
-
-                                                <div class="col-sm-3 ">
-                                                    <b>Procés d'anàlisi:</b>
-                                                </div>
-                                                <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
-                                                    Selecció AI
-                                                </div>
-
-                                                <div class="col-sm-3">
-                                                    <b>Data de cerca:</b>
-                                                </div>
-                                                <div class="col-sm-3" th:text="${resource.getSearchDate()}">
-                                                    21/02/2018
-                                                </div>
+                                                </ul>
                                             </div>
-
-
-                                            <h3>Fragments:</h3>
-
-                                            <ul>
-                                                <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
-                                                    nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
-                                                </li>
-
-                                            </ul>
                                         </div>
                                     </div>
                                 </div>

@@ -8,7 +8,6 @@ package org.elsquatrecaps.jig.sdl.controllers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +26,6 @@ import org.elsquatrecaps.jig.sdl.searcher.cfg.ConfigParserOfSearcher;
 import org.elsquatrecaps.jig.sdl.services.ExportService;
 import org.elsquatrecaps.jig.sdl.services.PersistenceService;
 import org.elsquatrecaps.jig.sdl.util.Utils;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -125,24 +123,23 @@ public class SdlController {
     public ModelAndView searchHandler(
             @RequestParam(defaultValue = "", name = "criteria") String criteria,
             @RequestParam(defaultValue = "BVPH", name = "repository") String repository,
-            //@RequestParam(defaultValue = "", name = "date-end") String dateEnd,
-            //@RequestParam(defaultValue = "", name = "date-start") String dateStart,
-            @RequestParam(defaultValue = "3", name = "quant") int quantity) {
+            @RequestParam(defaultValue = "", name = "date-end") String dateEnd,
+            @RequestParam(defaultValue = "", name = "date-start") String dateStart){
+            //@RequestParam(defaultValue = "3", name = "quant") int quantity) {
 
         ModelAndView ret = new ModelAndView("new :: searches");
         
         if (criteria.length()>0) {
-            iterate(criteria, quantity, repository);
+            iterate(criteria, repository);
         } else {
             // TODO[Xavi] Enviar un dialeg amb un missatge d'error
         }
         
 
-        PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
-        //List<Search> searches = instance.findAllSearch();        
+        PersistenceService persistenceService = new PersistenceService(resourceRepository, searchRepository, transactionManager);
+        //List<Search> searches = persistenceService.findAllSearch();        
         //ret.addObject("searches", searches);
         ret.addObject("searches", getAllSearches());
-        
         
         Optional<Search> optional = searchRepository.findOne(repository, criteria);
         
@@ -156,8 +153,9 @@ public class SdlController {
     
     
     
-    private void iterate(String criteria, int quantity, String repository) {
+    private void iterate(String criteria, String repository) {
         String fileRepositoryPath = this.dp.getLocalReasourceRepo();
+        int quantity = this.dp.getQuantity();
         
         System.out.println("Cercant: " + criteria);
         BvphSearchIterator iterator = (BvphSearchIterator) ConfigParserOfSearcher.getIterator(repository, new BvphSearchCriteria(criteria));
@@ -168,7 +166,7 @@ public class SdlController {
         Search search = new Search(repository, criteria, String.format("%1$td/%1$tm/%1$tY", Calendar.getInstance()));
         PersistenceService pService = new PersistenceService(resourceRepository, searchRepository, transactionManager);
         
-        while(c<quantity && iterator.hasNext()){
+        while((quantity<=0 || c<quantity) && iterator.hasNext()){
             c++;
             SearchResource res = iterator.next();
             Resource resource = new Resource(res);
@@ -232,8 +230,6 @@ public class SdlController {
         } else {
             ret.addObject("successExportMessage", "Recursos exportats amb éxit");
         }
-        
-
         return ret;
     }
     
