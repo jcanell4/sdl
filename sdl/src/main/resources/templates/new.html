@@ -50,7 +50,7 @@
                 <!-- Tab panes -->
                 <div class="tab-content">
                     <div class="tab-pane active" id="nova-cerca" role="tabpanel" aria-labelledby="nova-cerca-tab">
-                        <h1>Nova cerca</h1>
+                        <h2>Nova cerca</h2>
                         <div class="row">
 
                             <div class="col-sm-6 offset-sm-3">
@@ -84,7 +84,7 @@
                     </div>
 
                     <div class="tab-pane" id="cerques-previes" role="tabpanel" aria-labelledby="cerques-previes-tab">
-                        <h1>Consulta de cerques realitzades</h1>
+                        <h2>Consulta de cerques realitzades</h2>
 
                         <div class="row">
 
@@ -192,8 +192,7 @@
                                     </tr>
                                 </thead>
 
-                                <tbody >
-                                    <!-- Aquí comemça el fragment amb les dades de la taula-->
+                                <tbody >                                    
                                     <tr th:each="search: ${searches}">
                                         <td th:text="${search.getSearch().getRepository()}"></td>
                                         <td th:text="${search.getSearch().getSearchCriteria()}"></td>
@@ -247,7 +246,7 @@
                             </div>
                             <div class="modal-body">
                                 <div class="row detall-header">
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <b>Repositori</b>:
@@ -264,42 +263,45 @@
                                             <div class="col-sm-6" th:text="${search.getSearchCriteria()}">
                                                 Unes partides
                                             </div>
+                                            <input type="hidden" id="export-criteria" th:value="${search.getSearchCriteria()}"/>
                                         </div>
                                     </div>
 
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-4">
                                         <div class="row">
-                                            <div class="col-sm-8">
+                                            <div class="col-sm-7">
                                                 <b>Data original:</b>
                                             </div>
-                                            <div class="col-sm-4 text-right" th:text="${search.getOriginalDate()}">
+                                            <div class="col-sm-5 text-right" th:text="${search.getOriginalDate()}">
                                             </div>
                                         </div>
 
                                         <div class="row">
-                                            <div class="col-sm-8 ">
+                                            <div class="col-sm-7 ">
                                                 <b>Darrera actualització:</b>
                                             </div>
-                                            <div class="col-sm-4 text-right" th:text="${search.getUpdateDate()}">                                
+                                            <div class="col-sm-5 text-right" th:text="${search.getUpdateDate()}">                                
                                             </div>
                                         </div>
 
+                                    </div>
+                                    <div class="col-sm-4">
                                         <div class="row">
 
                                             <div class="col-sm-6">
                                                 <b>Quantitat de resultats:</b>
                                             </div>
-                                            <div class="col-sm-6" th:text="${resourcesCount}">
-                                            </div>
+                                            <div class="col-sm-6" th:text="${resourcesCount}"></div>
                                         </div>
+
                                     </div>
                                 </div>
 
 
                                 <div class="row">
-                                    <div class="col-xl-6 col-sm-12">
+                                    <div class="col-xl-8 col-sm-12">
 
-                                        <h1>Configuració dels filtres</h1>
+                                        <h2>Configuració dels filtres</h2>
 
                                         <div class="row">
 
@@ -330,7 +332,7 @@
                                         <div class="row">
                                             <div class="col-xl-4 col-sm-12">
                                                 <div class="filter-date-order">
-                                                    <label for="filter-date-order">Data de cerca</label>
+                                                    <label for="filter-date-order">Data d'edició</label>
                                                     <select class="form-control" id="filter-date-order">
                                                         <option value="*">qualsevol</option>
                                                         <option value="<">anterior a</option>
@@ -373,7 +375,7 @@
 
                                         <hr />
 
-                                        <h1>Llistat de recursos</h1>
+                                        <h2>Llistat de recursos</h2>
 
                                         <div class="table-container">
                                             <table class="table table-striped" id="resources">
@@ -382,7 +384,7 @@
                                                         <th>Títol</th>
                                                         <th class="text-center">Pàgina</th>
                                                         <th>Procés d'anàlisi</th>
-                                                        <th class="text-center" data-options="field:'date-query'">Data de cerca</th>
+                                                        <th class="text-center" data-options="field:'date-query'">Data d'edició</th>
                                                         <th class="text-center no-sort">Formats</th>
                                                         <th class="text-center "></th>
                                                         <th class="text-center no-sort">Accions</th>
@@ -392,10 +394,10 @@
 
                                                 <tbody th:fragment="llistat-realitzades" th:if="${resources}" th:object="${resources}">
                                                     <tr th:each="resource : ${resources}" th:data-id="${resource.getId()}">
-                                                        <td th:text="${resource.getTitle()}"></td>
+                                                        <td th:attr="title=${resource.getTitle()}"><span th:text="${#strings.substring(resource.getTitle(), 0, 12)}"></span><span th:if="${#strings.length(resource.getTitle())>12}" th:text="..."></span></td>
                                                         <td class="text-center" th:text="${resource.getPage()}"></td>
                                                         <td th:text="${resource.getProcessingAnalysis()}"></td>
-                                                        <td th:text="${resource.getSearchDate()}"></td>
+                                                        <td th:text="${resource.getEditionDate()}"></td>
                                                         <td th:text="${resource.getSupportedFormatsAsSingleString()}"></td>
 
 
@@ -417,21 +419,21 @@
                                     </div>
 
 
-                                    <div class="col-xl-6 col-sm-12">
+                                    <div class="col-xl-4 col-sm-12">
 
 
-                                        <h1>Exportació</h1>
+                                        <h2>Exportació</h2>
 
                                         <div class="row">
 
                                             <div id="exportMessages" class="col-12">
                                                 <div th:fragment="exportMessages">
                                                     <div th:if="${errorExportMessage}" class="alert alert-danger"  role="alert">
-                                                        <h1>Error</h1>
+                                                        <h2>Error</h2>
                                                         <p th:text="${errorExportMessage}"></p>
                                                     </div>                                                
                                                     <div th:if="${successExportMessage}" class="alert alert-success"  role="alert">
-                                                        <h1>Éxit</h1>
+                                                        <h2>Éxit</h2>
                                                         <p th:text="${successExportMessage}"></p>
                                                     </div>
                                                 </div>
@@ -448,14 +450,14 @@
 
                                         <div id="resourceDetail">
                                             <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
-                                                <h1>Detall del recurs</h1>
+                                                <h2>Detall del recurs</h2>
 
 
                                                 <div class="row" id="detall-recurs">
                                                     <div class="col-sm-3 ">
                                                         <b>Títol:</b>
                                                     </div>
-                                                    <div class="col-sm-3" th:text="${resource.getTitle()}">
+                                                    <div class="col-sm-9" th:text="${resource.getTitle()}">
                                                         Títol
                                                     </div>
 
@@ -553,7 +555,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <!--<h1>Exportar recursos seleccionats</h1>-->
+                <!--<h2>Exportar recursos seleccionats</h2>-->
                 <p>S'han seleccionat <span id="export-count">0</span> recursos.</p>
 
                 <div class="form-group">
@@ -570,6 +572,7 @@
                 </div>
             </div>
 
+            
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel·lar</button>

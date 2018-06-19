@@ -39,6 +39,8 @@ public class LocalFormatedFile implements FormatedFile{
         
         FileInputStream in = null;
                 
+        
+        
         try {
             in = new FileInputStream(file);
         } catch (FileNotFoundException e) {
@@ -46,7 +48,6 @@ public class LocalFormatedFile implements FormatedFile{
             System.err.println("TEST: File not found." + this.filename);
             //throw new UnsupportedOperationException("TEST: File not found." + this.filename); //To change body of generated methods, choose Tools | Templates.
         }
-        
         
         return in;
                 

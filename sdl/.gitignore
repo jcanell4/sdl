@@ -25,6 +25,8 @@
 /.nb-gradle/
 
 ### DB ###
+/export/
 /resourcefiles/
 /sdldb/
 /db/
+/info/

@@ -142,7 +142,7 @@ table li {
 }
 
 div.table-container {
-    overflow-x: scroll;
+    overflow: auto;
 }
 
 .modal {

@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 import org.elsquatrecaps.jig.sdl.configuration.DataSourceProperties;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
+import org.elsquatrecaps.jig.sdl.configuration.InfoInstallBean;
 import org.elsquatrecaps.jig.sdl.configuration.ServerProperties;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +40,17 @@ public class PersistenceConfig {
     DataSourceProperties dsp;
     @Autowired
     ServerWrapper serverWrapper;
+    @Autowired
+    InfoInstallBean infoInstallBean;
+    
 //    private final Logger log = LoggerFactory.getLogger(getClass());
             
+    @Bean(destroyMethod = "close")
+    public InfoInstallBean getPropertiesBean() {
+        InfoInstallBean prop = new InfoInstallBean();
+        return prop;
+    }  
+
     @Bean(initMethod = "start", destroyMethod = "stop")
     public ServerWrapper getServerWrapper() {
         ServerWrapper server = new ServerWrapper(sp);
@@ -55,6 +65,9 @@ public class PersistenceConfig {
         emf.setPersistenceProviderClass(HibernatePersistenceProvider.class);
         emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         emf.setPackagesToScan("org.elsquatrecaps.jig.sdl.model");
+        if(!infoInstallBean.isDataBaseInstalled()){
+            dsp.getProperties().put("javax.persistence.schema-generation.database.action", "create");
+        }
         emf.setJpaPropertyMap(dsp.getProperties());
         emf.setPersistenceUnitName("org.elsquatrecaps.jig_sdl_jar_0.0.1-SNAPSHOTPU");
           

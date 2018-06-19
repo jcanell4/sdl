@@ -108,4 +108,8 @@ public class PersistenceService {
         }
         return ret;       
     }
+    
+    public Optional<Search> findOne(String repository, String searchCriteria){
+        return searchRepository.findOne(repository, searchCriteria);
+    }
 }
