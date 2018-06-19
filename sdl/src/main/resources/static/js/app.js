@@ -99,12 +99,12 @@ var bibliotequesAPI = (function () {
             } else {
                 $overlayNode.css('display', 'none');
             }
-        }
+        };
 
     })();
 
 
-var sendSearchDetailRequest = function(id) {
+    var sendSearchDetailRequest = function(id) {
     var url = '/searchDetail/' + id; // TODO: extreure la ruta per facilitar onfigurar-la
 
             // AJAX per carregar el dialeg dins d'aquest contenidor
@@ -122,11 +122,12 @@ var sendSearchDetailRequest = function(id) {
                 
                 // TODO: Afegir els handlers als botons del dialeg dialeg
                 initSearchDetail();
+                initFilter();
                 initExportButton();
             });
             
             console.log("petició enviada");
-}
+    };
 
     
     var initSearches = function () {
@@ -170,8 +171,6 @@ var sendSearchDetailRequest = function(id) {
 
         tables.resourcesTable = $resourcesDatatable.DataTable(options);
         
-        
-        
         // TODO: Inicialitzar els botons
         $('#resources td a').on('click', function (e) {
             e.preventDefault();
@@ -199,8 +198,9 @@ var sendSearchDetailRequest = function(id) {
             console.log("petició enviada");
 
         });
+        
 
-    }
+    };
 
 
     
@@ -287,6 +287,7 @@ var sendSearchDetailRequest = function(id) {
                 $('#searches-container').replaceWith($(data));
                 
                 initSearches();
+                initFilter();
             
             
             
@@ -322,7 +323,7 @@ var sendSearchDetailRequest = function(id) {
 
             $repository.append($option);
         }
-    }
+    };
 
     var updateFilterDate = function ($operator, $date1, $date2) {
         var selected = $operator.val();
@@ -356,18 +357,33 @@ var sendSearchDetailRequest = function(id) {
 
         initQueryForm();
 
-        $('#filter-query-execute').on('click', function (e) {
-            e.preventDefault();
-            tables.queryTable.draw();
-        });
-
-
         var $filterQueryDateOriginal = $('#filter-query-date-original');
         var $filterQueryDateOriginal1 = $('#filter-query-date-original-1');
         var $filterQueryDateOriginal2 = $('#filter-query-date-original-2');
         var $filterQueryDateUpdate = $('#filter-query-date-update');
         var $filterQueryDateUpdate1 = $('#filter-query-date-update-1');
         var $filterQueryDateUpdate2 = $('#filter-query-date-update-2');
+
+        $filterQueryDateOriginal.off();
+        $filterQueryDateOriginal1.off();
+        $filterQueryDateOriginal2.off();
+        $filterQueryDateUpdate.off();
+        $filterQueryDateUpdate1.off();
+        $filterQueryDateUpdate2.off();
+
+        $('#filter-query-execute').off();
+        $('#filter-query-remove').off();
+        $('#filter-date-order').off();       
+        $('#filter-execute').off();
+        $('#filter-remove').off();
+        $('#filter-select-all').off();
+        
+
+        $('#filter-query-execute').on('click', function (e) {
+            e.preventDefault();
+            tables.queryTable.draw();
+        });
+
 
         $('#filter-query-remove').on('click', function (e) {
             e.preventDefault();
@@ -431,7 +447,6 @@ var sendSearchDetailRequest = function(id) {
 
         });
 
-
         $('#filter-select-all').on('click', function (e) {
             e.preventDefault();
 
@@ -465,7 +480,7 @@ var sendSearchDetailRequest = function(id) {
 
             tables.resourcesTable.draw();
 
-        })
+        });
 
     };
 

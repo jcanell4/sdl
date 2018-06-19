@@ -142,8 +142,8 @@ table li {
 }
 
 div.table-container {
-    overflow: auto;
-}
+    overflow: scroll;
+}   
 
 .modal {
   overflow-y:auto;
