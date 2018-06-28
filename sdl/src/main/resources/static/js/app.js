@@ -406,7 +406,7 @@ var bibliotequesAPI = (function () {
 
         });
 
-        $filterQueryDateOriginal.on('change', function () {ç
+        $filterQueryDateOriginal.on('change', function () {
             updateFilterDate($filterQueryDateOriginal, $filterQueryDateOriginal1, $filterQueryDateOriginal2);
         });
         updateFilterDate($filterQueryDateOriginal, $filterQueryDateOriginal1, $filterQueryDateOriginal2);
@@ -541,17 +541,16 @@ var bibliotequesAPI = (function () {
                 ids.push($(tables.resourcesTable.row(selectedIndex[i]).nodes()[0]).attr('data-id'));
             }
             
-            var criteria = $('#export-criteria').val();
-            
             console.log("Iniciat export");
             
             formats = formats.replace(new RegExp(' ', 'g'), ',');
+            var process = $("#export-process").val();
             
             $.ajax(
                     {
                         url: "/export",
                         type: "POST",
-                        data: {'ids[]': ids,'formats': formats, criteria: criteria}
+                        data: {'ids[]': ids,'formats': formats, 'process': process}
                     }
             ).done(function (data) {
                 console.log("AJAX done");
@@ -617,9 +616,40 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             COL_DATE_ORIGINAL = 2,
             COL_DATE_UPDATE = 3;
 
-    var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd
+    var isDateInputSupported = function () {
+        var input = document.createElement('input');
+        input.setAttribute('type','date');
+        var notADateValue = 'not-a-date';
+        input.setAttribute('value', notADateValue); 
+        return (input.value !== notADateValue);
+    }
+    
+    var dateStringToDDMMYYYY = function(dateString, sep){
+        var timeTokens = dateString.split(/[/\-]/);
+        var reverse = isDateInputSupported();
+        var ret = "";
+
+        if (reverse) {// aaaa/mm/dd
+            ret += timeTokens[2];
+            ret += "/";
+            ret += timeTokens[1];
+            ret += "/";
+            ret += timeTokens[0];
+        }else{
+            ret += timeTokens[0];
+            ret += "/";
+            ret += timeTokens[1];
+            ret += "/";
+            ret += timeTokens[2];
+        }
+        
+    }
+
+    var stringToDate = function (dateString) { // reverse pel format aaaa/mm/dd
         var timeTokens = dateString.split(/[/\-]/);
         var day, month, year;
+        
+        var reverse = isDateInputSupported();
 
         if (reverse) {// aaaa/mm/dd
             day = Number(timeTokens[2]) - 1;
@@ -633,7 +663,6 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
         return new Date(year, month, day);
     };
-
 
     var textContainsAnyToken = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
 
@@ -713,8 +742,8 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
     // Filtre per data original
     var dateOrder = $filterDateOriginal.val();
-    var data1 = stringToDate($filterDateOriginal1.val(), true);
-    var data2 = stringToDate($filterDateOriginal2.val(), true);
+    var data1 = stringToDate($filterDateOriginal1.val());
+    var data2 = stringToDate($filterDateOriginal2.val());
     var dataRow = stringToDate(data[COL_DATE_ORIGINAL]);
 
     switch (dateOrder) {
@@ -757,8 +786,8 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
     // Filtre per data update
     dateOrder = $filterDateUpdate.val();
-    data1 = stringToDate($filterDateUpdate1.val(), true);
-    data2 = stringToDate($filterDateUpdate2.val(), true);
+    data1 = stringToDate($filterDateUpdate1.val());
+    data2 = stringToDate($filterDateUpdate2.val());
     dataRow = stringToDate(data[COL_DATE_UPDATE]);
 
     switch (dateOrder) {
@@ -890,7 +919,8 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
         if ($filterProcess.val() === '-') {
             tokenFound = data[COL_PROCESS].length === 0;
         } else {
-            tokenFound = data[COL_PROCESS] === $filterProcess.val();
+            tokenFound = textContainsAnyToken($filterProcess.val().toLowerCase(), data[COL_PROCESS].toLowerCase(), ',');
+            //tokenFound = data[COL_PROCESS] === $filterProcess.val();
         }
     }
 
@@ -905,8 +935,8 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
     // Filtre per data
     var dateOrder = $filterDateOrder.val();
-    var data1 = stringToDate($filterDate1.val(), true);
-    var data2 = stringToDate($filterDate2.val(), true);
+    var data1 = stringToDate($filterDate1.val());
+    var data2 = stringToDate($filterDate2.val());
     var dataRow = stringToDate(data[COL_DATA]);
 
     switch (dateOrder) {

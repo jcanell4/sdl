@@ -1,8 +1,10 @@
 package org.elsquatrecaps.jig.sdl.searcher;
 
-public class BvphSearchCriteria extends SearchCriteria{
+public final class BvphSearchCriteria extends SearchCriteria{
     private Integer smallerYear=null;
     private Integer biggerYear=null;
+    private String dateStart=null;
+    private String dateEnd=null;
 
     public BvphSearchCriteria() {
     }
@@ -11,6 +13,12 @@ public class BvphSearchCriteria extends SearchCriteria{
         super(text);
     }
 
+    public BvphSearchCriteria(String text, String dateStart, String dateEnd){
+        super(text);
+        setDateStart(dateStart);
+        setDateEnd(dateEnd);
+    }
+    
     public BvphSearchCriteria(String text, Integer smaller, Integer bigger){
         super(text);
         setSmallerYear(smaller);
@@ -31,5 +39,33 @@ public class BvphSearchCriteria extends SearchCriteria{
 
     public void setBiggerYear(Integer biggerYear) {
         this.biggerYear = biggerYear;
+    }
+
+    /**
+     * @return the dateStart
+     */
+    public String getDateStart() {
+        return dateStart;
+    }
+
+    /**
+     * @param dateStart the dateStart to set
+     */
+    public void setDateStart(String dateStart) {
+        this.dateStart = dateStart;
+    }
+
+    /**
+     * @return the dateEnd
+     */
+    public String getDateEnd() {
+        return dateEnd;
+    }
+
+    /**
+     * @param dateEnd the dateEnd to set
+     */
+    public void setDateEnd(String dateEnd) {
+        this.dateEnd = dateEnd;
     }
 }

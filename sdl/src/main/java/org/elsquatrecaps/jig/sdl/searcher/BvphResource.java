@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class BvphResource extends SearchResource{
+public class BvphResource extends SearcherResource{
     private static final String[] SUPPORTED_FORMATS={"jpg", "txt", "xml"};
     private String fragmentsFilter;
     private String actionsFilter;
@@ -20,17 +20,19 @@ public class BvphResource extends SearchResource{
     private String altoXmlUrl;
     private String ocrtextUrl;
     private String jpgTemporalUrl;
+    private String patterToExtractDateFromTitle;
 
     public BvphResource() {
     }
     
-    public BvphResource(String fragmentsFilter, String actionsFilter, String saveJpgFilter, String titleFilter, String pageFilter, String editionDateBloc) {
+    public BvphResource(String fragmentsFilter, String actionsFilter, String saveJpgFilter, String titleFilter, String pageFilter, String editionDateBloc, String patterToExtractDateFromTitle) {
         this.fragmentsFilter = fragmentsFilter;
         this.actionsFilter = actionsFilter;
         this.saveJpgFilter = saveJpgFilter;
         this.titleFilter = titleFilter;
         this.pageFilter = pageFilter;
         this.editionDateBlocFilter = editionDateBloc;
+        this.patterToExtractDateFromTitle = patterToExtractDateFromTitle;
     }
     
     public void updateFromElement(Element elem, String context, Map<String, String> cookies){
@@ -42,7 +44,7 @@ public class BvphResource extends SearchResource{
         setTitle(dlElement.selectFirst(titleFilter).text());
         setPageId(elem.child(0).attr("id"));
         setPage(elem.selectFirst(pageFilter).text());
-        setEditionDate(getDateFromDbi(dlElement.selectFirst(editionDateBlocFilter).text()));
+        setEditionDate(getDateFromDbiOrTitle(dlElement.selectFirst(editionDateBlocFilter)));
         frags = new ArrayList<>(elem.select(fragmentsFilter));
         for(int i=0; i<frags.size(); i++){
             addFragment(frags.get(i).text());
@@ -58,6 +60,26 @@ public class BvphResource extends SearchResource{
         ocrtextUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, ocrtextUrl+"&aceptar=Aceptar");
         altoXmlUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, altoXmlUrl+"&aceptar=Aceptar");
         jpgTemporalUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, jpgTemporalUrl+"&aceptar=Aceptar");
+    }
+    
+    private String getDateFromDbiOrTitle(Element dateElement){
+        String ret = null;
+        if(dateElement==null){
+            ret = getDateFromTitle();
+        }else{
+            ret = getDateFromDbi(dateElement.text());
+        }
+        return ret;
+    }
+    
+    private String getDateFromTitle(){
+        String ret="00/00/0000";
+        Pattern pattern = Pattern.compile(patterToExtractDateFromTitle);
+        Matcher matcher = pattern.matcher(this.getTitle());
+        if(matcher.find()){
+            ret = matcher.group(1);
+        }
+        return ret;
     }
     
     private String getDateFromDbi(String bdi){

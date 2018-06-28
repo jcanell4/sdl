@@ -5,7 +5,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public abstract class SearchResource{
+public abstract class SearcherResource{
     private String title;
     private String page;
     private String publicationId;
@@ -21,6 +21,19 @@ public abstract class SearchResource{
                               "[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
         Pattern pattern2 = Pattern.compile(
                               "[+-.:,;<>\\{\\}\\[\\]\\*\\^\\¿\\?\\=\\)\\(\\/\\&\\%ºº$\\·\\#\\@\\|\\\\!\"]+");
+        if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{2}\\/[0-9]{2}\\/[0-9]{2,4}")){            
+            String[] aDate = editionDate.split("\\/");
+            strBuffer.append(aDate[2]);
+            strBuffer.append("_");
+            strBuffer.append(aDate[1]);
+            strBuffer.append("_");
+            strBuffer.append(aDate[0]);
+        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{4}.+?[0-9]{2}")){            
+            strBuffer.append(editionDate.substring(0, 4));
+            strBuffer.append("_00_00");
+        }else{
+            strBuffer.append("0000_00_00");
+        }
         strBuffer.append(publicationId);
         strBuffer.append("_");
         strBuffer.append(pageId);
@@ -37,7 +50,7 @@ public abstract class SearchResource{
                 strBuffer.append(word.substring(1).toLowerCase());
             }
         }
-        return strBuffer.toString();
+        return strBuffer.toString().substring(0,60);
     }
     
     

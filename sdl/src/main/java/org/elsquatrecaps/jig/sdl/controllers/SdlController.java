@@ -17,11 +17,14 @@ import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
 import org.elsquatrecaps.jig.sdl.model.SearchAndCount;
+import org.elsquatrecaps.jig.sdl.model.SearchId;
+import org.elsquatrecaps.jig.sdl.model.SearchResource;
+import org.elsquatrecaps.jig.sdl.model.SearchResourceId;
 import org.elsquatrecaps.jig.sdl.persistence.ResourceRepository;
 import org.elsquatrecaps.jig.sdl.persistence.SearchRepository;
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchIterator;
-import org.elsquatrecaps.jig.sdl.searcher.SearchResource;
+import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
 import org.elsquatrecaps.jig.sdl.searcher.cfg.ConfigParserOfSearcher;
 import org.elsquatrecaps.jig.sdl.services.ExportService;
 import org.elsquatrecaps.jig.sdl.services.PersistenceService;
@@ -34,6 +37,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
 
 @Controller
 public class SdlController {
@@ -42,6 +46,8 @@ public class SdlController {
 
     @Autowired(required = true)
     ResourceRepository resourceRepository;
+    @Autowired(required = true)
+    SearchResourceRepository searchResourceRepository;
     @Autowired(required = true)
     SearchRepository searchRepository;
     @Autowired(required = true)
@@ -71,7 +77,7 @@ public class SdlController {
     }
 
     private List<SearchAndCount> getAllSearches() {
-        PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
+        PersistenceService instance = new PersistenceService(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
         List<SearchAndCount> searchesWithCounter = instance.findAllSearchWithResourceCounter();        
         
 
@@ -80,21 +86,23 @@ public class SdlController {
     
     
     @RequestMapping(value = "/searchDetail/{id}")
-    public ModelAndView searchHandler(@PathVariable("id") int id) { 
-        PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
-
+    public ModelAndView searchHandler(@PathVariable("id") String id) { 
+        PersistenceService instance = new PersistenceService(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
+        String[] aId = id.split(",");
         String view = "new :: resourcesBySearchDialog";
         ModelAndView ret = new ModelAndView(view);
 
-        Search search = instance.findSearchById(id);
+        Search search = instance.findSearchById(new SearchId(aId[0], aId[1]));
         ret.addObject("search", search);
 
-        List<Resource> resources = instance.findAllResourceBySerach(search.getId());
+        List<SearchResource> resources = instance.findAllResourceBySearch(search.getId());
         ret.addObject("resources", resources);
         ret.addObject("resourcesCount", resources.size());
 
-        for (Resource resource : resources) {
-            System.out.println(resource.getId());
+        for (SearchResource resource : resources) {
+            System.out.print(resource.getSearchCriteria());
+            System.out.print("->");
+            System.out.println(resource.getResourceId());
         }
 
         return ret;
@@ -102,12 +110,13 @@ public class SdlController {
 
     @RequestMapping(value = "/resourceDetail/{id}")
     public ModelAndView resoruceDetailHandler(@PathVariable("id") String id) { 
-        PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
+        PersistenceService instance = new PersistenceService(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
+        String[] aId = id.split(",");
 
         String view = "new :: resourceDetail";
         ModelAndView ret = new ModelAndView(view);
 
-        Resource resource = instance.findResourceById(id);
+        SearchResource resource = instance.findResourceById(new SearchResourceId(aId[0], aId[1], aId[2]));
         ret.addObject("resource", resource);
 
         return ret;
@@ -128,14 +137,24 @@ public class SdlController {
 
         ModelAndView ret = new ModelAndView("new :: searches");
         
+        if(dateStart.matches("[0-9]{4}[\\/\\-][0-9]{2}[\\/\\-][0-9]{2}")){
+            String[] aDate = dateStart.split("[\\/\\-]");
+            dateStart = aDate[2].concat("/").concat(aDate[1]).concat("/").concat(aDate[0]);
+        }
+        
+        if(dateEnd.matches("[0-9]{4}[\\/\\-][0-9]{2}[\\/\\-][0-9]{2}")){
+            String[] aDate = dateEnd.split("[\\/\\-]");
+            dateEnd = aDate[2].concat("/").concat(aDate[1]).concat("/").concat(aDate[0]);
+        }
+        
         if (criteria.length()>0) {
-            iterate(criteria, repository);
+            iterate(criteria, repository, dateStart, dateEnd);
         } else {
             // TODO[Xavi] Enviar un dialeg amb un missatge d'error?
         }
         
 
-        PersistenceService instance = new PersistenceService(resourceRepository, searchRepository, transactionManager);
+        PersistenceService instance = new PersistenceService(resourceRepository, searchResourceRepository,  searchRepository, transactionManager);
         ret.addObject("searches", getAllSearches());
         
         Optional<Search> optional = instance.findOne(repository, criteria);
@@ -149,22 +168,22 @@ public class SdlController {
     
     
     
-    private void iterate(String criteria, String repository) {
+    private void iterate(String criteria, String repository, String dateStart, String dateEnd){
         String fileRepositoryPath = this.dp.getLocalReasourceRepo();
         int quantity = this.dp.getQuantity();
         
         System.out.println("Cercant: " + criteria);
-        BvphSearchIterator iterator = (BvphSearchIterator) ConfigParserOfSearcher.getIterator(repository, new BvphSearchCriteria(criteria));
+        BvphSearchIterator iterator = (BvphSearchIterator) ConfigParserOfSearcher.getIterator(repository, new BvphSearchCriteria(criteria, dateStart, dateEnd));
         
         System.out.println("Iterador obtingut");
         
         int c=0;
         Search search = new Search(repository, criteria, String.format("%1$td/%1$tm/%1$tY", Calendar.getInstance()));
-        PersistenceService pService = new PersistenceService(resourceRepository, searchRepository, transactionManager);
+        PersistenceService pService = new PersistenceService(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
         
         while((quantity<=0 || c<quantity) && iterator.hasNext()){
             c++;
-            SearchResource res = iterator.next();
+            SearcherResource res = iterator.next();
             Resource resource = new Resource(res);
             search.addResource(resource);
             String[] formats = resource.getSupportedFormats();
@@ -192,8 +211,7 @@ public class SdlController {
     public ModelAndView searchHandler(
             @RequestParam(defaultValue = "", name = "ids[]") String[] ids,
             @RequestParam(defaultValue = "", name = "formats") String formats,
-            @RequestParam(defaultValue = "", name = "process") String process,
-            @RequestParam(defaultValue = "", name = "criteria") String criteria
+            @RequestParam(defaultValue = "", name = "process") String process
     ) {
 
         // TODO: Carregar un missatge de confirmiació o alguna altre cosa
@@ -201,7 +219,7 @@ public class SdlController {
         ModelAndView ret = new ModelAndView("new :: exportMessages");
         
         
-        ExportService instance = new ExportService(resourceRepository, this.dp);
+        ExportService instance = new ExportService(searchResourceRepository, this.dp);
         
         String[] formatArray = formats.split(",");
         
@@ -209,7 +227,7 @@ public class SdlController {
         
         for (String format : formatArray) {
             try {
-                instance.exportResourcesById(ids, format, criteria);
+                instance.exportResourcesById(ids, format, process);
                 
             } catch (UnsupportedFormat e) {
                 if (errorMessage == null) {

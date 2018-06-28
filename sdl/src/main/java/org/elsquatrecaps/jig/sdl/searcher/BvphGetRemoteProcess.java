@@ -78,11 +78,23 @@ public class BvphGetRemoteProcess extends GetRemoteProcess{
     public void setCriteria(SearchCriteria criteria){
         BvphSearchCriteria bvphSearchCriteria = (BvphSearchCriteria) criteria;
         this.setText(criteria.getText());
-        if(bvphSearchCriteria.getSmallerYear()!=null){
+        if(bvphSearchCriteria.getSmallerYear()!=null
+                && bvphSearchCriteria.getSmallerYear()>0){
             this.setSmallerYear(bvphSearchCriteria.getSmallerYear());
+        }else if(bvphSearchCriteria.getDateStart()!=null
+                && !bvphSearchCriteria.getDateStart().isEmpty()){
+            this.setParam(this.smallerYearKey, bvphSearchCriteria.getDateStart());
+        }else{
+            this.setSmallerYear(smallerYear);
         }
-        if(bvphSearchCriteria.getBiggerYear()!=null){
+        if(bvphSearchCriteria.getBiggerYear()!=null
+                && bvphSearchCriteria.getBiggerYear()>0){
             this.setBiggerYear(bvphSearchCriteria.getBiggerYear());
+        }else if(bvphSearchCriteria.getDateEnd()!=null
+                && !bvphSearchCriteria.getDateEnd().isEmpty()){
+            this.setParam(this.biggerYearKey, bvphSearchCriteria.getDateEnd());
+        }else{
+            this.setBiggerYear(biggerYear);
         }
     }
     
@@ -104,11 +116,23 @@ public class BvphGetRemoteProcess extends GetRemoteProcess{
     }
 
     public void setBiggerYear(int bigger){
-        this.setParam(biggerYearKey, String.format("31/12/%d", bigger));
+        if(this.getParam(biggerYearKey)==null){
+            this.setParam(biggerYearKey, String.format("31/12/%d", bigger));
+        }else if(bigger<this.getYearFromStringDate(this.getParam(biggerYearKey))){
+            this.setParam(biggerYearKey, String.format("31/12/%d", bigger));
+        }else{
+            this.biggerYear = bigger;
+        }
     }
 
     public void setSmallerYear(int smaller){
-        this.setParam(smallerYearKey, String.format("01/01/%d", smaller));
+        if(this.getParam(smallerYearKey)==null){
+            this.setParam(smallerYearKey, String.format("01/01/%d", smaller));
+        }else if(smaller>this.getYearFromStringDate(this.getParam(smallerYearKey))){
+            this.setParam(smallerYearKey, String.format("01/01/%d", smaller));
+        }else{
+            this.smallerYear = smaller;
+        }
     }
 
     @Override

@@ -1,36 +1,15 @@
 package org.elsquatrecaps.jig.sdl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import org.elsquatrecaps.jig.sdl.model.Resource;
-import org.elsquatrecaps.jig.sdl.model.Search;
-import org.elsquatrecaps.jig.sdl.persistence.ResourceRepository;
-import org.elsquatrecaps.jig.sdl.persistence.SearchRepository;
-import org.elsquatrecaps.jig.sdl.services.PersistenceService;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @RunWith(SpringRunner.class)
 @EnableTransactionManagement
 @SpringBootTest
 public class SdlApplicationTests {
-    @Autowired
-    ResourceRepository resourceRepository;
-    
-    @Autowired
-    SearchRepository searchRepository;
-    
-//    @Autowired
-//    PlatformTransactionManager transactionManager;
-    
-
     @Test
     public void contextLoads() {
 //        testCreateSearchWithService();

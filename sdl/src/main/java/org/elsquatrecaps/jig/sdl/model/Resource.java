@@ -19,7 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 import org.elsquatrecaps.jig.sdl.searcher.FormatedResourceUtils;
-import org.elsquatrecaps.jig.sdl.searcher.SearchResource;
+import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
 
 @Entity
 @Access(AccessType.FIELD)
@@ -31,7 +31,6 @@ public class Resource implements Serializable{
     private String page;
     private String searchDate;
     private String editionDate;
-    private String processingAnalysis;
     private String fileName;
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="RESOURCE_FORMAT")
@@ -61,7 +60,7 @@ public class Resource implements Serializable{
         _addAllFragments(fragments);
     }
 
-    public Resource(SearchResource resource) {
+    public Resource(SearcherResource resource) {
         id = resource.getPublicationId().concat("_").concat(resource.getPageId());
         title = resource.getTitle();
         page = resource.getPage();
@@ -105,14 +104,6 @@ public class Resource implements Serializable{
     
     public String getEditionDate() {
         return this.editionDate;
-    }
-    
-    public void setProcessingAnalysis(String processingAnalysis) {
-        this.processingAnalysis = processingAnalysis;
-    }
-    
-    public String getProcessingAnalysis() {
-        return processingAnalysis;
     }
     
     public String[] getFragments() {

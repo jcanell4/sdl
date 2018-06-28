@@ -51,6 +51,8 @@ public class BvphSearchIterator extends SearchIterator{
     private String editionDateBloc = "dt span span.datos_publicacion bdi";
     @XmlElement
     private String downloadPdfJpg = "http://prensahistorica.mcu.es/es/catalogo_imagenes/iniciar_descarga.cmd";
+    @XmlElement
+    private String patterToExtractDateFromTitle = ".*(\\d{4}\\s+([Ee]nero|[Ff]ebrero|[Mm]arzo|[Aa]bril|[Mm]ayo|[Jj]unio|[Jj]ulio|[Aa]gosto|[Ss]eptiembre|[Oo]ctubre|[Nn]oviembre|[Dd]iciembre)\\s+\\d{2}).*";
 
 //    @XmlElement
 //    private String noResourcesText = "No hay resultados"; 
@@ -298,7 +300,7 @@ public class BvphSearchIterator extends SearchIterator{
         }
 
         private BvphResource getResource(Element a) {       
-            BvphResource ret = new BvphResource(fragmentsFilter, actionsFilter, saveJpgFilter, titleFilter, pageFilter, editionDateBloc);
+            BvphResource ret = new BvphResource(fragmentsFilter, actionsFilter, saveJpgFilter, titleFilter, pageFilter, editionDateBloc, patterToExtractDateFromTitle);
             ret.updateFromElement(a, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
             return ret;
         }

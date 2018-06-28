@@ -10,10 +10,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
+import javax.persistence.EmbeddedId;
+//import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -21,66 +24,51 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 
 @Entity
 @Access(AccessType.FIELD)
 public class Search implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "search_gen")
-    @TableGenerator(name = "search_gen", table = "ID_GEN", pkColumnName = "GEN_NAME", valueColumnName = "GEN_VAL", allocationSize = 1)
-    private long id;
-    private String searchCriteria;
+    @EmbeddedId
+    private SearchId id;
     private String originalDate;
-    private String repository;
     private String updateDate;
     
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
-    @JoinTable(name = "SEARCH_RESOURCE",
+    //@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy="search", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.LAZY)
+    /*@JoinTable(name = "SEARCH_RESOURCE",
             joinColumns = @JoinColumn(name = "searchId"),
             inverseJoinColumns = @JoinColumn(name = "resourceId")
-    )
-    private Set<Resource> resources = new HashSet<Resource>();
+    )*/
+    private Set<SearchResource> resources = new HashSet<SearchResource>();
     
     public Search(){
     }
     
-    public Search(long id) {
+    public Search(SearchId id) {
         this.id = id;
+    }
+    
+    public Search(String repository, String searchCriteria) {
+        this.id = new SearchId(repository, searchCriteria);
     }
     
     public Search(String repository, String searchCriteria, String originalDate) {
-        this.searchCriteria = searchCriteria;
+        this.id = new SearchId(repository, searchCriteria);
         this.originalDate = originalDate;
-        this.repository = repository;
-    }
-    
-    public Search(String repository, String searchCriteria, String originalDate, String updateDate) {
-        this.searchCriteria = searchCriteria;
-        this.originalDate = originalDate;
-        this.repository = repository;
-        this.updateDate = updateDate;
-    }
-    
-    public Search(long id, String repository, String searchCriteria, String originalDate, String updateDate) {
-        this.id = id;
-        this.searchCriteria = searchCriteria;
-        this.originalDate = originalDate;
-        this.repository = repository;
-        this.updateDate = updateDate;
     }
     
     public String getSearchCriteria() {
-        return searchCriteria;
+        return id.getSearchCriteria();
     }
     
     public String getRepository() {
-        return repository;
+        return id.getRepository();
     }
     
-    public long getId() {
+    public SearchId getId() {
         return id;
     }
 
@@ -92,17 +80,17 @@ public class Search implements Serializable {
         return updateDate;
     }
 
-    public List<Resource> getResourceList() {
-        List<Resource> ret = new ArrayList<>(this.resources);
+    public List<SearchResource> getResourceList() {
+        List<SearchResource> ret = new ArrayList<>(this.resources);
         return ret;
     }
     
-    public Iterator<Resource> getResourceIterator() {
+    public Iterator<SearchResource> getResourceIterator() {
         return resources.iterator();
     }    
 
     public void setSearchCriteria(String searchCriteria) {
-        this.searchCriteria = searchCriteria;
+        this.id.setSearchCriteria(searchCriteria);
     }
 
     public void setOriginalDate(String originalData) {
@@ -110,31 +98,41 @@ public class Search implements Serializable {
     }
 
     public void setRepository(String repository) {
-        this.repository = repository;
+        this.setRepository(repository);
     }
 
     public void setUpdateDate(String updateData) {
         this.updateDate = updateData;
     }
 
+    public void addResource(SearchResource resource) {
+        String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
+        resource.getResource().setSearchDate(date);
+        resource.setSearch(this);
+        if(!this.resources.contains(resource)){
+            this.resources.add(resource);
+        }        
+    }
+    
     public void addResource(Resource resource) {
         String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
         resource.setSearchDate(date);
-        this.resources.add(resource);
+        this.resources.add(new SearchResource(this, resource));
+    }
+    
+    public void addAllSearchResources(List<SearchResource> resources) {
+        for(SearchResource resource : resources){
+            this.resources.add(resource);
+        }
     }
     
     public void addAllResources(List<Resource> resources) {
         for(Resource resource : resources){
             addResource(resource);
-//            if(!this.resources.contains(resource)){
-//                String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
-//                resource.setSearchDate(date);
-//                this.resources.add(resource);
-//            }
         }
     }
     
-    public void setResources(List<Resource> resources) {
+    protected void setResources(List<SearchResource> resources) {
         this.resources.clear();
         this.resources.addAll(resources);
     }
@@ -142,9 +140,9 @@ public class Search implements Serializable {
     public String toString(){
         StringBuilder strb =  new StringBuilder();
         strb.append("Search of '");
-        strb.append(this.searchCriteria);
+        strb.append(this.id.getSearchCriteria());
         strb.append("' in ");
-        strb.append(this.repository);
+        strb.append(this.id.getRepository());
         strb.append("(first search date: ");
         strb.append(this.originalDate);
         strb.append(" and last update date: ");
@@ -157,25 +155,13 @@ public class Search implements Serializable {
         boolean ret = false;
         if(obj!=null && obj instanceof Search){
             Search search = (Search) obj;
-            if(this.id==0 || search.id==0){
-                ret = this.searchCriteria.equals(search.searchCriteria)
-                        && this.repository.equals(search.repository);
-            }else{
-                ret = this.id == search.id;
-            }
+            ret = this.id.equals(search.id);
         }
         return ret;
     }
 
     @Override
     public int hashCode() {
-        int hash;
-        if(this.id==0){
-            hash = this.searchCriteria.hashCode() + this.repository.hashCode();
-        }else{
-            hash = 7;
-            hash = 59 * hash + (int) (this.id ^ (this.id >>> 32));
-        }
-        return hash;
+        return this.id.hashCode();
     }
 }

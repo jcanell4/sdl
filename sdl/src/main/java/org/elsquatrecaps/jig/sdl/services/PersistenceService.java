@@ -11,24 +11,31 @@ import org.elsquatrecaps.jig.sdl.exception.EntityNotFoundException;
 import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
 import org.elsquatrecaps.jig.sdl.model.SearchAndCount;
+import org.elsquatrecaps.jig.sdl.model.SearchId;
+import org.elsquatrecaps.jig.sdl.model.SearchResource;
+import org.elsquatrecaps.jig.sdl.model.SearchResourceId;
 import org.elsquatrecaps.jig.sdl.persistence.ResourceRepository;
 import org.elsquatrecaps.jig.sdl.persistence.SearchRepository;
+import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
 
 @Service
 public class PersistenceService {
     ResourceRepository resourceRepository;
+    SearchResourceRepository searchResourceRepository;
     SearchRepository searchRepository;
     PlatformTransactionManager transactionManager;
     
 
-    public PersistenceService(ResourceRepository resourceRepository, SearchRepository searchRepository, PlatformTransactionManager transactionManager) {
+    public PersistenceService(ResourceRepository resourceRepository, SearchResourceRepository searchResourceRepository, SearchRepository searchRepository, PlatformTransactionManager transactionManager) {
         this.resourceRepository = resourceRepository;
+        this.searchResourceRepository = searchResourceRepository;
         this.searchRepository = searchRepository;
         this.transactionManager = transactionManager;
     }
@@ -47,22 +54,40 @@ public class PersistenceService {
     public Page<Search> findAllSearch(int pageNum,  int maxElements){
         return searchRepository.findAll(PageRequest.of(pageNum, maxElements));
     }
+    
+    private void saveResources(List<SearchResource> resources){
+        if(resources!=null && resources.size()>0){
+            for(SearchResource sr: resources){
+                String rId = sr.getResource().getId();
+                if(!resourceRepository.existsById(rId)){
+                    resourceRepository.saveAndFlush(sr.getResource());
+                }
+            }
+        }
+    }
 
     public Search saveSearch(Search search){
+        saveResources(search.getResourceList());
         TransactionTemplate transaction = new TransactionTemplate(transactionManager);
         return transaction.execute((TransactionStatus status) -> {
             Search toSave;
             Optional<Search> optional = searchRepository.findOne(search.getRepository(), search.getSearchCriteria());
             if(optional.isPresent()){
                 String updateDate = search.getOriginalDate();
-                List<Resource> resources = search.getResourceList();
+                List<SearchResource> resources = search.getResourceList();
                 toSave = optional.get();
                 toSave.setUpdateDate(updateDate);
                 if(resources!=null && resources.size()>0){
-                    toSave.addAllResources(resources);
+                    for(SearchResource sr: resources){
+                        toSave.addResource(sr);
+                        status.flush();
+                    }
                 }
             }else{
                 toSave = search;
+                for(SearchResource sr: toSave.getResourceList()){
+                    resourceRepository.saveAndFlush(sr.getResource());
+                }
                 searchRepository.saveAndFlush(toSave);
             }
             return toSave;
@@ -70,35 +95,35 @@ public class PersistenceService {
     }
     
     //resources
-    public List<Resource> findAllResourceBySerach(Long id){
-        return resourceRepository.findBySearchId(id);
+    public List<SearchResource> findAllResourceBySearch(SearchId id){
+        return searchResourceRepository.findBySearchId(id);
     }
 
-    public Page<Resource> findAllResourceBySerach(Long id, int pageNum,  int maxElements){
-        return resourceRepository.findBySearchId(id, PageRequest.of(pageNum, maxElements));
+    public Page<SearchResource> findAllResourceBySearch(SearchId id, int pageNum,  int maxElements){
+        return searchResourceRepository.findBySearchId(id, PageRequest.of(pageNum, maxElements));
     }
 
-    public List<Resource> findAllResourceBySerach(Search search){
-        return resourceRepository.findBySearchId(search.getId());
+    public List<SearchResource> findAllResourceBySearch(Search search){
+        return searchResourceRepository.findBySearchId(search.getId());
     }
 
-    public Page<Resource> findAllResourceBySerach(Search search, int pageNum,  int maxElements){
-        return resourceRepository.findBySearchId(search.getId(), PageRequest.of(pageNum, maxElements));
+    public Page<SearchResource> findAllResourceBySearch(Search search, int pageNum,  int maxElements){
+        return searchResourceRepository.findBySearchId(search.getId(), PageRequest.of(pageNum, maxElements));
     }
     
-    public Resource findResourceById(String id){
-        Resource ret;
-        Optional<Resource> optional = resourceRepository.findById(id);
+    public SearchResource findResourceById(SearchResourceId id){
+        SearchResource ret;
+        Optional<SearchResource> optional = searchResourceRepository.findById(id);
         if(optional.isPresent()){
             ret = optional.get();
         }else{
-            throw new EntityNotFoundException("Resource", "id", id);
+            throw new EntityNotFoundException("SearchResource", "id", id);
         }
         return ret;
     }
     
     //searchs
-    public Search findSearchById(long id){
+    public Search findSearchById(SearchId id){
         Search ret;
         Optional<Search> optional = searchRepository.findById(id);
         if(optional.isPresent()){
