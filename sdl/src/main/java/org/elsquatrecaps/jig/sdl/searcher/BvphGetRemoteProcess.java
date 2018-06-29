@@ -67,9 +67,15 @@ public class BvphGetRemoteProcess extends GetRemoteProcess{
     public void setParam(String key, String value) {
         if(smallerYearKey.equals(key)){
             smallerYear=getYearFromStringDate(value);
+            if(getParam(dateFormatKey)==null){
+                setParam(dateFormatKey, dateFormat);
+            }
         }
         if(biggerYearKey.equals(key)){
             biggerYear=getYearFromStringDate(value);
+            if(getParam(dateFormatKey)==null){
+                setParam(dateFormatKey, dateFormat);
+            }
         }
         super.setParam(key, value);
     }

@@ -866,6 +866,80 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
     var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd
         var timeTokens = dateString.split(/[/\-]/);
         var day, month, year;
+        
+        if(timeTokens.length<3 && dateString.search(/[0-9]{0,4}\s+(Gen|Ene|Jan|Feb|Mar|Abr|Apr|Mai|May|Jun|Jul|Ago|Aug|Sep|Set|Oct|Nov|Des|Dic|Dec).*(\s+[1-9]{1,2}st|th|nd|rd)?\s+[0-9]{2,4}/i)>-1){
+            var smonth = dateString.match(/Gen|Ene|Jan|Feb|Mar|Abr|Apr|Mai|May|Jun|Jul|Ago|Aug|Sep|Set|Oct|Nov|Des|Dic|Dec/i);
+            var syear = dateString.match(/[0-9]{4}/);
+            var sday = dateString.match(/(^|\s)([0-9]{1,2}(\s|$))|(^|\s)[0-9]{1,2}(?=(st|th|nd|rd))/);
+            
+            if(smonth!=null){
+                smonth = smonth[0];
+            }else{
+                smonth="00";
+            }
+            
+            switch (smonth.toLowerCase()){
+                case "gen":
+                case "ene":
+                case "jan":
+                    smonth = "01";
+                    break;
+                case "feb":
+                    smonth = "02";
+                    break;
+                case "mar":
+                    smonth = "03";
+                    break;
+                case "abr":
+                case "apr":
+                    smonth = "04";
+                    break;
+                case "mai":
+                case "may":
+                    smonth = "05";
+                    break;
+                case "jun":
+                    smonth = "06";
+                    break;
+                case "jul":
+                    smonth = "07";
+                    break;
+                case "ago":
+                case "aug":
+                    smonth = "08";
+                    break;
+                case "sep":
+                case "set":
+                case "Jan":
+                    smonth = "09";
+                    break;
+                case "oct":
+                    smonth = "10";
+                    break;
+                case "nov":
+                    smonth = "11";
+                    break;
+                case "des":
+                case "dic":
+                case "dec":
+                    smonth = "12";
+                    break;
+            }
+            if(sday!=null){
+                sday= sday[0];
+            }else{
+                sday="00";
+            }
+            if(syear!=null){
+                syear= syear[0];
+            }else{
+                syear="0000";
+            }
+            timeTokens[0]=sday;
+            timeTokens[1]=smonth;
+            timeTokens[2]=syear;
+            reverse=false;
+        }
 
         if (reverse) {// aaaa/mm/dd
             day = Number(timeTokens[2]) - 1;
