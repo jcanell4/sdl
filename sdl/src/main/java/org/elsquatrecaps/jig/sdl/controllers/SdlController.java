@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
+import org.springframework.http.HttpStatus;
 
 @Controller
 public class SdlController {
@@ -236,12 +237,13 @@ public class SdlController {
                     errorMessage.concat(", ".concat(format));
                 }
                 
-            }
+            } 
             
         }
         
         if (errorMessage !=null) {
             ret.addObject("errorExportMessage", errorMessage);
+            ret.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
             ret.addObject("successExportMessage", "Recursos exportats amb éxit");
         }

@@ -171,7 +171,24 @@ var bibliotequesAPI = (function () {
 
         tables.resourcesTable = $resourcesDatatable.DataTable(options);
         
-        // TODO: Inicialitzar els botons
+        tables.resourcesTable.on('select deselect', function (e) {
+            // TODO: Update el botó d'exportar
+           console.log("Select a la fila");
+           var enableExportButton = getSelectedIndex(tables.resourcesTable).length>0;
+           
+           console.log("Nombre de selecteds:", getSelectedIndex(tables.resourcesTable));
+           var $exportButton = $('#export-selected');
+           
+            if (enableExportButton) {
+                $exportButton.removeClass('disabled');
+            } else {
+                $exportButton.addClass('disabled');
+            }
+            
+           console.log("Enabled?", enableExportButton);
+        });
+        
+        
         $('#resources td a').on('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -501,13 +518,16 @@ var bibliotequesAPI = (function () {
         var $selectedCounter = $('#export-count');
         var $exportDialog = $('#export-modal');
         var $exportExecute = $('#export-execute');
-
+        var $formats = $('#export-formats');
 
         $exportButton.off();
         $exportButton.on('click', function (e) {
+            if ($exportButton.hasClass('disabled')) {
+                return;
+            }
+            
             e.preventDefault();
 
-            // TODO: Mostrar dialeg
             var selectedIndex = getSelectedIndex(tables.resourcesTable);
             var count = selectedIndex.length;
             $selectedCounter.text(count);
@@ -515,11 +535,25 @@ var bibliotequesAPI = (function () {
 
         });
 
+        $formats.val('');
+
+        $formats.off();
+        
+        $formats.on('input change', function() {
+            if ($formats.val().length>0) {
+                $exportExecute.removeClass('disabled');
+            } else {
+                $exportExecute.addClass('disabled');
+            }
+        });
 
 
         $exportExecute.off();
         
         $exportExecute.on('click', function (e) {
+            if ($exportExecute.hasClass('disabled')) {
+                return;
+            }
             e.preventDefault();
             
 
@@ -530,7 +564,7 @@ var bibliotequesAPI = (function () {
             
             var selectedIndex = getSelectedIndex(tables.resourcesTable);
             var count = selectedIndex.length;
-            var formats = $('#export-formats').val();
+            var formats = $formats.val();
             
             showOverlay("Exportant");
 
@@ -538,7 +572,7 @@ var bibliotequesAPI = (function () {
             console.log("Selected index:", selectedIndex, formats);
             var ids=[];
             for (var i=0; i<selectedIndex.length; i++) {
-                ids.push($(tables.resourcesTable.row(selectedIndex[i]).nodes()[0]).attr('data-id'));
+                ids.push($(tables.resourcesTable.row(selectedIndex[i]).nodes()[0]).attr('data-id').replace(new RegExp(',', 'g'), "|"));
             }
             
             console.log("Iniciat export");
@@ -552,23 +586,39 @@ var bibliotequesAPI = (function () {
                         type: "POST",
                         data: {'ids[]': ids,'formats': formats, 'process': process}
                     }
-            ).done(function (data) {
+            ).done(function (data, textStatus, jqXHR) {
                 console.log("AJAX done");
                 
                 showOverlay();
                 
                 $('#exportMessages').html($(data));
 
+                if (data.indexOf('error')===-1) {
+                    
+                    tables.resourcesTable.rows({selected:true})
+                            .every(function(rowIdx, tableLoop, rowLoop) {
+                                var oldProcesses = tables.resourcesTable.cell(rowIdx,2).data();
+                                    if (oldProcesses.indexOf(process)===-1) {
+                                        if (oldProcesses.length>0) {
+                                            oldProcesses +=", ";
+                                        }                                        
+                                        oldProcesses += process;
+                                    }                                
+                            tables.resourcesTable.cell(rowIdx,2).data(oldProcesses);
+                    })
+                    .draw();
+            
+                    tables.resourcesTable.rows().deselect();
+                }
+                console.log("Export finalitzat", data);
                 
-                console.log("Export finalitzat");
                 
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                // resposta retornada am codi d'error
+                alert("S'ha produït un error");
+            
             });
-            
-            
-            
-            
         });
-
 
     };
 

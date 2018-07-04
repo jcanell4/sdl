@@ -54,6 +54,8 @@ public class ExportService {
     
     public void exportResourcesById(String[] ids, String format, String process) {
         for (String id : ids) {
+            id = id.replaceAll("\\|", ",");
+            System.out.println("Exportant recurs:"+id);
             exportResourceById(id, format, process);
         }
     }
