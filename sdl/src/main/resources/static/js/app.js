@@ -146,6 +146,34 @@ var bibliotequesAPI = (function () {
         });
     };
     
+    var addDetailListener = function() {
+        $('#resources td a').off();
+        
+        $('#resources td a').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var id = $(this).attr('data-resource-id');
+            var url = '/resourceDetail/' + id; // TODO: extreure la ruta per facilitar configurar-la
+
+            $.ajax(
+                    {
+                        url: url,
+                        type: "GET"
+                    }
+            ).done(function (data) {
+                console.log("AJAX done");
+                $('#resourceDetail').html($(data));
+                
+                
+                console.log("Actualitzades les dades del recurs");
+            });
+            
+            console.log("petició enviada");
+
+        });
+    };
+    
     var initSearchDetail = function () {
         
         var options = $.extend(true, {}, defaultOptions);
@@ -189,33 +217,9 @@ var bibliotequesAPI = (function () {
         });
         
         
-        $('#resources td a').on('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("Click detectat");
-            
-            var id = $(this).attr('data-resource-id');
-            var url = '/resourceDetail/' + id; // TODO: extreure la ruta per facilitar onfigurar-la
-
-            // AJAX per carregar el dialeg dins d'aquest contenidor
-            // En acabar mostrar-lo
-            $.ajax(
-                    {
-                        url: url,
-                        type: "GET"
-                    }
-            ).done(function (data) {
-                console.log("AJAX done");
-                $('#resourceDetail').html($(data));
-                
-                
-                console.log("Actualitzades les dades del recurs");
-            });
-            
-            console.log("petició enviada");
-
-        });
+        addDetailListener();
         
+        tables.resourcesTable.on('draw', addDetailListener);
 
     };
 

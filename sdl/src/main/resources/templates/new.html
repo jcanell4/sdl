@@ -84,8 +84,12 @@
                     </div>
 
                     <div class="tab-pane" id="cerques-previes" role="tabpanel" aria-labelledby="cerques-previes-tab">
-                        <h2>Consulta de cerques realitzades</h2>
 
+                        
+                        <h2>Consulta de cerques realitzades <a title="Mostra o amaga la configuració dels filtres" data-toggle="collapse" href="#search-filters-setup" role="button"><i class="fas fa-angle-down"></i></a></h2>
+
+                        <div class="collapse show" id="search-filters-setup">
+                        
                         <div class="row">
 
 
@@ -178,7 +182,9 @@
                             </div>
 
                         </div>
-
+                   </div>
+-
+                            
                         <div class="table-container" th:fragment="searches" id="searches-container">
                             <table class="table table-striped" id = "searches"  th:data-selected-id="${selected}">
                                 <thead>
@@ -210,9 +216,8 @@
                             </table>
                         </div>
 
+ 
                     </div>
-
-
                 </div>
             </div>
 
@@ -302,80 +307,6 @@
                                 <div class="row">
                                     <div class="col-xl-8 col-sm-12">
 
-                                        <h2>Configuració dels filtres</h2>
-
-                                        <div class="row">
-
-
-                                            <div class="col-xl-6 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="filter-process">Procés d'anàlisi </label>(invertir selecció <input
-                                                        type="checkbox" aria-label="Checkbox" id="filter-process-not"/>)
-                                                    <select class="form-control" id="filter-process">
-                                                        <option value="*">qualsevol</option>
-                                                        <option value="-">sense processar</option>
-                                                        <option value="Selecció AI">Selecció AI</option>
-                                                        <option value="Atlas-ti">Atlas-ti</option>
-                                                    </select>
-                                                </div>
-
-                                            </div>
-                                            <div class="col-xl-6 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="filter-formats">Formats (separats per espais)</label>
-                                                    <input type="text" class="form-control" id="filter-formats"
-                                                           placeholder="PDF XML Text etc.">
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="row">
-                                            <div class="col-xl-4 col-sm-12">
-                                                <div class="filter-date-order">
-                                                    <label for="filter-date-order">Data d'edició</label>
-                                                    <select class="form-control" id="filter-date-order">
-                                                        <option value="*">qualsevol</option>
-                                                        <option value="<">anterior a</option>
-                                                        <option value=">">posterior a</option>
-                                                        <option value="=">igual a</option>
-                                                        <option value="^">entre</option>
-                                                    </select>
-                                                </div>
-
-
-                                            </div>
-
-                                            <div class="col-xl-4 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="filter-date-1">Data 1</label>
-                                                    <input type="date" class="form-control" id="filter-date-1">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-4 col-sm-12">
-                                                <div class="form-group">
-                                                    <label for="filter-date-2">Data 2</label>
-                                                    <input type="date" class="form-control" id="filter-date-2">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div id="filter-execute" class="btn btn-primary ">Filtrar resultats
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-6">
-                                                <div id="filter-remove" class="btn btn-primary ">Eliminar filtres
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <hr />
-
                                         <h2>Llistat de recursos</h2>
 
                                         <div class="table-container">
@@ -421,9 +352,78 @@
 
 
                                     <div class="col-xl-4 col-sm-12">
+                                        <h2>Configuració dels filtres <a title="Mostra o amaga la configuració dels filtres" data-toggle="collapse" href="#detail-filters-setup" role="button"><i class="fas fa-angle-down"></i></a></h2>
+
+                                        <div class="collapse show" id="detail-filters-setup">
+                                        <div class="row" >
 
 
-                                        <h2>Exportació</h2>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="filter-process">Procés d'anàlisi</label> (invertir selecció <input
+                                                        type="checkbox" aria-label="Checkbox" id="filter-process-not"/>)
+                                                    <select class="form-control" id="filter-process">
+                                                        <option value="*">qualsevol</option>
+                                                        <option value="-">sense processar</option>
+                                                        <option value="Selecció AI">Selecció AI</option>
+                                                        <option value="Atlas-ti">Atlas-ti</option>
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="filter-formats">Formats (separats per espais)</label>
+                                                    <input type="text" class="form-control" id="filter-formats"
+                                                           placeholder="xml txt jpg etc."/>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="filter-date-order">
+                                                    <label for="filter-date-order">Data d'edició</label>
+                                                    <select class="form-control" id="filter-date-order">
+                                                        <option value="*">qualsevol</option>
+                                                        <option value="<">anterior a</option>
+                                                        <option value=">">posterior a</option>
+                                                        <option value="=">igual a</option>
+                                                        <option value="^">entre</option>
+                                                    </select>
+                                                </div>
+
+
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="filter-date-1">Data 1</label>
+                                                    <input type="date" class="form-control" id="filter-date-1">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="filter-date-2">Data 2</label>
+                                                    <input type="date" class="form-control" id="filter-date-2">
+                                                </div>
+                                            </div>
+                                        
+
+                                            <div class="col-sm-6">
+                                                <div id="filter-execute" class="btn btn-primary ">Filtrar resultats
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div id="filter-remove" class="btn btn-primary ">Eliminar filtres
+                                                </div>
+                                            </div>
+
+                                            </div>
+                                            
+                                            <hr />
+                                        </div>
+
+                                        
 
                                         <div class="row">
 
@@ -440,80 +440,81 @@
                                                 </div>
                                             </div>
 
-                                        </div>
+                                        
 
                                         <div class="col-sm-12 text-center">
                                             <div id="export-selected" class="btn btn-primary disabled">Exportar els recursos
                                                 seleccionats
                                             </div>
                                         </div>
+                                            
+                                            </div>
                                         <hr />
 
                                         <div id="resourceDetail">
+                                            
                                             <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
-                                                <h2>Detall del recurs</h2>
+                                                <h2>Detall del recurs <a title="Mostra o amaga el detall del recurs" data-toggle="collapse" href="#resource-detail" role="button"><i class="fas fa-angle-down"></i></a></h2>
+
+                                                <div class="scroll-zone">
+                                                    <div class="collapse show" id="resource-detail">
+                                                        <div class="row" id="detall-recurs">
+                                                            <div class="col-sm-3 ">
+                                                                <b>Títol:</b>
+                                                            </div>
+                                                            <div class="col-sm-9" th:text="${resource.getTitle()}">
+                                                                Títol
+                                                            </div>
+
+                                                            <div class="col-sm-3" >
+                                                                <b>Pàgina:</b>
+                                                            </div>
+
+                                                            <div class="col-sm-3" th:text="${resource.getPage()}">
+                                                                42
+                                                            </div>
+
+                                                            <div class="col-sm-3">
+                                                                <b>Any d'edició</b>
+                                                            </div>
+
+                                                            <div class="col-sm-3" th:text="${resource.getEditionDate()}">
+                                                                1983
+                                                            </div>
+
+                                                            <div class="col-sm-3 ">
+                                                                <b>Procés d'anàlisi:</b>
+                                                            </div>
+                                                            <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
+                                                                Selecció AI
+                                                            </div>
+
+                                                            <div class="col-sm-3">
+                                                                <b>Data de cerca:</b>
+                                                            </div>
+                                                            <div class="col-sm-3" th:text="${resource.getSearchDate()}">
+                                                                21/02/2018
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
 
-                                                <div class="row" id="detall-recurs">
-                                                    <div class="col-sm-3 ">
-                                                        <b>Títol:</b>
-                                                    </div>
-                                                    <div class="col-sm-9" th:text="${resource.getTitle()}">
-                                                        Títol
-                                                    </div>
+                                                    <h3>Fragments:</h3>
 
-                                                    <div class="col-sm-3" >
-                                                        <b>Pàgina:</b>
-                                                    </div>
+                                                    <ul>
+                                                        <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
+                                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
+                                                            nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
+                                                        </li>
 
-                                                    <div class="col-sm-3" th:text="${resource.getPage()}">
-                                                        42
-                                                    </div>
-
-                                                    <div class="col-sm-3">
-                                                        <b>Any d'edició</b>
-                                                    </div>
-
-                                                    <div class="col-sm-3" th:text="${resource.getEditionDate()}">
-                                                        1983
-                                                    </div>
-
-                                                    <div class="col-sm-3 ">
-                                                        <b>Procés d'anàlisi:</b>
-                                                    </div>
-                                                    <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
-                                                        Selecció AI
-                                                    </div>
-
-                                                    <div class="col-sm-3">
-                                                        <b>Data de cerca:</b>
-                                                    </div>
-                                                    <div class="col-sm-3" th:text="${resource.getSearchDate()}">
-                                                        21/02/2018
-                                                    </div>
+                                                    </ul>
                                                 </div>
-
-
-                                                <h3>Fragments:</h3>
-
-                                                <ul>
-                                                    <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
-                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
-                                                        nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
-                                                    </li>
-
-                                                </ul>
                                             </div>
+                                        </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                        </div>
-                        <!--<div class="modal-footer">-->
-                        <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
-                        <!--<button type="button" class="btn btn-primary">Save changes</button>-->
-                        <!--</div>-->
+                            </div>                        
                     </div>
                 </div>
             </div>
