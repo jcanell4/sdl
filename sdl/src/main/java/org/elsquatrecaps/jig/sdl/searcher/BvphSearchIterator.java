@@ -13,7 +13,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 @XmlRootElement
-public class BvphSearchIterator extends SearchIterator{
+public class BvphSearchIterator extends SearchIterator<BvphResource>{
     int cnt=0;
     @XmlElement
     private int numResourcesThreshold = 10000;

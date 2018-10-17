@@ -24,6 +24,8 @@ public class GetRemoteProcess {
     @XmlTransient
     private String url;
     @XmlTransient
+    private String queryPath = "";
+    @XmlTransient
     private Map<String, String> params=null;
     @XmlTransient
     private Map<String, String> cookies=null;
@@ -80,9 +82,9 @@ public class GetRemoteProcess {
     private Connection getConnection(){
         Connection con;
         if(params!=null){
-            con = Jsoup.connect(getUrl()).data(params);
+            con = Jsoup.connect(getUrl().concat(getQueryPath())).data(params);
         }else{
-            con = Jsoup.connect(getUrl());
+            con = Jsoup.connect(getUrl().concat(getQueryPath()));
         }
         if(getCookies()!=null && !cookies.isEmpty()){
             con.cookies(getCookies());
@@ -124,7 +126,7 @@ public class GetRemoteProcess {
         return remote;
     }
     
- public static String relativeToAbsoluteUrl(String context, String relative){
+    public static String relativeToAbsoluteUrl(String context, String relative){
         String ret;
         try {
             ret = new URL(new URL(context), relative).toString();
@@ -140,5 +142,13 @@ public class GetRemoteProcess {
 
     public void setCookies(Map<String, String> cookies) {
         this.cookies = cookies;
+    }
+
+    public String getQueryPath() {
+        return queryPath;
+    }
+
+    public void setQueryPath(String queryPath) {
+        this.queryPath = queryPath;
     }
 }

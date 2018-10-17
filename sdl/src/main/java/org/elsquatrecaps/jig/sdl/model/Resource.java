@@ -56,12 +56,16 @@ public class Resource implements Serializable{
         this.page = page;
         this.editionDate = editionDate;
         this.fileName = fileName;
-        _addAllSupportedFormat(new String[] {"jpg", "xml", "text"});
+        _addAllSupportedFormat(new String[] {"pdf", "jpg", "xml", "text"});
         _addAllFragments(fragments);
     }
 
     public Resource(SearcherResource resource) {
-        id = resource.getPublicationId().concat("_").concat(resource.getPageId());
+        if(resource.getPageId()!=null && !resource.getPageId().isEmpty()){
+            id = resource.getPublicationId().concat("_").concat(resource.getPageId());
+        }else{
+            id = resource.getPublicationId();
+        }
         title = resource.getTitle();
         page = resource.getPage();
         editionDate = resource.getEditionDate();

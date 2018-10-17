@@ -116,10 +116,6 @@ h2, h3 {
      padding-bottom:15px;
  }
 
- .modal-body {
-     overflow: scroll;
- }
-
  input[type="date"] {
      border-radius: 0.25rem;
  }
@@ -166,10 +162,6 @@ table li {
 .modal-content hr {
     margin: 30px 15px;
 }
-
-div.table-container {
-    overflow: scroll;
-}   
 
 .modal {
   overflow-y:auto;

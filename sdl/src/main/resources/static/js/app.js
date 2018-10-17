@@ -680,9 +680,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
     
     var dateStringToDDMMYYYY = function(dateString, sep){
         var timeTokens = dateString.split(/[/\-]/);
-        //var reverse = isDateInputSupported();
-        reverse = timeTokens[0].length === 2;
-        
+        var reverse = isDateInputSupported();
         var ret = "";
 
         if (reverse) {// aaaa/mm/dd
@@ -699,27 +697,25 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             ret += timeTokens[2];
         }
         
-        console.log("dateStringToDDMMYYY fa alguna cosa? no retorna res", ret);
     }
 
     var stringToDate = function (dateString) { // reverse pel format aaaa/mm/dd
         var timeTokens = dateString.split(/[/\-]/);
         var day, month, year;
         
-        //var reverse = isDateInputSupported();
-        reverse = timeTokens[0].length === 4;
+        var reverse = isDateInputSupported();
 
-        
         if (reverse) {// aaaa/mm/dd
-            day = Number(timeTokens[2]);
-            month = Number(timeTokens[1])-1;
-            year = Number(timeTokens[0]);
+            day = Number(timeTokens[2]) - 1;
+            month = Number(timeTokens[1]) - 1;
+            year = Number(timeTokens[0]) - 1;
         } else {
-            day = Number(timeTokens[0]);    
-            month = Number(timeTokens[1])-1;
-            year = Number(timeTokens[2]);
+            day = Number(timeTokens[0]) - 1;
+            month = Number(timeTokens[1]) - 1;
+            year = Number(timeTokens[2]) - 1;
         }
-        return new Date(Date.UTC(year, month, day));
+
+        return new Date(year, month, day);
     };
 
     var textContainsAnyToken = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
@@ -804,55 +800,6 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
     var data2 = stringToDate($filterDateOriginal2.val());
     var dataRow = stringToDate(data[COL_DATE_ORIGINAL]);
 
-    console.log(dateOrder, data1.getTime(), data2.getTime(), dataRow.getTime());
-
-    switch (dateOrder) {
-
-        case '*':
-            // No cal comprovar res;            
-            break;
-
-        case '=':
-            if (dataRow.getTime() !== data1.getTime()) {
-                return false;
-            }
-
-            break;
-
-        case '<':
-
-            if (dataRow.getTime() > data1.getTime()) {
-
-                return false;
-            }
-            break;
-
-        case '>':
-            if (dataRow.getTime() < data1.getTime()) {
-                return false;
-            }
-
-            break;
-
-        case '^':
-            if (dataRow.getTime() < data1.getTime() || dataRow.getTime() > data2.getTime()) {
-                return false;
-            }
-
-            break;
-
-    }
-
-
-    // Filtre per data update
-    dateOrder = $filterDateUpdate.val();
-    data1 = stringToDate($filterDateUpdate1.val());
-    data2 = stringToDate($filterDateUpdate2.val());
-    dataRow = stringToDate(data[COL_DATE_UPDATE]);
-    
-    // ALERTA: Duplicat més amunt per l'altre formulari, aquest correspon a la consulta de cerques
-    console.log(dateOrder, data1.getTime(), data2.getTime(), dataRow.getTime());
-    
     switch (dateOrder) {
 
         case '*':
@@ -868,21 +815,65 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
         case '<':
 
-            if (dataRow.getTime() > data1.getTime()) {
+            if (dataRow < data1) {
 
                 return false;
             }
             break;
 
         case '>':
-            if (dataRow.getTime() < data1.getTime()) {
+            if (dataRow > data1) {
                 return false;
             }
 
             break;
 
         case '^':
-            if (dataRow.getTime() < data1.getTime() || dataRow.getTime() > data2.getTime()) {
+            if (dataRow < data1 || dataRow > data2) {
+                return false;
+            }
+
+            break;
+
+    }
+
+
+    // Filtre per data update
+    dateOrder = $filterDateUpdate.val();
+    data1 = stringToDate($filterDateUpdate1.val());
+    data2 = stringToDate($filterDateUpdate2.val());
+    dataRow = stringToDate(data[COL_DATE_UPDATE]);
+
+    switch (dateOrder) {
+
+        case '*':
+            // No cal comprovar res;
+            break;
+
+        case '=':
+            if (dataRow.getTime() !== data1.getTime()) {
+                return false;
+            }
+
+            break;
+
+        case '<':
+
+            if (dataRow > data1) {
+
+                return false;
+            }
+            break;
+
+        case '>':
+            if (dataRow < data1) {
+                return false;
+            }
+
+            break;
+
+        case '^':
+            if (dataRow < data1 || dataRow > data2) {
                 return false;
             }
 
@@ -926,10 +917,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             COL_DATA = 3,
             COL_FORMATS = 4;
 
-    var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd <-- ALERTA[Xavi] el peràmetre reverse sempre es undefined?
-        
-        console.log("String to date afegida a la taula", dateString, reverse);
-        
+    var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd
         var timeTokens = dateString.split(/[/\-]/);
         var day, month, year;
         
@@ -1007,21 +995,17 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             reverse=false;
         }
 
-        reverse = timeTokens[0].length ===4;
-
         if (reverse) {// aaaa/mm/dd
-            day = Number(timeTokens[2]);
+            day = Number(timeTokens[2]) - 1;
             month = Number(timeTokens[1]) - 1;
-            year = Number(timeTokens[0]);
+            year = Number(timeTokens[0]) - 1;
         } else {
-            day = Number(timeTokens[0]);
+            day = Number(timeTokens[0]) - 1;
             month = Number(timeTokens[1]) - 1;
-            year = Number(timeTokens[2]);
+            year = Number(timeTokens[2]) - 1;
         }
 
-
-console.log("Conversió de data:", dateString, year, month, day, new Date(Date.UTC(year, month, day)));
-        return new Date(Date.UTC(year, month, day));
+        return new Date(year, month, day);
     };
 
 
@@ -1083,8 +1067,6 @@ console.log("Conversió de data:", dateString, year, month, day, new Date(Date.U
     var data2 = stringToDate($filterDate2.val());
     var dataRow = stringToDate(data[COL_DATA]);
 
-    console.log("******* FILTRE ******");
-    console.log("\t", dateOrder, dataRow.getTime(), data1.getTime(), data2.getTime());
     switch (dateOrder) {
 
         case '*':
@@ -1099,21 +1081,22 @@ console.log("Conversió de data:", dateString, year, month, day, new Date(Date.U
             break;
 
         case '<':
-            if (dataRow.getTime() > data1.getTime()) {
+
+            if (dataRow > data1) {
 
                 return false;
             }
             break;
 
         case '>':
-            if (dataRow.getTime() < data1.getTime()) {
+            if (dataRow < data1) {
                 return false;
             }
 
             break;
 
         case '^':
-            if (dataRow.getTime() < data1.getTime() || dataRow.getTime() > data2.getTime()) {
+            if (dataRow < data1 || dataRow > data2) {
                 return false;
             }
 

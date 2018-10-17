@@ -10,20 +10,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 
 /**
  *
  * @author josep
  */
-public class BvphFormatedFile implements FormatedFile{
+public class BasicSearcherFormatedFile implements FormatedFile{
     String format;
     String name;
     String fileName;
     String url;
 
-    public BvphFormatedFile(String url, String format, String Name, String fileName) {
+    public BasicSearcherFormatedFile(String url, String format, String Name, String fileName) {
         this.format = format;
         this.name = Name;
         this.fileName = fileName;

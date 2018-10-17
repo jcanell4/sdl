@@ -17,7 +17,7 @@ import org.jsoup.select.Elements;
  *
  * @author josep
  */
-public class BvphJpgFile extends BvphFormatedFile{
+public class BvphJpgFile extends BasicSearcherFormatedFile{
     
     
     public BvphJpgFile(String url, String Name, String fileName) {

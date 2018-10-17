@@ -138,7 +138,7 @@ public class BvphResource extends SearcherResource{
         if(format.equals("jpg")){
             ret = new BvphJpgFile(url, name, fileName);
         }else{
-            ret = new BvphFormatedFile(url, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
+            ret = new BasicSearcherFormatedFile(url, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
         }
         return ret;
     }
