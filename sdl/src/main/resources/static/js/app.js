@@ -115,7 +115,7 @@ var bibliotequesAPI = (function () {
                         type: "GET"
                     }
             ).done(function (data) {
-                console.log("AJAX done");
+                console.log("AJAX done", data);
                 $('#resourcesBySearchDialog').html($(data));
                 $('#resourcesBySearchDialog').modal();
                 
