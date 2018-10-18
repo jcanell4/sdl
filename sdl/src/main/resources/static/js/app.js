@@ -91,12 +91,14 @@ var bibliotequesAPI = (function () {
         var $overlayNode = $('#progress-overlay');
         var $text = $overlayNode.find('.progress-text');
 
-        return function (text) {
+        return function (text) {            
             if (text) {
+                console.log("Mostrant spinner:", text);
                 $text.html(text);
                 $overlayNode.css('display', 'block');
 
             } else {
+                console.log("Amagant spinner");
                 $overlayNode.css('display', 'none');
             }
         };
@@ -115,7 +117,7 @@ var bibliotequesAPI = (function () {
                         type: "GET"
                     }
             ).done(function (data) {
-                console.log("AJAX done");
+                console.log("AJAX done", data);
                 $('#resourcesBySearchDialog').html($(data));
                 $('#resourcesBySearchDialog').modal();
                 
@@ -126,6 +128,7 @@ var bibliotequesAPI = (function () {
                 initExportButton();
             });
             
+            showOverlay("Consultant detall");
             console.log("petició enviada");
     };
 
@@ -133,17 +136,31 @@ var bibliotequesAPI = (function () {
     var initSearches = function () {
         $.fn.dataTable.moment('DD/MM/YYYY');
         var $queryTable = $('table#searches');
+        
+        $queryTable.find('th.show-overlay').on('click', function() {
+            showOverlay("ordenant");
+            
+        });
+        
+        
         tables.queryTable = $queryTable.DataTable(defaultOptions);
 
 
             $queryTable.find('td a').on('click', function (e) {
             e.preventDefault();
-            console.log("Click detectat");
-            var id = $(this).attr('data-search-id');
-            
+            var id = $(this).attr('data-search-id');            
             sendSearchDetailRequest(id);
 
         });
+        
+        $queryTable.on('order.dt', function() {
+            showOverlay();
+        });
+        
+        
+        
+        
+        
     };
     
     var addDetailListener = function() {
@@ -196,6 +213,17 @@ var bibliotequesAPI = (function () {
 
 
         var $resourcesDatatable = $('table#resources');
+        
+        $resourcesDatatable.on('.show-overlay', )
+        
+        $resourcesDatatable.on('order.dt', function() {
+            showOverlay();
+        });
+        
+        $resourcesDatatable.find('th.show-overlay').on('click', function() {            
+            showOverlay("ordenant");
+            
+        });
 
         tables.resourcesTable = $resourcesDatatable.DataTable(options);
         
@@ -404,6 +432,7 @@ var bibliotequesAPI = (function () {
             e.preventDefault();
             tables.queryTable.draw();
         });
+        
 
 
         $('#filter-query-remove').on('click', function (e) {
@@ -614,7 +643,7 @@ var bibliotequesAPI = (function () {
             
                     tables.resourcesTable.rows().deselect();
                 }
-                console.log("Export finalitzat", data);
+                console.log("Export finalitzat");
                 
                 
             }).fail(function(jqXHR, textStatus, errorThrown) {
