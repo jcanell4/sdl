@@ -32,7 +32,7 @@ public class ArcaResource extends SearcherResource{
         setEditionDate(contentDocum.selectFirst(this.editionDateFilter).text().trim());
         Element elementText = contentDocum.selectFirst(this.fragmentsFilter);
         saveFragments(elementText.text());
-        pdfUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, contentDocum.selectFirst(savePdfFilter).attr("href"));
+        pdfUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, contentDocum.selectFirst(savePdfFilter).attr("src"));
     }
     
     private void saveFragments(String text){
@@ -98,15 +98,9 @@ public class ArcaResource extends SearcherResource{
     @Override
     protected FormatedFile getStrictFormatedFile(String format) {
         String urlFile = format.equals("pdf")?pdfUrl:null;
-        return getFormatedFileInstance(urlFile, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
+        return getFormatedFileInstance(urlFile, format);
     }
     
-    protected FormatedFile getFormatedFileInstance(String url, String format, String name, String fileName){
-        FormatedFile ret;
-        ret = new BasicSearcherFormatedFile(url, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
-        return ret;
-    }
-
     @Override
     public String[] getSupportedFormats() {
         return SUPPORTED_FORMATS;

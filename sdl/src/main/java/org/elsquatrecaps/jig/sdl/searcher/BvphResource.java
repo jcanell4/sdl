@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -73,13 +74,15 @@ public class BvphResource extends SearcherResource{
     }
     
     private String getDateFromTitle(){
-        String ret="00/00/0000";
-        Pattern pattern = Pattern.compile(patterToExtractDateFromTitle);
-        Matcher matcher = pattern.matcher(this.getTitle());
-        if(matcher.find()){
-            ret = matcher.group(1);
+        String ret = Utils.getDateFromText(this.getTitle(), "/");
+        if(ret.endsWith("0000")){
+            Pattern pattern = Pattern.compile(patterToExtractDateFromTitle);
+            Matcher matcher = pattern.matcher(this.getTitle());
+            if(matcher.find()){
+              ret = matcher.group(1);
+            }
         }
-        return ret;
+        return ret;        
     }
     
     private String getDateFromDbi(String bdi){
@@ -130,15 +133,16 @@ public class BvphResource extends SearcherResource{
                 urlFile = jpgTemporalUrl;
                 break;
         }
-        return getFormatedFileInstance(urlFile, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
+        return getFormatedFileInstance(urlFile, format);
     }
     
-    protected FormatedFile getFormatedFileInstance(String url, String format, String name, String fileName){
+    protected FormatedFile getFormatedFileInstance(String url, String format){
         FormatedFile ret;
+        String name = getFileName();
         if(format.equals("jpg")){
-            ret = new BvphJpgFile(url, name, fileName);
+            ret = new BvphJpgFile(url, name, name.concat(".").concat(format));
         }else{
-            ret = new BasicSearcherFormatedFile(url, format, getPublicationId() + "_" + getPageId(), getPublicationId() + "_" + getPageId() + "." +format);
+            ret = super.getFormatedFileInstance(url, format);
         }
         return ret;
     }

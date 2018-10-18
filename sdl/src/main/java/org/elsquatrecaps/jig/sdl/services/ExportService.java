@@ -15,13 +15,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.awt.image.ColorConvertOp;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import org.elsquatrecaps.jig.sdl.model.SearchResource;
 import org.elsquatrecaps.jig.sdl.model.SearchResourceId;
@@ -31,9 +28,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ExportService {
+    private static final Logger logger = LoggerFactory.getLogger(ExportService.class);
 
     SearchResourceRepository resourceRepository;
     DownloaderProperties dp;
@@ -55,15 +55,12 @@ public class ExportService {
     public void exportResourcesById(String[] ids, String format, String process) {
         for (String id : ids) {
             id = id.replaceAll("\\|", ",");
-            System.out.println("Exportant recurs:"+id);
             exportResourceById(id, format, process);
         }
     }
 
     
     public void exportResourceById(String id, String format, String process) {
-        System.out.println("Exportant " + id + " - " + format);
-
         String[] aId = id.split(",");
         SearchResource ret;
         Optional<SearchResource> optional = resourceRepository.findById(new SearchResourceId(aId[0], aId[1], aId[2]));
@@ -82,7 +79,9 @@ public class ExportService {
         // ALERTA[Xavi] només cal per les imatges jpg (de moment)
         String baseName = ret.getResource().getFileName();        
         if (aId[0].equalsIgnoreCase("BVPH") && format.equals("jpg") && aId[1].length()>0) {
-            baseName = baseName.concat("_").concat(aId[1]);
+            baseName = baseName.concat("_").concat(Utils.buildNormalizedFilename(aId[1]));
+        }else if(aId[1].length()>0){
+            baseName = baseName.concat("_").concat(Utils.buildNormalizedFilename(aId[1]));
         }
         
         File file = new File(fileExportPath, baseName.concat(".").concat(format));
@@ -112,11 +111,9 @@ public class ExportService {
             
             }
             
-            
-            System.out.println("Fitxer copiat");
             resourceRepository.saveAndFlush(ret);
         } else {
-            System.out.println("El fitxer ja existeix, no el copiem");
+            logger.info(String.format("El fitxer %s ja existeix, no el copiem", file.getName()));
         }
     }
     

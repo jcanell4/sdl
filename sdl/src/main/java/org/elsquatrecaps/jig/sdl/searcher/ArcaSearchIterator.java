@@ -26,7 +26,7 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
     @XmlElement
     private String fragmentsFilter = "div#img_view_text_container div#img_view_text_content pre#full_text_container";
     @XmlElement
-    private String savePdfFilter = "div#img_view_text_container ul#cdm_largePDFUl>li.pdf_info a.body_link_11";
+    private String savePdfFilter = "div#img_view_container div#viewer_wrapper_outer div#viewer_wrapper_inner object#itemViewer embed";
 //    @XmlElement
 //    private String actionsFilter = "div#tab_acciones ul li";
 //    @XmlElement
@@ -115,12 +115,6 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
             if(!noResources()){
                 currentBlockIterator = new ArcaBlockSearhIterator();
             }
-        }else{
-            nextBlockIsNeeded = !hasNextInCurrentBlock();
-        }
-        if(nextBlockIsNeeded){    
-            updateOriginalSource();
-            currentBlockIterator = new ArcaBlockSearhIterator();
         }
     }
             

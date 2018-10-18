@@ -55,6 +55,13 @@ public class PersistenceService {
         return searchRepository.findAll(PageRequest.of(pageNum, maxElements));
     }
     
+    private void saveResource(SearchResource resource){
+        String rId = resource.getResource().getId();
+        if(!resourceRepository.existsById(rId)){
+            resourceRepository.saveAndFlush(resource.getResource());
+        }
+    }
+    
     private void saveResources(List<SearchResource> resources){
         if(resources!=null && resources.size()>0){
             for(SearchResource sr: resources){
@@ -66,33 +73,54 @@ public class PersistenceService {
         }
     }
 
-    public Search saveSearch(Search search){
-        saveResources(search.getResourceList());
-        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
-        return transaction.execute((TransactionStatus status) -> {
-            Search toSave;
-            Optional<Search> optional = searchRepository.findOne(search.getRepository(), search.getSearchCriteria());
-            if(optional.isPresent()){
-                String updateDate = search.getOriginalDate();
-                List<SearchResource> resources = search.getResourceList();
-                toSave = optional.get();
-                toSave.setUpdateDate(updateDate);
-                if(resources!=null && resources.size()>0){
-                    for(SearchResource sr: resources){
-                        toSave.addResource(sr);
-                        status.flush();
-                    }
-                }
-            }else{
-                toSave = search;
-                for(SearchResource sr: toSave.getResourceList()){
-                    resourceRepository.saveAndFlush(sr.getResource());
-                }
-                searchRepository.saveAndFlush(toSave);
-            }
-            return toSave;
-        });
+    public void saveSearchResource(SearchResource searchResource){
+        SearchResourceId id = searchResource.getId();
+        saveResource(searchResource);
+        if(!searchResourceRepository.existsById(id)){
+            searchResourceRepository.saveAndFlush(searchResource);
+        }
     }
+    
+    public void saveSearch(Search search){
+        Search toSave;
+        SearchId id = search.getId();
+        Optional<Search> optional = searchRepository.findById(id);
+        if(optional.isPresent()){
+            toSave = optional.get();
+            toSave.setUpdateDate(search.getOriginalDate());
+        }else{
+            toSave = search;
+        }
+        searchRepository.saveAndFlush(toSave);
+    }
+    
+//    public Search saveSearch(Search search){
+//        saveResources(search.getResourceList());
+//        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+//        return transaction.execute((TransactionStatus status) -> {
+//            Search toSave;
+//            Optional<Search> optional = searchRepository.findOne(search.getRepository(), search.getSearchCriteria());
+//            if(optional.isPresent()){
+//                String updateDate = search.getOriginalDate();
+//                List<SearchResource> resources = search.getResourceList();
+//                toSave = optional.get();
+//                toSave.setUpdateDate(updateDate);
+//                if(resources!=null && resources.size()>0){
+//                    for(SearchResource sr: resources){
+//                        toSave.addResource(sr);
+//                        status.flush();
+//                    }
+//                }
+//            }else{
+//                toSave = search;
+//                for(SearchResource sr: toSave.getResourceList()){
+//                    resourceRepository.saveAndFlush(sr.getResource());
+//                }
+//                searchRepository.saveAndFlush(toSave);
+//            }
+//            return toSave;
+//        });
+//    }
     
     //resources
     public List<SearchResource> findAllResourceBySearch(SearchId id){
