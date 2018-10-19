@@ -173,6 +173,8 @@ var bibliotequesAPI = (function () {
             var id = $(this).attr('data-resource-id');
             var url = '/resourceDetail/' + id; // TODO: extreure la ruta per facilitar configurar-la
 
+            showOverlay("Actualitzant");
+
             $.ajax(
                     {
                         url: url,
@@ -184,6 +186,7 @@ var bibliotequesAPI = (function () {
                 
                 
                 console.log("Actualitzades les dades del recurs");
+                showOverlay();
             });
             
             console.log("petició enviada");
@@ -213,16 +216,13 @@ var bibliotequesAPI = (function () {
 
 
         var $resourcesDatatable = $('table#resources');
-        
-        $resourcesDatatable.on('.show-overlay', )
-        
+                
         $resourcesDatatable.on('order.dt', function() {
             showOverlay();
         });
         
         $resourcesDatatable.find('th.show-overlay').on('click', function() {            
-            showOverlay("ordenant");
-            
+            showOverlay("ordenant");            
         });
 
         tables.resourcesTable = $resourcesDatatable.DataTable(options);
