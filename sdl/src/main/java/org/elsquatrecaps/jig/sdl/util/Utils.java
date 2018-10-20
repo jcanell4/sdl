@@ -25,7 +25,6 @@ public class Utils {
     
     public static String getDateFromText(String date, String sep, boolean reversedate){
         String ret;
-        String year;
         if(reversedate){
             ret="0000".concat(sep).concat("01").concat(sep).concat("01");
         }else{
@@ -33,37 +32,39 @@ public class Utils {
         }
         boolean found = false;
         int id = 0;
-        String[] datePatterns = {".*(\\d{4})\\s+.{0,5}\\s*(%s)\\s+.*", ".*\\s+(%s)\\s+.{0,5}\\s*(\\d{4}).*"};
-        String[]monthPatterns = {
-            "ene|enero|gen|gener|jan|january",
-            "feb|febrero|febrer|february",
-            "mar|marzo|març|march",
-            "abr|abril|apr|april",
-            "may|mayo|mai|maig",
-            "jun|junio|juny|june",
-            "jul|julio|juliol|july",
-            "ago|agosto|agost|aug|august",
-            "sep|septiembre|set|setembre|september",
-            "oct|octubre|october",
-            "nov|noviembre|novembre|november",
-            "dic|diciembre|des|desembre|dec|december"
+        String[] monthPatterns = {
+            ".*(\\d{1,4})\\s+(enero|gener|january)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(febrero|febrer|february)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(marzo|març|march)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(abril|april)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(mayo|maig|may)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(junio|juny|june)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(julio|juliol|july)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(agosto|agost|august)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(septiembre|setembre|september)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(octubre|october)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(noviembre|novembre|november)\\s+(\\d{1,4}).*",
+            ".*(\\d{1,4})\\s+(diciembre|desembre|december)\\s+(\\d{1,4}).*"
         };
         
         while(!found && id<monthPatterns.length){
-            for(int alt=0; !found && alt<2; alt++){
-                Pattern pattern = Pattern.compile(String.format(datePatterns[alt], monthPatterns[id]), Pattern.CASE_INSENSITIVE);
-                Matcher matcher = pattern.matcher(date);
-                found = matcher.find();
-                if(found){
-                    year = matcher.group(alt+1);
-                    if(reversedate){
-                        ret = year.concat(sep).concat(String.valueOf(id+1)).concat(sep).concat("01");
-                    }else{
-                        ret = "01".concat(sep).concat(String.valueOf(id+1)).concat(sep).concat(year);
+            Pattern pattern = Pattern.compile(monthPatterns[id], Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(date);
+            found = matcher.find();
+            if(found){
+                String year = matcher.group(1);
+                if(year.length()<4){
+                    year = matcher.group(3);
+                    if(year.length()<4){
+                        year = "0000";
                     }
                 }
+                if(reversedate){
+                    ret = year.concat(sep).concat(String.valueOf(id+1)).concat(sep).concat("01");
+                }else{
+                    ret = "01".concat(sep).concat(String.valueOf(id+1)).concat(sep).concat(year);
+                }
             }
-            ++id;
         }
         return ret;
     }

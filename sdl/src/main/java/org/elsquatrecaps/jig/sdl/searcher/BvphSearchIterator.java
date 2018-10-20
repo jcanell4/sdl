@@ -239,7 +239,6 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
         Element nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
         String url;
         int ret=currentSmallerYear;      
-        logger.debug("Cercant getMinimumYearOfPaginatedList");
         do{
             Elements list = paginatedList.select(pubYearPaginatedRegistersFilter);
             int value = getMinimumYearOfSingleList(list);
@@ -251,7 +250,6 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
             paginatedList = getRemoteProcessAux.get();
             nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
         }while(nextPage!=null);
-        logger.debug("getMinimumYearOfPaginatedList trobat");
         return ret;
     }
     
