@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -19,13 +18,7 @@ import javax.persistence.EmbeddedId;
 //import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
-import javax.persistence.TableGenerator;
 
 @Entity
 @Access(AccessType.FIELD)
@@ -114,10 +107,13 @@ public class Search implements Serializable {
         }        
     }
     
-    public void addResource(Resource resource) {
+    public SearchResource addResource(Resource resource) {
+        SearchResource ret;
         String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
         resource.setSearchDate(date);
-        this.resources.add(new SearchResource(this, resource));
+        ret = new SearchResource(this, resource);
+        this.resources.add(ret);
+        return ret;
     }
     
     public void addAllSearchResources(List<SearchResource> resources) {

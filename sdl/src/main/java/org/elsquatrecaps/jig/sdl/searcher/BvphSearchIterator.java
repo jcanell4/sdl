@@ -11,9 +11,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @XmlRootElement
 public class BvphSearchIterator extends SearchIterator<BvphResource>{
+    private static final Logger logger = LoggerFactory.getLogger(BvphSearchIterator.class);
+    
     int cnt=0;
     @XmlElement
     private int numResourcesThreshold = 10000;
@@ -117,6 +121,9 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
         
         ret = !this.noResources();
         ret = ret && hasNextInCurrentBlock();
+        
+        logger.debug(String.format("hasNext: %s", (ret?"si":"no")));
+        
         return ret;
     }
 
@@ -124,6 +131,7 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
     public BvphResource next() {
         BvphResource ret = null;
         ret = currentBlockIterator.next();
+        logger.debug(String.format("next: %s", ret.getTitle()));
         return ret;
     }
     
@@ -231,6 +239,7 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
         Element nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
         String url;
         int ret=currentSmallerYear;      
+        logger.debug("Cercant getMinimumYearOfPaginatedList");
         do{
             Elements list = paginatedList.select(pubYearPaginatedRegistersFilter);
             int value = getMinimumYearOfSingleList(list);
@@ -242,6 +251,7 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
             paginatedList = getRemoteProcessAux.get();
             nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
         }while(nextPage!=null);
+        logger.debug("getMinimumYearOfPaginatedList trobat");
         return ret;
     }
     

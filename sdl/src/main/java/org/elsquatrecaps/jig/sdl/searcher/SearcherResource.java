@@ -1,9 +1,8 @@
 package org.elsquatrecaps.jig.sdl.searcher;
 
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
-import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
+import org.elsquatrecaps.jig.sdl.util.Utils;
 
 public abstract class SearcherResource{
     private String title;
@@ -16,11 +15,11 @@ public abstract class SearcherResource{
   
     public String getFileName(){
         StringBuilder strBuffer = new StringBuilder();
-        String locTitle;
-        Pattern pattern1 = Pattern.compile(
-                              "[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
-        Pattern pattern2 = Pattern.compile(
-                              "[+-.:,;<>\\{\\}\\[\\]\\*\\^\\¿\\?\\=\\)\\(\\/\\&\\%ºº$\\·\\#\\@\\|\\\\!\"]+");
+//        String locTitle;
+//        Pattern pattern1 = Pattern.compile(
+//                              "[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
+//        Pattern pattern2 = Pattern.compile(
+//                              "[+-.:,;<>\\{\\}\\[\\]\\*\\^\\¿\\?\\=\\)\\(\\/\\&\\%ºº$\\·\\#\\@\\|\\\\!\"]+");
         if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{2}\\/[0-9]{2}\\/[0-9]{2,4}")){            
             String[] aDate = editionDate.split("\\/");
             strBuffer.append(aDate[2]);
@@ -28,8 +27,11 @@ public abstract class SearcherResource{
             strBuffer.append(aDate[1]);
             strBuffer.append("_");
             strBuffer.append(aDate[0]);
-        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{4}.+?[0-9]{2}")){            
+        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{4}.+?[0-9]{1,2}")){            
             strBuffer.append(editionDate.substring(0, 4));
+            strBuffer.append("_00_00");
+        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{1,2}.+?[0-9]{4}")){            
+            strBuffer.append(editionDate.substring(editionDate.length()-4, editionDate.length()));
             strBuffer.append("_00_00");
         }else{
             strBuffer.append("0000_00_00");
@@ -37,20 +39,21 @@ public abstract class SearcherResource{
         strBuffer.append(publicationId);
         strBuffer.append("_");
         strBuffer.append(pageId);
-        locTitle = Normalizer.normalize(this.title, Normalizer.Form.NFD);
-        locTitle = pattern1.matcher(locTitle).replaceAll("");
-        locTitle = pattern2.matcher(locTitle).replaceAll("");
-        String[] words = locTitle.split(" ");
-        if(words.length>0){
-            strBuffer.append("_");
-        }
-        for (String word : words){
-            if(word.length()>0){
-                strBuffer.append(word.substring(0, 1).toUpperCase());
-                strBuffer.append(word.substring(1).toLowerCase());
-            }
-        }
-        return strBuffer.toString().substring(0,60);
+//        locTitle = Normalizer.normalize(this.title, Normalizer.Form.NFD);
+//        locTitle = pattern1.matcher(locTitle).replaceAll("");
+//        locTitle = pattern2.matcher(locTitle).replaceAll("");
+//        String[] words = locTitle.split(" ");
+//        if(words.length>0){
+//            strBuffer.append("_");
+//        }
+//        for (String word : words){
+//            if(word.length()>0){
+//                strBuffer.append(word.substring(0, 1).toUpperCase());
+//                strBuffer.append(word.substring(1).toLowerCase());
+//            }
+//        }
+        strBuffer.append(Utils.buildNormalizedFilename(this.title));
+        return strBuffer.toString().substring(0,Math.min(60, strBuffer.length()));
     }
     
     
@@ -134,6 +137,15 @@ public abstract class SearcherResource{
         String formatDef = FormatedResourceUtils.getFormat(format, getSupportedFormats());
         return getStrictFormatedFile(formatDef);
     }
+    
+    protected FormatedFile getFormatedFileInstance(String url, String format){
+        FormatedFile ret;
+        String name = getFileName();
+        ret = new BasicSearcherFormatedFile(url, format, name, name.concat(".").concat(format));
+        return ret;
+    }
+
+
 
     protected abstract FormatedFile getStrictFormatedFile(String format);    
 }

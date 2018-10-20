@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
+import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
 import org.elsquatrecaps.jig.sdl.exception.UnsupportedFormat;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import org.elsquatrecaps.jig.sdl.model.Resource;
@@ -23,7 +24,6 @@ import org.elsquatrecaps.jig.sdl.model.SearchResourceId;
 import org.elsquatrecaps.jig.sdl.persistence.ResourceRepository;
 import org.elsquatrecaps.jig.sdl.persistence.SearchRepository;
 import org.elsquatrecaps.jig.sdl.searcher.BvphSearchCriteria;
-import org.elsquatrecaps.jig.sdl.searcher.BvphSearchIterator;
 import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
 import org.elsquatrecaps.jig.sdl.searcher.cfg.ConfigParserOfSearcher;
 import org.elsquatrecaps.jig.sdl.services.ExportService;
@@ -38,10 +38,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
+import org.elsquatrecaps.jig.sdl.searcher.ArcaSearchCriteria;
+import org.elsquatrecaps.jig.sdl.searcher.SearchCriteria;
+import org.elsquatrecaps.jig.sdl.searcher.SearchIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 @Controller
 public class SdlController {
+    private static final Logger logger = LoggerFactory.getLogger(SdlController.class);
 
     private DownloaderProperties dp;
 
@@ -99,12 +105,6 @@ public class SdlController {
         List<SearchResource> resources = instance.findAllResourceBySearch(search.getId());
         ret.addObject("resources", resources);
         ret.addObject("resourcesCount", resources.size());
-
-        for (SearchResource resource : resources) {
-            System.out.print(resource.getSearchCriteria());
-            System.out.print("->");
-            System.out.println(resource.getResourceId());
-        }
 
         return ret;
     }
@@ -167,26 +167,41 @@ public class SdlController {
         return ret;
     }
     
-    
+    private SearchCriteria buildSearchCriteria(String criteria, String repository, String dateStart, String dateEnd){
+        SearchCriteria ret = null;
+        if(repository.equals("BVPH")){
+            ret = new BvphSearchCriteria(criteria, dateStart, dateEnd);
+        }else if(repository.equals("ARCA")){
+            ret = new ArcaSearchCriteria(criteria, dateStart, dateEnd);
+        }
+        return ret;
+    }
     
     private void iterate(String criteria, String repository, String dateStart, String dateEnd){
         String fileRepositoryPath = this.dp.getLocalReasourceRepo();
         int quantity = this.dp.getQuantity();
         
-        System.out.println("Cercant: " + criteria);
-        BvphSearchIterator iterator = (BvphSearchIterator) ConfigParserOfSearcher.getIterator(repository, new BvphSearchCriteria(criteria, dateStart, dateEnd));
+        logger.info(String.format("S'inicia la cerca de %s des de %s fins a %s a la biblioteca %s", criteria, dateStart, dateEnd, repository));
+//        System.out.println("Cercant: " + criteria);
+        SearchIterator<SearcherResource> iterator = ConfigParserOfSearcher.getIterator(repository, buildSearchCriteria(criteria, repository, dateStart, dateEnd));
         
-        System.out.println("Iterador obtingut");
+//        System.out.println("Iterador obtingut");
+        logger.debug("Iterador obtingut");
         
         int c=0;
         Search search = new Search(repository, criteria, String.format("%1$td/%1$tm/%1$tY", Calendar.getInstance()));
         PersistenceService pService = new PersistenceService(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
         
+        pService.saveSearch(search);
+        logger.debug("Registre principal de la cerca emmagatzemat");
+        
         while((quantity<=0 || c<quantity) && iterator.hasNext()){
             c++;
+            SearchResource searchResource;
             SearcherResource res = iterator.next();
+            logger.info(String.format("%d.- Recurs obtingut: %s (%s)", c, res.getTitle(), res.getEditionDate()));
             Resource resource = new Resource(res);
-            search.addResource(resource);
+            searchResource = search.addResource(resource);
             String[] formats = resource.getSupportedFormats();
             
             for(String format: formats){
@@ -200,12 +215,27 @@ public class SdlController {
                 if(!file.exists()){
                     try {
                         fileOutputStream = new FileOutputStream(file);
-                    } catch (FileNotFoundException ex) {}
-                    Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
+                    } catch (FileNotFoundException ex) {
+                        logger.error(ex.getMessage(), ex);
+                    }
+                    try{
+                        Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
+                    } catch (ErrorCopyingFileFormaException ex) {
+                        logger.error(ex.getMessage(), ex);
+                    }
+                    logger.info(String.format("Fitxer %s copiat.", ff.getFileName()));
+                }else{
+                    logger.info(String.format("Fitxer %s copiat anteriorment.", ff.getFileName()));
                 }
             }
+            pService.saveSearchResource(searchResource);
+            logger.debug("Registre del recurs emmagatzemat");
+
         }
-        pService.saveSearch(search);
+        logger.debug("Cerca acabada");
+//        logger.debug("S'inicia l'emmagatzematge a la base de dades");
+//        pService.saveSearch(search);
+//        logger.debug("Emmagatzematge finalitzat");
     }
     
     @RequestMapping({"/export"})
