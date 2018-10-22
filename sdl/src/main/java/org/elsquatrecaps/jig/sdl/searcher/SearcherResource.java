@@ -83,7 +83,7 @@ public abstract class SearcherResource{
         return fragments.get(idx);
     }
 
-    protected void setPublicationId(String publicationId) {
+    protected void setPublicationId(String publicationId) {        
         this.publicationId = publicationId;
     }
 

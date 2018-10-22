@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<arcaGetRemoteProcess>
+    <queryPath>/searchterm//field//mode//conn//order/date</queryPath>
+    <searchtermKey>searchterm</searchtermKey>
+    <fieldKey>field</fieldKey>
+    <textField>all</textField>
+    <dateField>date</dateField>
+    <modeKey>mode</modeKey>
+    <textMode>all</textMode>
+    <dateMode>exact</dateMode>
+    <connKey>conn</connKey>
+    <textConnAnd>and</textConnAnd>
+    <textConnOr>or</textConnOr>
+    <dateConn>and</dateConn>
+    <orderKey>order</orderKey>
+    <orderDefaultValue>date</orderDefaultValue>
+    <separator>!</separator>
+    <url>http://mdc2.cbuc.cat/cdm/search</url>
+</arcaGetRemoteProcess>

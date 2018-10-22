@@ -7,6 +7,7 @@ package org.elsquatrecaps.jig.sdl.searcher;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,6 +90,7 @@ public class GetRemoteProcess {
         if(getCookies()!=null && !cookies.isEmpty()){
             con.cookies(getCookies());
         }
+        con.timeout(60000);
         return con;
     }
 
@@ -108,7 +110,7 @@ public class GetRemoteProcess {
 //                }else{
 //                    remote = getConnection().data(params).get();
 //                }
-            } catch (IOException ex) {
+            } catch (IOException ex ) {
                 ioe = ex;
                 try {
                     this.wait(c*factor);
@@ -118,6 +120,8 @@ public class GetRemoteProcess {
                 } catch (InterruptedException ex1) {
                     ioe = ex1;
                 }
+            } catch (Exception ex ) {
+                ioe = ex;
             }
         }
         if(remote==null){

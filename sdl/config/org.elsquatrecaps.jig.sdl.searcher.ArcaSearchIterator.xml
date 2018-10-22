@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<arcaSearchIterator>
+    <navPagesFilter>#cdmResultsBrowseAllItemsView</navPagesFilter>
+    <navPagesNextFilter>div#link_bar_search div#link_bar_content div#link_bar_container div.link_bar_pagination ul &gt; li#pagination_button_next a#pagination_button_next_link</navPagesNextFilter>
+    <newsPaperEditionListFilter>#cdmResultsBrowseAllItemsView div.listItem</newsPaperEditionListFilter>
+    <basicInfoNewsPaperListFilter>div.listItem div.listContentBottom a.body_link_11</basicInfoNewsPaperListFilter>
+    <fragmentsFilter>div#img_view_text_container div#img_view_text_content pre#full_text_container</fragmentsFilter>
+    <savePdfFilter>div#img_view_container div#viewer_wrapper_outer div#viewer_wrapper_inner object#itemViewer embed</savePdfFilter>
+    <editionDateFilter>td#metadata_data a.body_link_11</editionDateFilter>
+    <noPdfFileUrl>http://localhost:8888/files/nopdf.pdf</noPdfFileUrl>
+</arcaSearchIterator>

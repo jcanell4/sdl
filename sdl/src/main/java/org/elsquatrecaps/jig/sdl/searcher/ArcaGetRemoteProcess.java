@@ -48,10 +48,6 @@ public class ArcaGetRemoteProcess extends GetRemoteProcess{
     private String orderDefaultValue = "date";
     @XmlElement
     private String separator = "!";
-//    @XmlElement
-//    private int smallerYear = 1500;
-//    @XmlElement
-//    private int biggerYear = Calendar.getInstance().get(Calendar.YEAR);
     @XmlElement
     private String url ="http://mdc2.cbuc.cat/cdm/search";
 
@@ -119,19 +115,12 @@ public class ArcaGetRemoteProcess extends GetRemoteProcess{
         this._setParams(params);
     }
     
-//    public int getDefaultBiggerYear(){
-//        return biggerYear;
-//    }
-//
-//    public int getDefaultSmallerYear(){
-//        return smallerYear;
-//    }
-
+    @XmlTransient
     public void setText(String criteria){
         this.setParam(textField, criteria);
     }
 
-    public String getText(){
+    public String _getText(){
         StringBuilder retSerchTerm = new StringBuilder();
         String sep="";
         

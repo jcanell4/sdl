@@ -169,9 +169,9 @@ public class SdlController {
     
     private SearchCriteria buildSearchCriteria(String criteria, String repository, String dateStart, String dateEnd){
         SearchCriteria ret = null;
-        if(repository.equals("BVPH")){
+        if(repository.equalsIgnoreCase("BVPH")){
             ret = new BvphSearchCriteria(criteria, dateStart, dateEnd);
-        }else if(repository.equals("ARCA")){
+        }else if(repository.equalsIgnoreCase("ARCA")){
             ret = new ArcaSearchCriteria(criteria, dateStart, dateEnd);
         }
         return ret;
@@ -205,6 +205,7 @@ public class SdlController {
             String[] formats = resource.getSupportedFormats();
             
             for(String format: formats){
+                boolean error=false;
                 FileOutputStream fileOutputStream = null;
                 File path = new File(fileRepositoryPath);
                 File file = new File(fileRepositoryPath, res.getFileName().concat(".").concat(format));
@@ -215,15 +216,19 @@ public class SdlController {
                 if(!file.exists()){
                     try {
                         fileOutputStream = new FileOutputStream(file);
+                        try{
+                            Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
+                        } catch (ErrorCopyingFileFormaException ex) {
+                            logger.error(ex.getMessage(), ex);
+                            error = true;
+                        }
                     } catch (FileNotFoundException ex) {
                         logger.error(ex.getMessage(), ex);
+                        error = true;
                     }
-                    try{
-                        Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
-                    } catch (ErrorCopyingFileFormaException ex) {
-                        logger.error(ex.getMessage(), ex);
+                    if(!error){
+                        logger.info(String.format("Fitxer %s copiat.", ff.getFileName()));
                     }
-                    logger.info(String.format("Fitxer %s copiat.", ff.getFileName()));
                 }else{
                     logger.info(String.format("Fitxer %s copiat anteriorment.", ff.getFileName()));
                 }

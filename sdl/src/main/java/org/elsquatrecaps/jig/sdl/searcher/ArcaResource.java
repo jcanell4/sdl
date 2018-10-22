@@ -4,6 +4,7 @@ import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
 
 public class ArcaResource extends SearcherResource{
@@ -13,26 +14,34 @@ public class ArcaResource extends SearcherResource{
     private String fragmentsFilter;
     private String textKey;
     private String savePdfFilter;
+    private String noPdfUrl;
 
     public ArcaResource() {
     }
     
-    public ArcaResource(String editionDateFilter, String fragmentsFilter, String textKey, String savePdfFilter) {
+    public ArcaResource(String editionDateFilter, String fragmentsFilter, String textKey, String savePdfFilter, String noPdfFileUrl) {
         this.editionDateFilter = editionDateFilter;
         this.fragmentsFilter = fragmentsFilter;
         this.textKey = textKey.replaceAll("\"", "").replaceAll("( )+", "|");
         this.savePdfFilter = savePdfFilter;
+        this.noPdfUrl = noPdfFileUrl;
     }
     
     public void updateFromElement(Element basicInfoElem, Element contentDocum, String context, Map<String, String> cookies){
-        setPublicationId(basicInfoElem.attr("itemcoll"));
+        setPublicationId(Utils.buildNormalizedFilename(basicInfoElem.attr("itemcoll")));
         setTitle(basicInfoElem.text().trim());
         setPageId(basicInfoElem.attr("item_id"));
         setPage("document complet");
-        setEditionDate(contentDocum.selectFirst(this.editionDateFilter).text().trim());
+        setEditionDate(getDateFromDateEditonOrTitle(contentDocum.selectFirst(this.editionDateFilter)));
         Element elementText = contentDocum.selectFirst(this.fragmentsFilter);
         saveFragments(elementText.text());
-        pdfUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, contentDocum.selectFirst(savePdfFilter).attr("src"));
+        //ALERTA DE VEGADES EL FORMAT ÉS JPG!
+        Element pdfElement = contentDocum.selectFirst(savePdfFilter);
+        if(pdfElement==null){
+            pdfUrl = noPdfUrl;
+        }else{
+            pdfUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, contentDocum.selectFirst(savePdfFilter).attr("src"));
+        }
     }
     
     private void saveFragments(String text){
@@ -43,44 +52,37 @@ public class ArcaResource extends SearcherResource{
         }
     }
     
-//    private String getDateFromDbiOrTitle(Element dateElement){
-//        String ret = null;
-//        if(dateElement==null){
-//            ret = getDateFromTitle();
-//        }else{
-//            ret = getDateFromDbi(dateElement.text());
-//        }
-//        return ret;
-//    }
-//    
-//    private String getDateFromTitle(){
-//        String ret="00/00/0000";
-////        Pattern pattern = Pattern.compile(patterToExtractDateFromTitle);
-////        Matcher matcher = pattern.matcher(this.getTitle());
-////        if(matcher.find()){
-////            ret = matcher.group(1);
-////        }
-//        return ret;
-//    }
-//    
-//    private String getDateFromDbi(String bdi){
-//        String ret="00/00/0000";
-//        Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{2}[/-]\\d{4}).*");
-//        Matcher matcher = pattern.matcher(bdi);
-//        if(matcher.find()){
-//            ret = matcher.group(1);
-//        }
-//        return ret;
-//    }
-//    
-//    private Element getToDownloading(String url){
-//        GetRemoteProcess grp = new GetRemoteProcess(url);
-//        grp.setParam("aceptar", "Aceptar");
-//        Element toDonwloading = grp.get();
-//        return toDonwloading;
-//    }
-//            
-//            
+    private String getDateFromDateEditonOrTitle(Element dateElement){
+        String ret = null;
+        if(dateElement==null){
+            ret = ret = getDateFromTitle("0000");
+        }else{
+            ret = getDateFromDateEdition(dateElement.text().trim());
+            if(ret.equals("00/00/0000")){
+                ret = getDateFromTitle(dateElement.text().trim());
+            }
+        }
+        return ret;
+    }    
+
+    private String getDateFromTitle(String date){
+        String ret = Utils.getDateFromText(this.getTitle(), "/");
+        if(ret.endsWith("0000")){
+            ret = "01/01/".concat(date);
+        }
+        return ret;        
+    }
+    
+    private String getDateFromDateEdition(String date){
+        String ret="00/00/0000";
+        Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{2}[/-]\\d{4}).*");
+        Matcher matcher = pattern.matcher(date);
+        if(matcher.find()){
+            ret = matcher.group(1);
+        }
+        return ret;
+    }
+    
     @Override
     public FormatedFile getFormatedFile() {
         return getStrictFormatedFile("pdf");

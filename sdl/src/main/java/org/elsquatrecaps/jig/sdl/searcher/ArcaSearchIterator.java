@@ -27,25 +27,10 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
     private String fragmentsFilter = "div#img_view_text_container div#img_view_text_content pre#full_text_container";
     @XmlElement
     private String savePdfFilter = "div#img_view_container div#viewer_wrapper_outer div#viewer_wrapper_inner object#itemViewer embed";
-//    @XmlElement
-//    private String actionsFilter = "div#tab_acciones ul li";
-//    @XmlElement
-//    private String titleFilter = "dt span span.titulo a";
-//    @XmlElement
-//    private String pageFilter = "p strong a";
     @XmlElement
     private String editionDateFilter = "td#metadata_data a.body_link_11";
-//    @XmlElement
-//    private String downloadPdfJpg = "http://prensahistorica.mcu.es/es/catalogo_imagenes/iniciar_descarga.cmd";
-//    @XmlElement
-//    private String patterToExtractDateFromTitle = ".*(\\d{4}\\s+([Ee]nero|[Ff]ebrero|[Mm]arzo|[Aa]bril|[Mm]ayo|[Jj]unio|[Jj]ulio|[Aa]gosto|[Ss]eptiembre|[Oo]ctubre|[Nn]oviembre|[Dd]iciembre)\\s+\\d{2}).*";
-
-//    @XmlElement
-//    private String noResourcesText = "No hay resultados"; 
-//    @XmlElement
-//    private String noResourcesFilter = "div#consulta_resultados_sumario div.navegacion_resultados p";    
-//    @XmlElement
-//    private String unfulfilledContitionsText = "No hay ningún registro que cumpla las condiciones de búsqueda.";    
+    @XmlElement
+    private String noPdfFileUrl = "http://localhost:8888/files/nopdf.pdf";
     
     @XmlTransient
     private Element sourceElement;
@@ -197,7 +182,7 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
             getRemoteProcessAux.setUrl(urlInfoContent);
             getRemoteProcessAux.setCookies(getRemoteProcess.getCookies());
             Element contentDocum = getRemoteProcessAux.get();
-            ArcaResource ret = new ArcaResource(editionDateFilter, fragmentsFilter, getRemoteProcess.getText(), savePdfFilter);
+            ArcaResource ret = new ArcaResource(editionDateFilter, fragmentsFilter, getRemoteProcess._getText(), savePdfFilter, noPdfFileUrl);
             ret.updateFromElement(basicInfoElem, contentDocum, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
             return ret;
         }
