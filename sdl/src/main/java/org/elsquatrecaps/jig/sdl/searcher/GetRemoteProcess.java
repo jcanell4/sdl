@@ -17,6 +17,7 @@ import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 import org.elsquatrecaps.jig.sdl.exception.ErrorParsingUrl;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
@@ -97,7 +98,7 @@ public class GetRemoteProcess {
     private synchronized Element getOriginalSource() {
         int factor = 200;
         Connection.Response resp;
-        Exception ioe = null;
+        Throwable ioe = null;
         Document remote=null;
         for(int c=1; remote==null && c<10; c++){
             try{
@@ -110,7 +111,7 @@ public class GetRemoteProcess {
 //                }else{
 //                    remote = getConnection().data(params).get();
 //                }
-            } catch (IOException ex ) {
+            } catch (UncheckedIOException | IOException ex ) {
                 ioe = ex;
                 try {
                     this.wait(c*factor);
