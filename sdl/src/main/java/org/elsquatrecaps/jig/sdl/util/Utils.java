@@ -42,16 +42,16 @@ public class Utils {
                                        ".*\\s+(%1$s)[^0-9]{0,7}\\s*(\\d{%2$d})[^0-9]{0,7}\\s*(\\d{4}).*"         //".*\\s+(oct.?|octubre)[^0-9]{0,5}\\s*(\\d{1})[^0-9]{0,5}\\s*(\\d{4}).*"
         };
         String[]monthPatterns = {
-            "ene\\.?|enero|gen|gener|jan|january",
+            "en\\.?|ene\\.?|enero|gen\\.?|gener|jan\\.?|january",
             "feb\\.?|febr\\.?|febrero|febrer|february",
             "mar\\.?|marzo|març|march",
-            "abr\\.?|abril|apr\\.?|april",
+            "ab\\.?|abr\\.?|abril|ap\\.?|apr\\.?|april",
             "may\\.?|mayo|mai\\.?|maig",
             "jun\\.?|junio|juny|june",
             "jul\\.?|julio|juliol|july",
-            "ago\\.?|agosto|agost|aug\\.?|august",
+            "ag\\.?|ago\\.?|agosto|agost|aug\\.?|august",
             "sep\\.?|septiembre|set\\.?|setembre|september",
-            "oct\\.?|octubre|october",
+            "oc\\.?|oct\\.?|octubre|october",
             "nov\\.?|noviembre|novembre|november",
             "dic\\.?|diciembre|des\\.?|desembre|dec\\.?|december"
         };

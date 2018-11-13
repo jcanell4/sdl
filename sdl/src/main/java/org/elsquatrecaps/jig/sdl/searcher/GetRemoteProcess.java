@@ -7,13 +7,13 @@ package org.elsquatrecaps.jig.sdl.searcher;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
+import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;
 import org.elsquatrecaps.jig.sdl.exception.ErrorParsingUrl;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -23,6 +23,8 @@ import org.jsoup.nodes.Element;
 
 @XmlType()
 public class GetRemoteProcess {
+    @XmlElement
+    private int connectionAttempts = 30;
     @XmlTransient
     private String url;
     @XmlTransient
@@ -91,8 +93,7 @@ public class GetRemoteProcess {
         if(getCookies()!=null && !cookies.isEmpty()){
             con.cookies(getCookies());
         }
-        con.timeout(60000);
-        return con;
+        return con.timeout(60000).maxBodySize(0);
     }
 
     private synchronized Element getOriginalSource() {
@@ -100,23 +101,20 @@ public class GetRemoteProcess {
         Connection.Response resp;
         Throwable ioe = null;
         Document remote=null;
-        for(int c=1; remote==null && c<10; c++){
+        for(int c=1; remote==null && c<=connectionAttempts; c++){
             try{
                 Connection con = getConnection();
                 resp = con.execute();
                 setCookies(resp.cookies());
                 remote = resp.parse();
-//                  if(params==null){
-//                    remote = getConnection().get();
-//                }else{
-//                    remote = getConnection().data(params).get();
-//                }
             } catch (UncheckedIOException | IOException ex ) {
                 ioe = ex;
                 try {
                     this.wait(c*factor);
                     if(c==5){
                         factor = 500;
+                    }else if(c%10==0){
+                        factor = (c/10)*1000;
                     }
                 } catch (InterruptedException ex1) {
                     ioe = ex1;
@@ -126,7 +124,7 @@ public class GetRemoteProcess {
             }
         }
         if(remote==null){
-            throw new ErrorGettingRemoteResource(ioe);
+            throw new ErrorGettingRemoteData(String.format("Error de TIMEOUT successiu. S'han realitzat %d intents de 60 segons de durada", connectionAttempts), ioe);
         }
         return remote;
     }

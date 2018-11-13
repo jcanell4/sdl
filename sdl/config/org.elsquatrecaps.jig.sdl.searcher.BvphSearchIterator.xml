@@ -18,5 +18,4 @@
     <pageFilter>p strong a</pageFilter>
     <editionDateBloc>dt span span.datos_publicacion bdi</editionDateBloc>
     <downloadPdfJpg>http://prensahistorica.mcu.es/es/catalogo_imagenes/iniciar_descarga.cmd</downloadPdfJpg>
-    <patterToExtractDateFromTitle>.*(\d{4}\s+([Ee]nero|[Ff]ebrero|[Mm]arzo|[Aa]bril|[Mm]ayo|[Jj]unio|[Jj]ulio|[Aa]gosto|[Ss]eptiembre|[Oo]ctubre|[Nn]oviembre|[Dd]iciembre)\s+\d{1,2}).*</patterToExtractDateFromTitle>
 </bvphSearchIterator>

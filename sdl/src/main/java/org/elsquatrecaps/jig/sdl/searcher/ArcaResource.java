@@ -4,6 +4,9 @@ import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;
+import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
+import static org.elsquatrecaps.jig.sdl.searcher.SearcherResource.logger;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
 
@@ -28,20 +31,28 @@ public class ArcaResource extends SearcherResource{
     }
     
     public void updateFromElement(Element basicInfoElem, Element contentDocum, String context, Map<String, String> cookies){
-        setPublicationId(Utils.buildNormalizedFilename(basicInfoElem.attr("itemcoll")));
-        setTitle(basicInfoElem.text().trim());
-        setPageId(basicInfoElem.attr("item_id"));
-        setPage("document complet");
-        setEditionDate(getDateFromDateEditonOrTitle(contentDocum.selectFirst(this.editionDateFilter)));
-        Element elementText = contentDocum.selectFirst(this.fragmentsFilter);
-        saveFragments(elementText.text());
-        //ALERTA DE VEGADES EL FORMAT ÉS JPG!
-        Element pdfElement = contentDocum.selectFirst(savePdfFilter);
-        if(pdfElement==null){
-            pdfUrl = noPdfUrl;
-        }else{
-            pdfUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, contentDocum.selectFirst(savePdfFilter).attr("src"));
+        try{
+            setPublicationId(Utils.buildNormalizedFilename(basicInfoElem.attr("itemcoll")));
+            setTitle(basicInfoElem.text().trim());
+            setPageId(basicInfoElem.attr("item_id"));
+            setPage("document complet");
+            setEditionDate(getDateFromDateEditonOrTitle(contentDocum.selectFirst(this.editionDateFilter)));
+            Element elementText = contentDocum.selectFirst(this.fragmentsFilter);
+            if(elementText!=null){
+                saveFragments(elementText.text());
+            }
+            //ALERTA DE VEGADES EL FORMAT ÉS JPG!
+            Element pdfElement = contentDocum.selectFirst(savePdfFilter);
+            if(pdfElement==null){
+                throw new ErrorGettingRemoteData("Error. Nonexistent pdf for: ".concat(this.getTitle()));
+            }else{
+                pdfUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, pdfElement.attr("src"));
+            }
+        }catch(Exception ex){
+            logger.error("Error carregant un registre: ".concat(ex.getMessage()));
+            throw new ErrorGettingRemoteResource(ex);
         }
+        
     }
     
     private void saveFragments(String text){

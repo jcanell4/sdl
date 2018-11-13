@@ -8,7 +8,6 @@ package org.elsquatrecaps.jig.sdl.services;
 import java.util.List;
 import java.util.Optional;
 import org.elsquatrecaps.jig.sdl.exception.EntityNotFoundException;
-import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
 import org.elsquatrecaps.jig.sdl.model.SearchAndCount;
 import org.elsquatrecaps.jig.sdl.model.SearchId;
@@ -16,13 +15,10 @@ import org.elsquatrecaps.jig.sdl.model.SearchResource;
 import org.elsquatrecaps.jig.sdl.model.SearchResourceId;
 import org.elsquatrecaps.jig.sdl.persistence.ResourceRepository;
 import org.elsquatrecaps.jig.sdl.persistence.SearchRepository;
-import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
 
 @Service

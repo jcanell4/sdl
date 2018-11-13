@@ -27,11 +27,15 @@ public class ArcaGetRemoteProcess extends GetRemoteProcess{
     @XmlElement
     private String textField = "all";
     @XmlElement
+    private String exactTextField = "all";
+    @XmlElement
     private String dateField = "date";
     @XmlElement
     private String modeKey = "mode";
     @XmlElement
     private String textMode = "all";
+    @XmlElement
+    private String exactTextMode = "exact";
     @XmlElement
     private String dateMode = "exact";
     @XmlElement
@@ -39,7 +43,11 @@ public class ArcaGetRemoteProcess extends GetRemoteProcess{
     @XmlElement
     private String textConnAnd = "and";
     @XmlElement
+    private String exactTextConnAnd = "and";
+    @XmlElement
     private String textConnOr = "or";
+    @XmlElement
+    private String exactTextConnOr = "or";
     @XmlElement
     private String dateConn = "and";
     @XmlElement
@@ -83,8 +91,15 @@ public class ArcaGetRemoteProcess extends GetRemoteProcess{
                 this.arcaParams.add(param);
             }
         }else{
-            param = new ArcaTextParam(value);
-            this.arcaParams.add(param);
+            if(value.startsWith("\"") && value.endsWith("\"")){
+                
+            }else{
+                String[] words = value.split("\\s+");
+                for(String word:words){
+                    param = new ArcaTextParam(word);
+                    this.arcaParams.add(param);
+                }
+            }
         }
     }
 
@@ -244,6 +259,13 @@ public class ArcaGetRemoteProcess extends GetRemoteProcess{
         }
     }
     
+    private class ArcaExactTextParam extends ArcaParam{
+
+        public ArcaExactTextParam(String text) {
+            super(text, exactTextField, exactTextMode, exactTextConnAnd);
+        }
+    }
+
     private class ArcaTextParam extends ArcaParam{
 
         public ArcaTextParam(String text) {

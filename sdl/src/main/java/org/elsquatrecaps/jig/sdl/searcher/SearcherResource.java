@@ -3,13 +3,17 @@ package org.elsquatrecaps.jig.sdl.searcher;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.ArrayList;
 import org.elsquatrecaps.jig.sdl.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class SearcherResource{
-    private String title;
-    private String page;
-    private String publicationId;
-    private String pageId;
-    private String editionDate;
+    protected static final Logger logger = LoggerFactory.getLogger(SearcherResource.class);
+
+    private String title = "No s'ha pogut extreure el títol";
+    private String page = "Pàgina desconeguda. No s'ha trobat la informació";
+    private String publicationId = "Identificador de la publicació desconegut. No s'ha trobat la informació";
+    private String pageId = "Identificador de la pàgina desconegut. No s'ha trobat la informació";
+    private String editionDate = "Data de la publicació desconeguda. No s'ha trobat la informació";
     private ArrayList<String> fragments= new ArrayList<String>();
 
   

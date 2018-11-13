@@ -8,11 +8,16 @@ package org.elsquatrecaps.jig.sdl.controllers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
+import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;
+import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 import org.elsquatrecaps.jig.sdl.exception.UnsupportedFormat;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import org.elsquatrecaps.jig.sdl.model.Resource;
@@ -41,6 +46,7 @@ import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
 import org.elsquatrecaps.jig.sdl.searcher.ArcaSearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.SearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.SearchIterator;
+import org.jsoup.UncheckedIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -48,6 +54,14 @@ import org.springframework.http.HttpStatus;
 @Controller
 public class SdlController {
     private static final Logger logger = LoggerFactory.getLogger(SdlController.class);
+    private static final java.util.logging.Logger errorList = java.util.logging.Logger.getLogger(ErrorGettingRemoteResource.class.getName());
+    static {
+        try { 
+            errorList.addHandler(new FileHandler("log/DocumentsNoBaixats.txt"));
+        } catch (SecurityException | IOException ex) {
+            logger.error("Error creant el fitxer de registres dels documents no obtinguts a casoa de: ".concat(ex.getMessage()), ex);
+        }
+    }
 
     private DownloaderProperties dp;
 
@@ -83,12 +97,14 @@ public class SdlController {
         return ret;
     }
 
+    private List<SearchAndCount> getAllSearches(PersistenceService instance) {
+        List<SearchAndCount> searchesWithCounter = instance.findAllSearchWithResourceCounter();        
+        return searchesWithCounter;
+    }
+    
     private List<SearchAndCount> getAllSearches() {
         PersistenceService instance = new PersistenceService(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
-        List<SearchAndCount> searchesWithCounter = instance.findAllSearchWithResourceCounter();        
-        
-
-        return searchesWithCounter;
+        return getAllSearches(instance);
     }
     
     
@@ -149,14 +165,19 @@ public class SdlController {
         }
         
         if (criteria.length()>0) {
-            iterate(criteria, repository, dateStart, dateEnd);
+            if(!iterate(criteria, repository, dateStart, dateEnd)){
+                // TODO[Xavi] Enviar un dialeg amb un missatge d'error indicant que no s'ha pogut completar la baixada i que es miri el registre de logs
+                logger.debug("S'interromp la cerca degut a una excepció que no permet continuar.");
+            }
         } else {
+            logger.info("S'interromp la cerca degut a que es fa servir un criteri de cerca buit.");
             // TODO[Xavi] Enviar un dialeg amb un missatge d'error?
         }
         
-
+        logger.debug("S'intenta obtenir tots els registres emmagatzemats");
         PersistenceService instance = new PersistenceService(resourceRepository, searchResourceRepository,  searchRepository, transactionManager);
-        ret.addObject("searches", getAllSearches());
+        ret.addObject("searches", getAllSearches(instance));
+        logger.debug("S'han obtingut tots els registres de la cerca");
         
         Optional<Search> optional = instance.findOne(repository, criteria);
         
@@ -177,7 +198,9 @@ public class SdlController {
         return ret;
     }
     
-    private void iterate(String criteria, String repository, String dateStart, String dateEnd){
+    private boolean iterate(String criteria, String repository, String dateStart, String dateEnd){
+        SearcherResource res = null;
+        boolean ret = true;
         String fileRepositoryPath = this.dp.getLocalReasourceRepo();
         int quantity = this.dp.getQuantity();
         
@@ -195,52 +218,69 @@ public class SdlController {
         pService.saveSearch(search);
         logger.debug("Registre principal de la cerca emmagatzemat");
         
-        while((quantity<=0 || c<quantity) && iterator.hasNext()){
-            c++;
-            SearchResource searchResource;
-            SearcherResource res = iterator.next();
-            logger.info(String.format("%d.- Recurs obtingut: %s (%s)", c, res.getTitle(), res.getEditionDate()));
-            Resource resource = new Resource(res);
-            searchResource = search.addResource(resource);
-            String[] formats = resource.getSupportedFormats();
-            
-            for(String format: formats){
-                boolean error=false;
-                FileOutputStream fileOutputStream = null;
-                File path = new File(fileRepositoryPath);
-                File file = new File(fileRepositoryPath, res.getFileName().concat(".").concat(format));
-                FormatedFile ff = res.getFormatedFile(format);
-                if(!path.exists()){
-                    path.mkdirs();
-                }
-                if(!file.exists()){
-                    try {
-                        fileOutputStream = new FileOutputStream(file);
-                        try{
-                            Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
-                        } catch (ErrorCopyingFileFormaException ex) {
-                            logger.error(ex.getMessage(), ex);
-                            error = true;
+        try{
+            while((quantity<=0 || c<quantity) && iterator.hasNext()){
+                SearchResource searchResource;
+                c++;
+                try{
+                    res = iterator.next();
+                    logger.info(String.format("%d.- Recurs obtingut: %s (%s)", c, res.getTitle(), res.getEditionDate()));
+                    Resource resource = new Resource(res);
+                    searchResource = search.addResource(resource);
+                    String[] formats = resource.getSupportedFormats();
+
+                    for(String format: formats){
+                        boolean error=false;
+                        FileOutputStream fileOutputStream = null;
+                        File path = new File(fileRepositoryPath);
+                        File file = new File(fileRepositoryPath, res.getFileName().concat(".").concat(format));
+                        FormatedFile ff = res.getFormatedFile(format);
+                        if(!path.exists()){
+                            path.mkdirs();
                         }
-                    } catch (FileNotFoundException ex) {
-                        logger.error(ex.getMessage(), ex);
-                        error = true;
+                        if(!file.exists()){
+                            try {
+                                fileOutputStream = new FileOutputStream(file);
+                                try{
+                                    Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
+                                } catch (ErrorGettingRemoteResource | ErrorCopyingFileFormaException ex) {
+                                    logger.error(ex.getMessage(), ex);
+                                    error = true;
+                                }
+                            } catch (FileNotFoundException ex) {
+                                logger.error(ex.getMessage(), ex);
+                                error = true;
+                            }
+                            if(error){
+                                logger.info(String.format("Fitxer %s NO copiat", ff.getFileName()));
+                            }else{
+                                logger.info(String.format("Fitxer %s copiat.", ff.getFileName()));
+                            }
+                        }else{
+                            logger.info(String.format("Fitxer %s copiat anteriorment.", ff.getFileName()));
+                        }
                     }
-                    if(!error){
-                        logger.info(String.format("Fitxer %s copiat.", ff.getFileName()));
+                    pService.saveSearchResource(searchResource);
+                    logger.debug("Registre del recurs emmagatzemat");
+                }catch(ErrorGettingRemoteResource ex){
+                    if(res!=null){
+                        errorList.info(res.toString());
+                    }else{
+                        errorList.severe(ex.getMessage());
                     }
-                }else{
-                    logger.info(String.format("Fitxer %s copiat anteriorment.", ff.getFileName()));
                 }
             }
-            pService.saveSearchResource(searchResource);
-            logger.debug("Registre del recurs emmagatzemat");
-
+            logger.debug("Cerca acabada");
+        }catch(ErrorGettingRemoteData ex){
+            ret = false;
+            if(ex.getCause() instanceof IOException
+                    || ex.getCause() instanceof UncheckedIOException ){
+                logger.error("Obtenció de recursos interrumpuda per TIMEOUT en el servidor: ".concat(ex.getMessage()));
+            }else{
+                logger.error("Obtenció de recursos interrumpuda per: ". concat(ex.getMessage()), ex);
+            }
         }
-        logger.debug("Cerca acabada");
-//        logger.debug("S'inicia l'emmagatzematge a la base de dades");
-//        pService.saveSearch(search);
-//        logger.debug("Emmagatzematge finalitzat");
+        return ret;
     }
     
     @RequestMapping({"/export"})

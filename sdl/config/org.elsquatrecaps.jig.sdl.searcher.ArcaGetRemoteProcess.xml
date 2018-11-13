@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <arcaGetRemoteProcess>
+    <connectionAttempts>30</connectionAttempts>
     <queryPath>/searchterm//field//mode//conn//order/date</queryPath>
     <searchtermKey>searchterm</searchtermKey>
     <fieldKey>field</fieldKey>
     <textField>all</textField>
+    <exactTextField>all</exactTextField>
     <dateField>date</dateField>
     <modeKey>mode</modeKey>
     <textMode>all</textMode>
+    <exactTextMode>exact</exactTextMode>
     <dateMode>exact</dateMode>
     <connKey>conn</connKey>
     <textConnAnd>and</textConnAnd>
+    <exactTextConnAnd>and</exactTextConnAnd>
     <textConnOr>or</textConnOr>
+    <exactTextConnOr>or</exactTextConnOr>
     <dateConn>and</dateConn>
     <orderKey>order</orderKey>
     <orderDefaultValue>date</orderDefaultValue>

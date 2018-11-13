@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <bvphGetRemoteProcess>
+    <connectionAttempts>30</connectionAttempts>
+    <queryPath></queryPath>
     <textKey>busq_general</textKey>
     <paisKey>descrip_idlistpais</paisKey>
     <defaultPaisValue>España</defaultPaisValue>

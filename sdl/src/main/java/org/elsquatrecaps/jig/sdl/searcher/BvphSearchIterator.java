@@ -5,6 +5,7 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
+import org.elsquatrecaps.jig.sdl.exception.PreventiveException;
 import java.util.Iterator;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -55,7 +56,7 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
     private String editionDateBloc = "dt span span.datos_publicacion bdi";
     @XmlElement
     private String downloadPdfJpg = "http://prensahistorica.mcu.es/es/catalogo_imagenes/iniciar_descarga.cmd";
-    @XmlElement
+    @XmlTransient
     private String patterToExtractDateFromTitle = ".*(\\d{4}\\s+([Ee]nero|[Ff]ebrero|[Mm]arzo|[Aa]bril|[Mm]ayo|[Jj]unio|[Jj]ulio|[Aa]gosto|[Ss]eptiembre|[Oo]ctubre|[Nn]oviembre|[Dd]iciembre)\\s+\\d{2}).*";
 
 //    @XmlElement
@@ -236,22 +237,30 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
     }
     
     private int getMinimumYearOfPaginatedList(Element paginatedList){
-        Element nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
         String url;
         int ret=currentSmallerYear;      
-        logger.debug("Cercant getMinimumYearOfPaginatedList");
-        do{
-            Elements list = paginatedList.select(pubYearPaginatedRegistersFilter);
-            int value = getMinimumYearOfSingleList(list);
-            if(value<ret || ret==-1){
-                ret = value;
-            }
-            url = relativeToAbsoluteUrl(nextPage.attr("href"));
-            getRemoteProcessAux.setUrl(url);
-            paginatedList = getRemoteProcessAux.get();
-            nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
-        }while(nextPage!=null);
-        logger.debug("getMinimumYearOfPaginatedList trobat");
+        Element nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
+        //Alerta. Comprovar que si nextPage és null, ñes degut a que no hi ha més anys disponibles i cal aplicar getMinimumYearOfSingleList
+        if(nextPage != null){
+            logger.debug("Cercant getMinimumYearOfPaginatedList");
+            do{
+                Elements list = paginatedList.select(pubYearPaginatedRegistersFilter);
+                int value = getMinimumYearOfSingleList(list);
+                if(value<ret || ret==-1){
+                    ret = value;
+                }
+                url = relativeToAbsoluteUrl(nextPage.attr("href"));
+                getRemoteProcessAux.setUrl(url);
+                paginatedList = getRemoteProcessAux.get();
+                nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
+            }while(nextPage!=null);
+            logger.debug("getMinimumYearOfPaginatedList trobat");
+        }else{
+            logger.error("next page of getMinimumYearOfPaginatedList és null. Suposem que l'ultim any és l'actual currentSmallerYear:"
+                    .concat(String.valueOf(ret)).concat(". Es llançarà una excepció preventiva."));
+            logger.info("L'element que no conté la informació per trobar la llista d'anys (nextPage) és: ".concat(paginatedList.toString()));
+            throw new PreventiveException("currentSmallerYear no trobat");
+        }
         return ret;
     }
     
@@ -277,6 +286,8 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
 
         @Override
         public boolean hasNext() {
+            logger.debug(String.format("Elements actuals: %d", elementsToProcess));
+            logger.debug(String.format("Hi hamés pàgines: %s", elementToNextPage!=null?"SI":"NO"));
             return elementToNextPage!=null || elementsToProcess>0;
         }
 
@@ -285,13 +296,16 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
             BvphResource ret;
             Element a;
             if(elementsToProcess==0){
+                logger.debug("S'ha acabta la pàgina actual, s'inicia la càrrega d'una nova pàgina (LoadingNextPage)");
                 loadNextPage();
-                updateValues();                
+                updateValues();          
+                logger.debug("nova pàgina carregada");
             }
             a = blocElements.get(blocElements.size()-elementsToProcess);
             --elementsToProcess;
+            logger.debug("S'ha localitzat el registre. Es passa a extreure'n la informació");
             ret = getResource(a);
-            
+            logger.debug("Informació extreta");
             return ret;
         }
         
