@@ -110,12 +110,10 @@ var bibliotequesAPI = (function () {
 
         return function (text) {            
             if (text) {
-                console.log("Mostrant spinner:", text);
                 $text.html(text);
                 $overlayNode.css('display', 'block');
 
             } else {
-                console.log("Amagant spinner");
                 $overlayNode.css('display', 'none');
             }
         };
@@ -126,27 +124,32 @@ var bibliotequesAPI = (function () {
     var sendSearchDetailRequest = function(id) {
     var url = '/searchDetail/' + id; // TODO: extreure la ruta per facilitar onfigurar-la
 
-            // AJAX per carregar el dialeg dins d'aquest contenidor
-            // En acabar mostrar-lo
-            $.ajax(
+            var timecounter = Date.now();
+
+            console.log("[CRONO]", "[SEARCH_DETAIL]", "enviant petició:", (Date.now()-timecounter)/1000);
+
+        $.ajax(
                     {
                         url: url,
                         type: "GET"
                     }
             ).done(function (data) {
-                console.log("AJAX done", data);
+                console.log("[CRONO]", "[SEARCH_DETAIL]", "resposta rebuda:", (Date.now()-timecounter)/1000);
+                
                 $('#resourcesBySearchDialog').html($(data));
                 $('#resourcesBySearchDialog').modal();
+                console.log("[CRONO]", "[SEARCH_DETAIL]", "resposta afegida:", (Date.now()-timecounter)/1000);
                 
                 
-                // TODO: Afegir els handlers als botons del dialeg dialeg
                 initSearchDetail();
+                console.log("[CRONO]", "[SEARCH_DETAIL]", "detall inicialitzat:", (Date.now()-timecounter)/1000);
                 initFilter();
+                console.log("[CRONO]", "[SEARCH_DETAIL]", "filtres inicialitzats:", (Date.now()-timecounter)/1000);
                 initExportButton();
+                console.log("[CRONO]", "[SEARCH_DETAIL]", "botó exportació inicialitzat:", (Date.now()-timecounter)/1000);
             });
             
             showOverlay("Consultant detall");
-            console.log("petició enviada");
     };
 
     
@@ -192,21 +195,23 @@ var bibliotequesAPI = (function () {
 
             showOverlay("Actualitzant");
 
+            var timecounter = Date.now();
+
+            console.log("[CRONO]", "[RESOURCE_DETAIL]", "enviant petició", 0);
+            
             $.ajax(
                     {
                         url: url,
                         type: "GET"
                     }
             ).done(function (data) {
-                console.log("AJAX done");
+                console.log("[CRONO]", "[RESOURCE_DETAIL]", "petició rebuda:", (Date.now()-timecounter)/1000);
                 $('#resourceDetail').html($(data));
                 
-                
-                console.log("Actualitzades les dades del recurs");
+                console.log("[CRONO]", "[RESOURCE_DETAIL]", "dades del recurs actualitzades", (Date.now()-timecounter)/1000);
+                //console.log("Actualitzades les dades del recurs");
                 showOverlay();
             });
-            
-            console.log("petició enviada");
 
         });
     };
@@ -246,10 +251,10 @@ var bibliotequesAPI = (function () {
         
         tables.resourcesTable.on('select deselect', function (e) {
             // TODO: Update el botó d'exportar
-           console.log("Select a la fila");
+           //console.log("Select a la fila");
            var enableExportButton = getSelectedIndex(tables.resourcesTable).length>0;
            
-           console.log("Nombre de selecteds:", getSelectedIndex(tables.resourcesTable));
+           //console.log("Nombre de selecteds:", getSelectedIndex(tables.resourcesTable));
            var $exportButton = $('#export-selected');
            
             if (enableExportButton) {
@@ -258,7 +263,7 @@ var bibliotequesAPI = (function () {
                 $exportButton.addClass('disabled');
             }
             
-           console.log("Enabled?", enableExportButton);
+           //console.log("Enabled?", enableExportButton);
         });
         
         
@@ -342,6 +347,10 @@ var bibliotequesAPI = (function () {
          
             showOverlay("Cercant");
          
+         var timecounter = Date.now();
+
+         console.log("[CRONO]", "[SEARCH]", "Enviant petició:", 0);
+         
          $.ajax(
                     {
                         url: "/search",
@@ -349,11 +358,14 @@ var bibliotequesAPI = (function () {
                         data: $("#search-form").serialize(),
                     }
             ).done(function (data) {
-                console.log("AJAX done");
+                console.log("[CRONO]", "[SEARCH]", "petició rebuda:", (Date.now()-timecounter)/1000);
                 $('#searches-container').replaceWith($(data));
                 
                 initSearches();
+                console.log("[CRONO]", "[SEARCH]", "cercas inicialitzades:", (Date.now()-timecounter)/1000);
+                
                 initFilter();
+                console.log("[CRONO]", "[SEARCH]", "filtres inicialits:", (Date.now()-timecounter)/1000);
             
             
             
@@ -361,14 +373,9 @@ var bibliotequesAPI = (function () {
                 
                 
                 sendSearchDetailRequest(id);
+                                
+                console.log("[CRONO]", "[SEARCH]", "actualitzat el llistat de cerques", (Date.now()-timecounter)/1000);
                 
-                
-            
-                // TODO: initTabla searches i botons. Compte! els botons del fitres estaran lligats a la taula original (comprovar també l'altra taula, pasara el mateix)
-                
-                console.log("Actualitzat el llistat de cerques");
-                
-                // TODO: desactivar indicador progress
                 showOverlay();
             });
             
@@ -394,7 +401,7 @@ var bibliotequesAPI = (function () {
     var updateFilterDate = function ($operator, $date1, $date2) {
         var selected = $operator.val();
         
-        console.log("Actualitant filtre data");
+        //console.log("Actualitant filtre data");
 
         switch (selected) {
             case '*':
@@ -454,7 +461,7 @@ var bibliotequesAPI = (function () {
 
         $('#filter-query-remove').on('click', function (e) {
             e.preventDefault();
-            console.log("Eliminant filtre");
+            //console.log("Eliminant filtre");
 
             $('#filter-repository').val('*');
             $('#filter-repository-not').prop('checked', false);
@@ -619,13 +626,13 @@ var bibliotequesAPI = (function () {
             showOverlay("Exportant");
 
                         
-            console.log("Selected index:", selectedIndex, formats);
+            //console.log("Selected index:", selectedIndex, formats);
             var ids=[];
             for (var i=0; i<selectedIndex.length; i++) {
                 ids.push($(tables.resourcesTable.row(selectedIndex[i]).nodes()[0]).attr('data-id').replace(new RegExp(',', 'g'), "|"));
             }
             
-            console.log("Iniciat export");
+            //console.log("Iniciat export");
             
             formats = formats.replace(new RegExp(' ', 'g'), ',');
             var process = $("#export-process").val();
@@ -637,7 +644,7 @@ var bibliotequesAPI = (function () {
                         data: {'ids[]': ids,'formats': formats, 'process': process}
                     }
             ).done(function (data, textStatus, jqXHR) {
-                console.log("AJAX done");
+                //console.log("AJAX done");
                 
                 showOverlay();
                 
@@ -660,7 +667,7 @@ var bibliotequesAPI = (function () {
             
                     tables.resourcesTable.rows().deselect();
                 }
-                console.log("Export finalitzat");
+                //console.log("Export finalitzat");
                 
                 
             }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -745,7 +752,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
             ret += timeTokens[2];
         }
         
-        console.log("dateStringToDDMMYYY fa alguna cosa? no retorna res", ret);
+        //console.log("dateStringToDDMMYYY fa alguna cosa? no retorna res", ret);
     }
 
     var stringToDate = function (dateString) { // reverse pel format aaaa/mm/dd
@@ -793,7 +800,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
         tokenString = tokenString.toLowerCase();
         text = text.toLowerCase();
 
-        console.log(tokenString, text);
+        //console.log(tokenString, text);
 
         if (!separator) {
             separator = ' ';
@@ -850,7 +857,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
     var data2 = stringToDate($filterDateOriginal2.val());
     var dataRow = stringToDate(data[COL_DATE_ORIGINAL]);
 
-    console.log(dateOrder, data1.getTime(), data2.getTime(), dataRow.getTime());
+    //console.log(dateOrder, data1.getTime(), data2.getTime(), dataRow.getTime());
 
     switch (dateOrder) {
 
@@ -897,7 +904,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
     dataRow = stringToDate(data[COL_DATE_UPDATE]);
     
     // ALERTA: Duplicat més amunt per l'altre formulari, aquest correspon a la consulta de cerques
-    console.log(dateOrder, data1.getTime(), data2.getTime(), dataRow.getTime());
+    //console.log(dateOrder, data1.getTime(), data2.getTime(), dataRow.getTime());
     
     switch (dateOrder) {
 
@@ -945,7 +952,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
     if (querySelected.length > 0) {
 
-        console.log(querySelected, data[COL_QUERY]);
+        //console.log(querySelected, data[COL_QUERY]);
 
         if (!textContainsAllTokens(querySelected, data[COL_QUERY])) {
             return false;
@@ -974,7 +981,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
     var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd <-- ALERTA[Xavi] el peràmetre reverse sempre es undefined?
         
-        console.log("String to date afegida a la taula", dateString, reverse);
+        //console.log("String to date afegida a la taula", dateString, reverse);
         
         var timeTokens = dateString.split(/[/\-]/);
         var day, month, year;
@@ -1066,7 +1073,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
         }
 
 
-console.log("Conversió de data:", dateString, year, month, day, new Date(Date.UTC(year, month, day)));
+        //console.log("Conversió de data:", dateString, year, month, day, new Date(Date.UTC(year, month, day)));
         return new Date(Date.UTC(year, month, day));
     };
 
@@ -1129,8 +1136,8 @@ console.log("Conversió de data:", dateString, year, month, day, new Date(Date.U
     var data2 = stringToDate($filterDate2.val());
     var dataRow = stringToDate(data[COL_DATA]);
 
-    console.log("******* FILTRE ******");
-    console.log("\t", dateOrder, dataRow.getTime(), data1.getTime(), data2.getTime());
+    //console.log("******* FILTRE ******");
+    //console.log("\t", dateOrder, dataRow.getTime(), data1.getTime(), data2.getTime());
     switch (dateOrder) {
 
         case '*':
