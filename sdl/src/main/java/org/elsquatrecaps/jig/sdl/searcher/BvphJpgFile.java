@@ -26,7 +26,7 @@ public class BvphJpgFile extends BasicSearcherFormatedFile{
     
     @Override
     public InputStream getImInputStream() {
-        GetRemoteProcess remoteProcess = new GetRemoteProcess(url);
+        AbstractGetRemoteProcess remoteProcess = new GetRemoteProcessWithoutParams(url);
         Element elem = remoteProcess.get();
         Element elemForm = elem.selectFirst("form[name='imprimirForm']");
         String sep = "?";
@@ -48,7 +48,7 @@ public class BvphJpgFile extends BasicSearcherFormatedFile{
         }
     }
     private String relativeToAbsoluteUrl(String base, String relative){
-        return  GetRemoteProcess.relativeToAbsoluteUrl(base, relative);
+        return  AbstractGetRemoteProcess.relativeToAbsoluteUrl(base, relative);
     }
     
 }

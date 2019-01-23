@@ -13,22 +13,28 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 @XmlRootElement
-public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
+public class HdSearchIterator extends SearchIterator<HdResource>{
     int cnt=0;
     @XmlElement
-    private String navPagesFilter = "#cdmResultsBrowseAllItemsView";
+    private String navPagesFilter = "div#top-results div.results";
     @XmlElement
-    private String navPagesNextFilter = "div#link_bar_search div#link_bar_content div#link_bar_container div.link_bar_pagination ul > li#pagination_button_next a#pagination_button_next_link";    //
+    private String navPagesNextFilter = "a#top-next";    //
     @XmlElement
-    private String newsPaperEditionListFilter = "#cdmResultsBrowseAllItemsView div.listItem";    
+    private String newsPaperEditionListFilter = "body form div.list";    
     @XmlElement
-    private String basicInfoNewsPaperListFilter = "div.listItem div.listContentBottom a.body_link_11"; //.child[0].attr("href")   //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+    private String idFilter = "div.list-frame input"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
     @XmlElement
-    private String fragmentsFilter = "div#img_view_text_container div#img_view_text_content pre#full_text_container";
+    private String basicInfoNewsPaperListFilter = "div.list-frame div.list-record div a[id^=\"details\"]"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
     @XmlElement
-    private String savePdfFilter = "div#img_view_container div#viewer_wrapper_outer div#viewer_wrapper_inner object#itemViewer embed";
+    private String fragmentsFilter = "table#generic-pane tbody td.value textarea#text";
     @XmlElement
-    private String editionDateFilter = "td#metadata_data a.body_link_11";
+    private String savePdfFilter = "iframe#page-preview";
+    @XmlElement
+    private String titleFilter = "p#breadcrumbs em a[title=\"Títol\"]";
+    @XmlElement
+    private String pageNumFilter = "p#breadcrumbs em span[title=\"Pàgina\"]";
+    @XmlElement
+    private String editionDateFilter = "p#breadcrumbs em a[title=\"Exemplar\"]";
     @XmlElement
     private String noPdfFileUrl = "http://localhost:8888/files/nopdf.pdf";
     
@@ -37,38 +43,38 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
     @XmlTransient
     private boolean initilized = false;
     @XmlTransient
-    private ArcaBlockSearhIterator currentBlockIterator;
+    private HdBlockSearhIterator currentBlockIterator;
     @XmlTransient
     private boolean nextBlockIsNeeded;
     @XmlTransient
-    private ArcaGetRemoteProcess getRemoteProcess;    
+    private HdGetRemoteProcess getRemoteProcess;    
     @XmlTransient
     private AbstractGetRemoteProcess getRemoteProcessAux = new GetRemoteProcessWithoutParams();
     
-    public ArcaSearchIterator(Element element,  ArcaGetRemoteProcess getRemoteProcess){
+    public HdSearchIterator(Element element,  HdGetRemoteProcess getRemoteProcess){
         this._init(element, getRemoteProcess);
     }
     
-    public ArcaSearchIterator(ArcaGetRemoteProcess getRemoteProcess){
+    public HdSearchIterator(HdGetRemoteProcess getRemoteProcess){
         this._init(getRemoteProcess);
     }
 
-    public ArcaSearchIterator(){
+    public HdSearchIterator(){
     }
     
     public void init(AbstractGetRemoteProcess getRemoteProcess){
-        this._init((ArcaGetRemoteProcess) getRemoteProcess);
+        this._init((HdGetRemoteProcess) getRemoteProcess);
     }
 
-    public void init(Element element,  ArcaGetRemoteProcess getRemoteProcess){
+    public void init(Element element,  HdGetRemoteProcess getRemoteProcess){
         this._init(element, getRemoteProcess);
     }
 
-    private void _init(ArcaGetRemoteProcess getRemoteProcess){
+    private void _init(HdGetRemoteProcess getRemoteProcess){
         this.getRemoteProcess = getRemoteProcess;
     }
 
-    private void _init(Element element,  ArcaGetRemoteProcess getRemoteProcess){
+    private void _init(Element element,  HdGetRemoteProcess getRemoteProcess){
         this._init(getRemoteProcess);
         this.sourceElement = element;
     }
@@ -85,8 +91,8 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
     }
 
     @Override
-    public ArcaResource next() {
-        ArcaResource ret = null;
+    public HdResource next() {
+        HdResource ret = null;
         ret = currentBlockIterator.next();
         return ret;
     }
@@ -97,14 +103,14 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
                 updateOriginalSource();
             }
             if(!noResources()){
-                currentBlockIterator = new ArcaBlockSearhIterator();
+                currentBlockIterator = new HdBlockSearhIterator();
             }
         }
     }
             
     protected boolean noResources(){
         boolean ret;
-        ret = sourceElement.select(navPagesFilter).size()==0;        
+        ret = sourceElement.select(navPagesFilter)==null;        
         return ret;
     }
     
@@ -124,14 +130,14 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
         return  AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), relative);
     }
     
-///// ------ CLASS ArcaBlockSearhIterator  ---------------------//
+///// ------ CLASS HdBlockSearhIterator  ---------------------//
 
-    private class ArcaBlockSearhIterator implements Iterator<ArcaResource>{
+    private class HdBlockSearhIterator implements Iterator<HdResource>{
         Element elementToNextPage;
         Elements blocElements;
         int elementsToProcess=0;
                 
-        public ArcaBlockSearhIterator() {
+        public HdBlockSearhIterator() {
             updateValues();
             
             nextBlockIsNeeded = false;
@@ -146,8 +152,8 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
         }
 
         @Override
-        public ArcaResource next() {
-            ArcaResource ret;
+        public HdResource next() {
+            HdResource ret;
             Element a;
             if(elementsToProcess==0){
                 loadNextPage();
@@ -175,14 +181,16 @@ public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
             elementsToProcess = blocElements.size();
         }
 
-        private ArcaResource getResource(Element elem) {      
+        private HdResource getResource(Element elem) {
+            HdResource ret =null;
+            String id = elem.selectFirst(idFilter).val();
             Element basicInfoElem = elem.selectFirst(basicInfoNewsPaperListFilter);
             String urlInfoContent = AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), basicInfoElem.attr("href"));
             getRemoteProcessAux.setUrl(urlInfoContent);
             getRemoteProcessAux.setCookies(getRemoteProcess.getCookies());
             Element contentDocum = getRemoteProcessAux.get();
-            ArcaResource ret = new ArcaResource(editionDateFilter, fragmentsFilter, getRemoteProcess._getText(), savePdfFilter, noPdfFileUrl);
-            ret.updateFromElement(basicInfoElem, contentDocum, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
+            ret = new HdResource(titleFilter, editionDateFilter, pageNumFilter, fragmentsFilter, savePdfFilter, noPdfFileUrl);
+            ret.updateFromElement(contentDocum, id, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
             return ret;
         }
     }

@@ -19,7 +19,7 @@ import org.jsoup.nodes.Element;
 
 @XmlRootElement
 @XmlType()
-public class BvphGetRemoteProcess extends GetRemoteProcess{
+public class BvphGetRemoteProcess extends GetRemoteProcessWithUniqueKeys{
     @XmlElement
     private String textKey = "busq_general";
     @XmlElement

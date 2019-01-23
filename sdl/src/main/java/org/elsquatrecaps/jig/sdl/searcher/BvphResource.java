@@ -53,16 +53,16 @@ public class BvphResource extends SearcherResource{
                 addFragment(frags.get(i).text());
             }
             String relativeUrl = elem.child(0).attr("href");
-            String url = GetRemoteProcess.relativeToAbsoluteUrl(context, relativeUrl);
+            String url = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, relativeUrl);
             Element toDonwloading = getToDownloading(url);
             Elements actions = toDonwloading.select(actionsFilter);
             ocrtextUrl = actions.get(0).child(0).attr("href");
             altoXmlUrl = actions.get(1).child(0).attr("href");
             jpgTemporalUrl = toDonwloading.select(saveJpgFilter).last().attr("href");
 
-            ocrtextUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, ocrtextUrl+"&aceptar=Aceptar");
-            altoXmlUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, altoXmlUrl+"&aceptar=Aceptar");
-            jpgTemporalUrl = GetRemoteProcess.relativeToAbsoluteUrl(context, jpgTemporalUrl+"&aceptar=Aceptar");
+            ocrtextUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, ocrtextUrl+"&aceptar=Aceptar");
+            altoXmlUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, altoXmlUrl+"&aceptar=Aceptar");
+            jpgTemporalUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, jpgTemporalUrl+"&aceptar=Aceptar");
         }catch(Exception ex){
             logger.error("Error carregant un registre: ".concat(ex.getMessage()));
             throw new ErrorGettingRemoteResource(ex);
@@ -102,7 +102,7 @@ public class BvphResource extends SearcherResource{
     }
     
     private Element getToDownloading(String url){
-        GetRemoteProcess grp = new GetRemoteProcess(url);
+        AbstractGetRemoteProcess grp = new GetRemoteProcessWithoutParams(url);
         grp.setParam("aceptar", "Aceptar");
         Element toDonwloading = grp.get();  
         return toDonwloading;

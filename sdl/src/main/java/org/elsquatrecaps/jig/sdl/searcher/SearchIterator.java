@@ -12,5 +12,5 @@ import java.util.Iterator;
  * @author josep
  */
 public abstract class SearchIterator<T extends SearcherResource> implements Iterator<T>{
-    public abstract void init(GetRemoteProcess getRemoteProcess);
+    public abstract void init(AbstractGetRemoteProcess getRemoteProcess);
 }

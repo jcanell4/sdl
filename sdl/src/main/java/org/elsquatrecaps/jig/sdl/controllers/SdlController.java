@@ -13,7 +13,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;

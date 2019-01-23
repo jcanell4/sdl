@@ -77,7 +77,7 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
     @XmlTransient
     private BvphGetRemoteProcess getRemoteProcess;    
     @XmlTransient
-    private GetRemoteProcess getRemoteProcessAux = new GetRemoteProcess();
+    private AbstractGetRemoteProcess getRemoteProcessAux = new GetRemoteProcessWithoutParams();
     @XmlTransient
     private int currentBiggerYear;
     @XmlTransient
@@ -95,7 +95,7 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
     public BvphSearchIterator(){
     }
     
-    public void init(GetRemoteProcess getRemoteProcess){
+    public void init(AbstractGetRemoteProcess getRemoteProcess){
         this._init((BvphGetRemoteProcess) getRemoteProcess);
     }
 
@@ -265,7 +265,7 @@ public class BvphSearchIterator extends SearchIterator<BvphResource>{
     }
     
     private String relativeToAbsoluteUrl(String relative){
-        return  GetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), relative);
+        return  AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), relative);
     }
     
 ///// ------ CLASS BvphBlockSearhIterator  ---------------------//

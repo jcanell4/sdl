@@ -22,7 +22,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 @XmlType()
-public class GetRemoteProcess {
+abstract public class AbstractGetRemoteProcess {
     @XmlElement
     private int connectionAttempts = 30;
     @XmlTransient
@@ -30,25 +30,17 @@ public class GetRemoteProcess {
     @XmlTransient
     private String queryPath = "";
     @XmlTransient
-    private Map<String, String> params=null;
-    @XmlTransient
     private Map<String, String> cookies=null;
 
-    public GetRemoteProcess(){    
+    public AbstractGetRemoteProcess(){    
     }
     
-    public GetRemoteProcess(String url){
+    public AbstractGetRemoteProcess(String url){
         this.url = url;
     }
     
-    public GetRemoteProcess(String url, Map<String, String> params){
+    public AbstractGetRemoteProcess(String url, Map<String, String> cookies){
         this.url = url;
-        this.params = params;
-    }
-    
-    public GetRemoteProcess(String url, Map<String, String> params, Map<String, String> cookies){
-        this.url = url;
-        this.params = params;
         this.cookies = cookies;
     }
     
@@ -64,38 +56,21 @@ public class GetRemoteProcess {
         throw new UnsupportedOperationException();
     }
     
-    public void setParams(Map<String, String> params){
-        this.params = params;
-    }
-    
-    public String getParam(String key){
-        return this.params.get(key);
-    }
-    
-    public void setParam(String key, String value){
-        if(params==null){
-            params = new HashMap<>();
-        }
-        params.put(key, value);
-    }
+    abstract public void setParam(String key, String value);
     
     public Element get(){
         return this.getOriginalSource();
     }
 
-    private Connection getConnection(){
-        Connection con;
-        if(params!=null){
-            con = Jsoup.connect(getUrl().concat(getQueryPath())).data(params);
-        }else{
-            con = Jsoup.connect(getUrl().concat(getQueryPath()));
-        }
+    abstract protected Connection getConnection();
+    
+    protected void configConnection(Connection con){
         if(getCookies()!=null && !cookies.isEmpty()){
             con.cookies(getCookies());
         }
-        return con.timeout(60000).maxBodySize(0);
+        con.timeout(60000).maxBodySize(0);
     }
-
+    
     private synchronized Element getOriginalSource() {
         int factor = 200;
         Connection.Response resp;

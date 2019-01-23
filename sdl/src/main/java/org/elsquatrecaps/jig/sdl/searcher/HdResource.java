@@ -10,36 +10,38 @@ import static org.elsquatrecaps.jig.sdl.searcher.SearcherResource.logger;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
 
-public class ArcaResource extends SearcherResource{
+public class HdResource extends SearcherResource{
     private static final String[] SUPPORTED_FORMATS={"pdf"};
+    private String titleFilter;
+    private String pageNumFilter;
     private String editionDateFilter;
     private String pdfUrl;
     private String fragmentsFilter;
-    private String textKey;
     private String savePdfFilter;
     private String noPdfUrl;
 
-    public ArcaResource() {
+    public HdResource() {
     }
     
-    public ArcaResource(String editionDateFilter, String fragmentsFilter, String textKey, String savePdfFilter, String noPdfFileUrl) {
+    public HdResource(String titleFilter, String editionDateFilter, String pageNumFilter, String fragmentsFilter, String savePdfFilter, String noPdfFileUrl) {
+        this.titleFilter = titleFilter;
         this.editionDateFilter = editionDateFilter;
+        this.pageNumFilter = pageNumFilter;
         this.fragmentsFilter = fragmentsFilter;
-        this.textKey = textKey.replaceAll("\"", "").replaceAll("( )+", "|");
         this.savePdfFilter = savePdfFilter;
         this.noPdfUrl = noPdfFileUrl;
     }
     
-    public void updateFromElement(Element basicInfoElem, Element contentDocum, String context, Map<String, String> cookies){
+    public void updateFromElement(Element contentDocum, String id, String context, Map<String, String> cookies){
         try{
-            setPublicationId(Utils.buildNormalizedFilename(basicInfoElem.attr("itemcoll")));
-            setTitle(basicInfoElem.text().trim());
-            setPageId(basicInfoElem.attr("item_id"));
-            setPage("document complet");
-            setEditionDate(getDateFromDateEditonOrTitle(contentDocum.selectFirst(this.editionDateFilter)));
+            setPublicationId(Utils.buildNormalizedFilename(id));
+            setTitle(contentDocum.selectFirst(titleFilter).text().trim());
+            setPage(contentDocum.selectFirst(pageNumFilter).text().trim());
+            setPageId(Utils.buildNormalizedFilename(getPage()));
+            setEditionDate(getDateFromDateEditonOrTitle(contentDocum.selectFirst(editionDateFilter)));
             Element elementText = contentDocum.selectFirst(this.fragmentsFilter);
             if(elementText!=null){
-                saveFragments(elementText.text());
+                addFragment(elementText.val());
             }
             //ALERTA DE VEGADES EL FORMAT ÉS JPG!
             Element pdfElement = contentDocum.selectFirst(savePdfFilter);
@@ -53,14 +55,6 @@ public class ArcaResource extends SearcherResource{
             throw new ErrorGettingRemoteResource(ex);
         }
         
-    }
-    
-    private void saveFragments(String text){
-        Pattern p = Pattern.compile(".{0,100}(".concat(textKey).concat(").{0,100}"), Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
-        Matcher m = p.matcher(text);
-        while(m.find()){
-            addFragment(text.substring(m.start(), m.end()));
-        }
     }
     
     private String getDateFromDateEditonOrTitle(Element dateElement){

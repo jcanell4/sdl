@@ -19,7 +19,7 @@ import org.jsoup.nodes.Element;
 
 @XmlRootElement
 @XmlType()
-public class ArcaGetRemoteProcess extends GetRemoteProcess{
+public class ArcaGetRemoteProcess extends GetRemoteProcessWithUniqueKeys{
     @XmlElement
     private String searchtermKey = "searchterm";
     @XmlElement
@@ -152,9 +152,7 @@ public class ArcaGetRemoteProcess extends GetRemoteProcess{
     @Override
     public Element get() {
         if(super.getUrl()==null){
-            super.setUrl(url.concat(this.getQueryPath()));
-        }else{
-            super.setUrl(super.getUrl().concat(this.getQueryPath()));
+            super.setUrl(url);
         }
         return super.get();
     }

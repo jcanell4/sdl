@@ -8,7 +8,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.commons.text.WordUtils;
 import org.elsquatrecaps.jig.sdl.exception.ErrorCreatingNewInstance;
 import org.elsquatrecaps.jig.sdl.exception.ErrorUnmarshallingXmlConfig;
-import org.elsquatrecaps.jig.sdl.searcher.GetRemoteProcess;
+import org.elsquatrecaps.jig.sdl.searcher.AbstractGetRemoteProcess;
 import org.elsquatrecaps.jig.sdl.searcher.SearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.SearchIterator;
 
@@ -54,10 +54,10 @@ public class ConfigParserOfSearcher {
         repository = WordUtils.capitalizeFully(repository);
         ConfigParserOfSearcher cfg;
         try {
-            pkg = GetRemoteProcess.class.getName().substring(0, GetRemoteProcess.class.getName().lastIndexOf("."));
+            pkg = AbstractGetRemoteProcess.class.getName().substring(0, AbstractGetRemoteProcess.class.getName().lastIndexOf("."));
             className = pkg.concat(".").concat(repository).concat(GET_REMOTE_PROCESS);
             cfg = new ConfigParserOfSearcher(className);
-            GetRemoteProcess rp = (GetRemoteProcess) Class.forName(className).newInstance();
+            AbstractGetRemoteProcess rp = (AbstractGetRemoteProcess) Class.forName(className).newInstance();
             if(!cfg.isConfigured()){
                 cfg.save(rp);
             }else{
