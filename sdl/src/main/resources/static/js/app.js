@@ -99,6 +99,20 @@ var bibliotequesAPI = (function () {
             //
             // scroller:       true
 
+            "fnDrawCallback": function (e) {
+                //console.log("DrawCallback",Date.now());
+                //alert("Abans d'amagar. Hi ha overlay?");
+                showOverlay();
+                //alert("Amagat, hi ha overlay?");
+            },
+            
+            
+            "fnPreDrawCallback": function (e) {
+                //console.log("PreDrawCallback",Date.now());                
+                showOverlay('Dibuixant Taula');
+                
+                //alert("Dibuixant: Hi ha overlay?");
+            }
 
         };
 
@@ -109,13 +123,29 @@ var bibliotequesAPI = (function () {
         var $text = $overlayNode.find('.progress-text');
 
         return function (text) {            
+            var $overlayNode = $('#progress-overlay');
+            var $text = $overlayNode.find('.progress-text');
+        
+            //console.log("Estat de l'overlay abans del canvi:", $('#progress-overlay').css('display'));
+            
+            
             if (text) {
+                
                 $text.html(text);
+
                 $overlayNode.css('display', 'block');
+               
+                console.log("Mostrant Overlay");
+                
 
             } else {
+                
                 $overlayNode.css('display', 'none');
+                
+                console.log("Amagant Overlay");
             }
+            
+            //console.log("Estat de l'overlay després del canvi:", $('#progress-overlay').css('display'));
         };
 
     })();
@@ -157,11 +187,15 @@ var bibliotequesAPI = (function () {
         $.fn.dataTable.moment('DD/MM/YYYY');
         var $queryTable = $('table#searches');
         
+        /* Això no funciona perquè el click es resol després de la ordenació
         $queryTable.find('th.show-overlay').on('click', function() {
             showOverlay("ordenant");
             
         });
-        
+        $queryTable.on('order.dt', function() {
+            showOverlay();
+        });
+        */
         
         tables.queryTable = $queryTable.DataTable(defaultOptions);
 
@@ -172,13 +206,6 @@ var bibliotequesAPI = (function () {
             sendSearchDetailRequest(id);
 
         });
-        
-        $queryTable.on('order.dt', function() {
-            showOverlay();
-        });
-        
-        
-        
         
         
     };
@@ -238,7 +265,8 @@ var bibliotequesAPI = (function () {
 
 
         var $resourcesDatatable = $('table#resources');
-                
+        
+        /* Això no funciona perquè el click es resol després de la ordenació
         $resourcesDatatable.on('order.dt', function() {
             showOverlay();
         });
@@ -246,6 +274,7 @@ var bibliotequesAPI = (function () {
         $resourcesDatatable.find('th.show-overlay').on('click', function() {            
             showOverlay("ordenant");            
         });
+        */
 
         tables.resourcesTable = $resourcesDatatable.DataTable(options);
         
