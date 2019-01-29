@@ -20,11 +20,11 @@ public class HdSearchIterator extends SearchIterator<HdResource>{
     @XmlElement
     private String navPagesNextFilter = "a#top-next";    //
     @XmlElement
-    private String newsPaperEditionListFilter = "body form div.list";    
+    private String newsPaperEditionListFilter = "body form div.list div.list-frame";    
     @XmlElement
-    private String idFilter = "div.list-frame input"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+    private String idFilter = "input"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
     @XmlElement
-    private String basicInfoNewsPaperListFilter = "div.list-frame div.list-record div a[id^=\"details\"]"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+    private String basicInfoNewsPaperListFilter = "div.list-record div a[id^=\"details\"]"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
     @XmlElement
     private String fragmentsFilter = "table#generic-pane tbody td.value textarea#text";
     @XmlElement
