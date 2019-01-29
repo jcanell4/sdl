@@ -19,6 +19,35 @@ import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
  */
 public class Utils {
     
+    public static String getNormalizedData(String date){
+        String ret;
+        char[] separators = {'/', '-', '.'};
+        int nSep=0;
+        while(nSep<separators.length && date.indexOf(separators[nSep])==-1){
+            ++nSep;
+        }
+        if(nSep<separators.length){
+            String[] aDate;
+            aDate = date.split(String.valueOf(separators[nSep]));
+            if(aDate.length==2){
+                if(aDate[0].length()>2){
+                    ret = String.format("01/%02d/%04d", Integer.parseInt(aDate[1]), Integer.parseInt(aDate[0]));
+                }else{
+                    ret = String.format("01/%02d/%04d", Integer.parseInt(aDate[0]), Integer.parseInt(aDate[1]));
+                }
+            }else{
+                if(aDate[0].length()>2){
+                    ret = String.format("%02d/%02d/%04d", Integer.parseInt(aDate[2]), Integer.parseInt(aDate[1]), Integer.parseInt(aDate[0]));
+                }else{
+                    ret = String.format("%02d/%02d/%04d", Integer.parseInt(aDate[0]), Integer.parseInt(aDate[1]), Integer.parseInt(aDate[2]));
+                }
+            }
+        }else{
+            ret = date;
+        }
+        return ret;
+    }
+    
     public static String getDateFromText(String date, String sep){
         return getDateFromText(date, sep, false);
     }
@@ -116,6 +145,14 @@ public class Utils {
     }
     
     public static String buildNormalizedFilename(String name){
+        return getNormalizedText(name, "_");
+    }
+    
+    public static String getNormalizedText(String name){
+        return getNormalizedText(name, "");
+    }
+    
+    public static String getNormalizedText(String name, String pre){
         StringBuilder strBuffer = new StringBuilder();
         String locTitle;
         String ret;
@@ -128,7 +165,7 @@ public class Utils {
         locTitle = pattern2.matcher(locTitle).replaceAll("");
         String[] words = locTitle.split(" ");
         if(words.length>0){
-            strBuffer.append("_");
+            strBuffer.append(pre);
         }
         for (String word : words){
             if(word.length()>0){

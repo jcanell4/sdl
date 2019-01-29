@@ -34,10 +34,10 @@ public class HdResource extends SearcherResource{
     
     public void updateFromElement(Element contentDocum, String id, String context, Map<String, String> cookies){
         try{
-            setPublicationId(Utils.buildNormalizedFilename(id));
+            setPublicationId(Utils.getNormalizedText(id));
             setTitle(contentDocum.selectFirst(titleFilter).text().trim());
             setPage(contentDocum.selectFirst(pageNumFilter).text().trim());
-            setPageId(Utils.buildNormalizedFilename(getPage()));
+            setPageId(Utils.getNormalizedText(getPage()));
             setEditionDate(getDateFromDateEditonOrTitle(contentDocum.selectFirst(editionDateFilter)));
             Element elementText = contentDocum.selectFirst(this.fragmentsFilter);
             if(elementText!=null){
@@ -67,7 +67,7 @@ public class HdResource extends SearcherResource{
                 ret = getDateFromTitle(dateElement.text().trim());
             }
         }
-        return ret;
+        return Utils.getNormalizedData(ret);
     }    
 
     private String getDateFromTitle(String date){
@@ -79,11 +79,15 @@ public class HdResource extends SearcherResource{
     }
     
     private String getDateFromDateEdition(String date){
-        String ret="00/00/0000";
-        Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{2}[/-]\\d{4}).*");
+        String ret="01/01/0001";
+        Pattern pattern = Pattern.compile(".*(\\d{1,2}[/-]\\d{1,2}[/-]\\d{4})|(\\d{1,2}[/-]\\d{4}).*");
         Matcher matcher = pattern.matcher(date);
         if(matcher.find()){
-            ret = matcher.group(1);
+            if(matcher.group(2)==null){
+                ret = matcher.group(1);
+            }else{
+                ret = "01/".concat(matcher.group(2));
+            }
         }
         return ret;
     }
