@@ -42,6 +42,26 @@ var bibliotequesAPI = (function () {
                     placeholder: "Data final"
                 }
             }
+        },
+        HD: {
+            name: "Hemeroteca Digital",
+            extraQueryParams: {
+                // "query": { // Això es el default, no s'ha de posar
+                //     type: "string",
+                //     label: "Criteris",
+                //     placeholder: "Criteris de cerca"
+                // },
+                "date-start": {
+                    type: "date",
+                    label: "Data d'inici",
+                    placeholder: "Data d'inici"
+                },
+                "date-end": {
+                    type: "date",
+                    label: "Data final",
+                    placeholder: "Data final"
+                }
+            }
         }
     };
     

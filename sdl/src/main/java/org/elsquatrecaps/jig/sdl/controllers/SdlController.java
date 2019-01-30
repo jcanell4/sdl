@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
 import org.elsquatrecaps.jig.sdl.searcher.ArcaSearchCriteria;
+import org.elsquatrecaps.jig.sdl.searcher.HdSearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.SearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.SearchIterator;
 import org.jsoup.UncheckedIOException;
@@ -193,6 +194,8 @@ public class SdlController {
             ret = new BvphSearchCriteria(criteria, dateStart, dateEnd);
         }else if(repository.equalsIgnoreCase("ARCA")){
             ret = new ArcaSearchCriteria(criteria, dateStart, dateEnd);
+        }else if(repository.equalsIgnoreCase("HD")){
+            ret = new HdSearchCriteria(criteria, dateStart, dateEnd);
         }
         return ret;
     }
