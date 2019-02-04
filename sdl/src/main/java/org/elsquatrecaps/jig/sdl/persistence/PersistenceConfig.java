@@ -1,13 +1,10 @@
 
 package org.elsquatrecaps.jig.sdl.persistence;
 
-import java.util.HashMap;
-import java.util.Map;
 import javax.sql.DataSource;
 import org.elsquatrecaps.jig.sdl.configuration.DataSourceProperties;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.elsquatrecaps.jig.sdl.configuration.InfoInstallBean;
-import org.elsquatrecaps.jig.sdl.configuration.ServerProperties;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -35,11 +32,7 @@ public class PersistenceConfig {
     @Autowired
     DownloaderProperties dp;
     @Autowired
-    ServerProperties sp;
-    @Autowired
     DataSourceProperties dsp;
-    @Autowired
-    ServerWrapper serverWrapper;
     @Autowired
     InfoInstallBean infoInstallBean;
     
@@ -49,12 +42,6 @@ public class PersistenceConfig {
     public InfoInstallBean getPropertiesBean() {
         InfoInstallBean prop = new InfoInstallBean();
         return prop;
-    }  
-
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    public ServerWrapper getServerWrapper() {
-        ServerWrapper server = new ServerWrapper(sp);
-        return server;
     }  
 
     @Bean

@@ -83,6 +83,10 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
         this.setParam(textField, criteria);
     }
 
+    public String _getText(){
+        return hdParams.getText();
+    }
+
     @Override
     public Element get() {
         if(super.getUrl()==null){

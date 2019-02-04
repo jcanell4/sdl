@@ -189,7 +189,7 @@ public class HdSearchIterator extends SearchIterator<HdResource>{
             getRemoteProcessAux.setUrl(urlInfoContent);
             getRemoteProcessAux.setCookies(getRemoteProcess.getCookies());
             Element contentDocum = getRemoteProcessAux.get();
-            ret = new HdResource(titleFilter, editionDateFilter, pageNumFilter, fragmentsFilter, savePdfFilter, noPdfFileUrl);
+            ret = new HdResource(titleFilter, editionDateFilter, pageNumFilter, fragmentsFilter, savePdfFilter, noPdfFileUrl, getRemoteProcess._getText());
             ret.updateFromElement(contentDocum, id, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
             return ret;
         }

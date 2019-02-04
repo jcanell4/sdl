@@ -2,6 +2,8 @@ package org.elsquatrecaps.jig.sdl.searcher;
 
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +36,16 @@ public abstract class SearcherResource{
         }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{4}.+?[0-9]{1,2}")){            
             strBuffer.append(editionDate.substring(0, 4));
             strBuffer.append("_00_00");
-        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{1,2}.+?[0-9]{4}")){            
+        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{2}.+?[0-9]{4}")){            
+            strBuffer.append(editionDate.substring(editionDate.length()-4, editionDate.length()));
+            strBuffer.append("_00_00");
+        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{1}.+?[0-9]{4}")){            
             strBuffer.append(editionDate.substring(editionDate.length()-4, editionDate.length()));
             strBuffer.append("_00_00");
         }else{
             strBuffer.append("0000_00_00");
         }
+        strBuffer.append("_");
         strBuffer.append(publicationId);
         strBuffer.append("_");
         strBuffer.append(pageId);
@@ -152,4 +158,19 @@ public abstract class SearcherResource{
 
 
     protected abstract FormatedFile getStrictFormatedFile(String format);    
+    
+    protected String getDateFromTitle(String date){
+        String ret = Utils.getDateFromText(this.getTitle(), "/");
+        if(ret.endsWith("0001")){
+            Pattern pattern = Pattern.compile(".*(\\d{4}).*");
+            Matcher matcher = pattern.matcher(date);
+            if(matcher.find()){
+                date = matcher.group(1);
+            }else{
+                date = "0001";
+            }
+            ret = "01/01/".concat(date);
+        }
+        return ret;        
+    }    
 }

@@ -79,9 +79,9 @@ public class BvphResource extends SearcherResource{
         return ret;
     }
     
-    private String getDateFromTitle(){
+    protected String getDateFromTitle(){
         String ret = Utils.getDateFromText(this.getTitle(), "/");
-        if(ret.endsWith("0000")){
+        if(ret.endsWith("0001")){
             Pattern pattern = Pattern.compile(patterToExtractDateFromTitle);
             Matcher matcher = pattern.matcher(this.getTitle());
             if(matcher.find()){
@@ -92,7 +92,7 @@ public class BvphResource extends SearcherResource{
     }
     
     private String getDateFromDbi(String bdi){
-        String ret="00/00/0000";
+        String ret="01/01/0001";
         Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{2}[/-]\\d{4}).*");
         Matcher matcher = pattern.matcher(bdi);
         if(matcher.find()){
@@ -102,7 +102,7 @@ public class BvphResource extends SearcherResource{
     }
     
     private Element getToDownloading(String url){
-        AbstractGetRemoteProcess grp = new GetRemoteProcessWithoutParams(url);
+        AbstractGetRemoteProcess grp = new GetRemoteProcessWithUniqueKeys(url);
         grp.setParam("aceptar", "Aceptar");
         Element toDonwloading = grp.get();  
         return toDonwloading;

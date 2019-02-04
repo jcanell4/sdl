@@ -57,9 +57,9 @@ public class Utils {
         String year;
         int day;
         if(reversedate){
-            ret="0000".concat(sep).concat("01").concat(sep).concat("01");
+            ret="0001".concat(sep).concat("01").concat(sep).concat("01");
         }else{
-            ret="01".concat(sep).concat("01").concat(sep).concat("0000");
+            ret="01".concat(sep).concat("01").concat(sep).concat("0001");
         }
         boolean found = false;
         int id = 0;

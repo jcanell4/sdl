@@ -19,17 +19,20 @@ public class HdResource extends SearcherResource{
     private String fragmentsFilter;
     private String savePdfFilter;
     private String noPdfUrl;
+    private String textKey;
+
 
     public HdResource() {
     }
     
-    public HdResource(String titleFilter, String editionDateFilter, String pageNumFilter, String fragmentsFilter, String savePdfFilter, String noPdfFileUrl) {
+    public HdResource(String titleFilter, String editionDateFilter, String pageNumFilter, String fragmentsFilter, String savePdfFilter, String noPdfFileUrl, String textKey) {
         this.titleFilter = titleFilter;
         this.editionDateFilter = editionDateFilter;
         this.pageNumFilter = pageNumFilter;
         this.fragmentsFilter = fragmentsFilter;
         this.savePdfFilter = savePdfFilter;
         this.noPdfUrl = noPdfFileUrl;
+        this.textKey = textKey.replaceAll("\"", "").replaceAll("( )+", "|");        
     }
     
     public void updateFromElement(Element contentDocum, String id, String context, Map<String, String> cookies){
@@ -41,7 +44,7 @@ public class HdResource extends SearcherResource{
             setEditionDate(getDateFromDateEditonOrTitle(contentDocum.selectFirst(editionDateFilter)));
             Element elementText = contentDocum.selectFirst(this.fragmentsFilter);
             if(elementText!=null){
-                addFragment(elementText.val());
+                saveFragments(elementText.val());
             }
             //ALERTA DE VEGADES EL FORMAT ÉS JPG!
             Element pdfElement = contentDocum.selectFirst(savePdfFilter);
@@ -60,33 +63,29 @@ public class HdResource extends SearcherResource{
     private String getDateFromDateEditonOrTitle(Element dateElement){
         String ret = null;
         if(dateElement==null){
-            ret = ret = getDateFromTitle("0000");
+            ret = ret = getDateFromTitle("0001");
         }else{
             ret = getDateFromDateEdition(dateElement.text().trim());
-            if(ret.equals("00/00/0000")){
+            if(ret.equals("01/01/0001")){
                 ret = getDateFromTitle(dateElement.text().trim());
             }
         }
         return Utils.getNormalizedData(ret);
     }    
 
-    private String getDateFromTitle(String date){
-        String ret = Utils.getDateFromText(this.getTitle(), "/");
-        if(ret.endsWith("0000")){
-            ret = "01/01/".concat(date);
-        }
-        return ret;        
-    }
-    
     private String getDateFromDateEdition(String date){
         String ret="01/01/0001";
-        Pattern pattern = Pattern.compile(".*(\\d{1,2}[/-]\\d{1,2}[/-]\\d{4})|(\\d{1,2}[/-]\\d{4}).*");
+        Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{1,2}[/-]\\d{4})|(\\d{1}[/-]\\d{1,2}[/-]\\d{4})|(\\d{2}[/-]\\d{4})|(\\d{1}[/-]\\d{4}).*");
         Matcher matcher = pattern.matcher(date);
         if(matcher.find()){
-            if(matcher.group(2)==null){
+            if(matcher.group(1)!=null){
                 ret = matcher.group(1);
+            }else if(matcher.group(2)!=null){
+                ret = "0".concat(matcher.group(2));
+            }else if(matcher.group(3)!=null){
+                ret = "01/".concat(matcher.group(3));
             }else{
-                ret = "01/".concat(matcher.group(2));
+                ret = "01/0".concat(matcher.group(4));
             }
         }
         return ret;
@@ -116,4 +115,12 @@ public class HdResource extends SearcherResource{
     public String[] getSupportedFormats() {
         return SUPPORTED_FORMATS;
     }
+
+    private void saveFragments(String text){
+        Pattern p = Pattern.compile(".{0,100}(".concat(textKey).concat(").{0,100}"), Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
+        Matcher m = p.matcher(text);
+        while(m.find()){
+            addFragment(text.substring(m.start(), m.end()));
+        }
+    }    
 }
