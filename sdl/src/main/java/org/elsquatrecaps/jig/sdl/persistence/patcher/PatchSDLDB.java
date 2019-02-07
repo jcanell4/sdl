@@ -23,6 +23,10 @@ import org.slf4j.LoggerFactory;
 
 public class PatchSDLDB {
 
+    private static final String DELIMITER_INDICATOR = ";";
+    private static final String COMMENT_INDICATOR = "//";
+    private static final String SKIP_INDICATOR = "#";
+    
     private static final Logger logger = LoggerFactory.getLogger(PatchSDLDB.class);
     private static final String loggerPrefix = "[Patcher] ";
 
@@ -97,7 +101,7 @@ public class PatchSDLDB {
         try {
             scanner = new Scanner(new File(fileUrl));
 
-            scanner.useDelimiter(";");
+            scanner.useDelimiter(DELIMITER_INDICATOR);
 
             String line = null;
             int counter = 0;
@@ -106,13 +110,13 @@ public class PatchSDLDB {
 
                 line = scanner.next().trim();
 
-                if (counter >= skip && line.length() > 0 && !line.startsWith("//")) {
+                if (counter >= skip && line.length() > 0 && !line.startsWith(COMMENT_INDICATOR)) {
                     queries.add(line);
                     
                 }
                 
                 // Si esta buida o es un comentari no augmenta el comptador
-                if (!(line.length() == 0 || line.startsWith("//"))) {
+                if (!(line.length() == 0 || line.startsWith(COMMENT_INDICATOR))) {
                     counter++;
                 }
 
@@ -176,7 +180,7 @@ public class PatchSDLDB {
         
         try {
 
-            if (query.startsWith("#")) { // s'ha de saltar
+            if (query.startsWith(SKIP_INDICATOR)) { // s'ha de saltar
                 logger.debug(loggerPrefix + "Skiping:" + query);
                 
             } else {
