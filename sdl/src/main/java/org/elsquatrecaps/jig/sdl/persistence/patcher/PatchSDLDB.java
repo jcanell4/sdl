@@ -15,15 +15,21 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PatchSDLDB {
+
+    private static final Logger logger = LoggerFactory.getLogger(PatchSDLDB.class);
+    private static final String loggerPrefix = "[Patcher] ";
 
     // JDBC driver name and database URL 
     static final String JDBC_DRIVER = "app.datasource.className";
     static final String DB_URL = "app.datasource.url";
-    //static final String DB_PROTOCOL = "jdbc:h2:file";
+
     //  Database credentials 
     static final String USER = "app.datasource.user";
     static final String PASS = "app.datasource.pass";
@@ -43,11 +49,11 @@ public class PatchSDLDB {
 
         try (FileInputStream in = new FileInputStream(INI_FILE)) {
             props.load(in);
-        } catch (FileNotFoundException ex) {
-            System.out.println(INI_FILE + " file not found.");
+        } catch (FileNotFoundException e) {
+            logger.error(loggerPrefix + INI_FILE + " file not found.");
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            logger.error(loggerPrefix.concat(e.getMessage()));
         }
     }
 
@@ -59,11 +65,11 @@ public class PatchSDLDB {
     public void patch() {
 
         if (!isSDLInstalled()) {
-            System.err.println("SDL not installed");
+            logger.error(loggerPrefix + "SDL not installed");
             return;
         }
 
-        System.out.println("Patching SDLDB...");
+        logger.info(loggerPrefix + "Patching SDLDB...");
 
         int patchVersion = loadLastPatchVersion();
 
@@ -73,7 +79,7 @@ public class PatchSDLDB {
             executeQueries(queries);
 
         } else {
-            System.out.println("SDL is up to date, no patching needed");
+            logger.info(loggerPrefix + "SDL is up to date, no patching needed");
         }
 
     }
@@ -85,56 +91,51 @@ public class PatchSDLDB {
     public String[] readQueryFile(String fileUrl, int skip) {
         List<String> queries = new ArrayList<>();
 
-        System.out.println("Reading " + fileUrl + " file...");
+        logger.debug(loggerPrefix + "Reading " + fileUrl + " file...");
 
-        BufferedReader bufferedReader = null;
-
+        Scanner scanner;
         try {
-            bufferedReader = new BufferedReader(new FileReader(fileUrl));
-        } catch (FileNotFoundException ex) {
+            scanner = new Scanner(new File(fileUrl));
 
-            System.err.println("Query file not found");
-            return new String[0];
-        }
+            scanner.useDelimiter(";");
 
-        int counter = 0;
-
-        try {
             String line = null;
+            int counter = 0;
 
-            while ((line = bufferedReader.readLine()) != null) {
+            while (scanner.hasNext()) {
 
-                if (counter >= skip) {
+                line = scanner.next().trim();
+
+                if (counter >= skip && line.length() > 0 && !line.startsWith("//")) {
                     queries.add(line);
+                    
+                }
+                
+                // Si esta buida o es un comentari no augmenta el comptador
+                if (!(line.length() == 0 || line.startsWith("//"))) {
+                    counter++;
                 }
 
-                counter++;
             }
 
-        } catch (IOException ex) {
-
-            ex.printStackTrace();
-        } finally {
-
-            try {
-                bufferedReader.close();
-            } catch (IOException ex) {
-
-            }
-
+        } catch (FileNotFoundException ex) {
+            logger.error(loggerPrefix + "Query file not found");
+            return new String[0];
         }
-
+        
         return queries.toArray(new String[queries.size()]);
     }
 
+    
     public void executeQueries(String[] queries) {
 
         openDBConnection();
 
         try {
+
             for (int i = 0; i < queries.length; i++) {
                 if (!executeQuery(queries[i])) {
-                    System.err.println("Query execution aborted");
+                    logger.error(loggerPrefix + "Query execution aborted");
                     break;
                 }
             }
@@ -145,12 +146,12 @@ public class PatchSDLDB {
                 if (conn != null) {
                     conn.close();
                 }
-            } catch (SQLException se) {
-                se.printStackTrace();
+            } catch (SQLException e) {
+                logger.error(loggerPrefix.concat(e.getMessage()));
             } //end finally try 
         } //end try 
 
-        System.out.println("Patching finished.");
+        logger.info(loggerPrefix + "Patching finished.");
 
     }
 
@@ -159,45 +160,45 @@ public class PatchSDLDB {
 
         try {
             Class.forName(props.getProperty(JDBC_DRIVER));
-            System.out.println("Connecting to database...");
+            logger.info(loggerPrefix + "Connecting to database...");
 //            conn = DriverManager.getConnection(props.getProperty("DB_PROTOCOL") + ":"
 //                    + props.getProperty("DB_URL"), props.getProperty("USER"), props.getProperty("PASS"));
             conn = DriverManager.getConnection(props.getProperty(DB_URL), props.getProperty(USER), props.getProperty(PASS));
 
-        } catch (SQLException se) {
-            //Handle errors for JDBC 
-            se.printStackTrace();
         } catch (Exception e) {
-            //Handle errors for Class.forName 
-            e.printStackTrace();
+            logger.error(loggerPrefix.concat(e.getMessage()));
         }
     }
 
     public boolean executeQuery(String query) {
         Statement stmt = null;
-
+        boolean success = false;
+        
         try {
 
-            System.out.println("Executing query...");
-            stmt = conn.createStatement();
+            if (query.startsWith("#")) { // s'ha de saltar
+                logger.debug(loggerPrefix + "Skiping:" + query);
+                
+            } else {
+                logger.info(loggerPrefix + "Executing query...");
+                stmt = conn.createStatement();
 
-            stmt.executeUpdate(query);
+                stmt.executeUpdate(query);
 
-            System.out.println("Query executed:" + query);
+                logger.debug(loggerPrefix + "Query executed:" + query);
 
-            stmt.close();
+                stmt.close();
+            }
 
             lastPatchVersion++;
             saveLastPatchVersion();
 
-            return true;
+            success = true;
 
-        } catch (SQLException se) {
-            //Handle errors for JDBC 
-            se.printStackTrace();
-        } catch (Exception e) {
-            //Handle errors for Class.forName 
-            e.printStackTrace();
+        } catch (Exception e) { // Includes SQLException and FileNotFoundException
+
+            logger.error(loggerPrefix.concat(e.getMessage()));
+
         } finally {
 
             try {
@@ -209,7 +210,7 @@ public class PatchSDLDB {
             } //end try 
         }
 
-        return false;
+        return success;
     }
 
     private String readFileInfo() {
@@ -218,8 +219,8 @@ public class PatchSDLDB {
 
         try {
             br = new BufferedReader(new FileReader(props.getProperty(INFO_FILE)));
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
+        } catch (FileNotFoundException e) {
+            logger.error(loggerPrefix.concat(e.getMessage()));
         }
 
         try {
@@ -232,13 +233,13 @@ public class PatchSDLDB {
                 line = br.readLine();
             }
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            logger.error(loggerPrefix.concat(e.getMessage()));
         } finally {
             try {
                 br.close();
-            } catch (IOException ex) {
-
+            } catch (IOException e) {
+                // No cal informar de res
             }
         }
 
@@ -253,8 +254,6 @@ public class PatchSDLDB {
 
         if (m.find()) {
             lastPatchVersion = Integer.parseInt(m.group(1));
-            //lastPatchVersion = Integer.parseInt(m.group(1)) - 1;
-            //lastPatchVersion = lastPatchVersion > 0 ? lastPatchVersion : 0;
         } else {
 
             lastPatchVersion = 0;
@@ -264,18 +263,15 @@ public class PatchSDLDB {
         return lastPatchVersion;
     }
 
-    private void saveLastPatchVersion() {
-        //int version = lastPatchVersion+1;
+    private void saveLastPatchVersion() throws FileNotFoundException {
+
         int version = lastPatchVersion;
         infoFileContent = infoFileContent.replaceAll("(LastPatchVersion:\\s*\").*(\")", "$1" + version + "$2");
 
-        System.out.println("Updating infofile to version " + (version));
+        logger.debug(loggerPrefix + "Updating infofile to version " + (version));
 
-        try (PrintStream out = new PrintStream(new FileOutputStream(props.getProperty(INFO_FILE)))) {
-            out.print(infoFileContent);
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
+        PrintStream out = new PrintStream(new FileOutputStream(props.getProperty(INFO_FILE)));
+        out.print(infoFileContent);
 
     }
 }

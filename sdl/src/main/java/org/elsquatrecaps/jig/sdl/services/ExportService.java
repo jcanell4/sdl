@@ -168,11 +168,11 @@ public class ExportService {
 
                 ImageIO.write(br, "jpg", outFile);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
     
