@@ -4,6 +4,7 @@
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <class>org.elsquatrecaps.jig.sdl.model.Resource</class>
     <class>org.elsquatrecaps.jig.sdl.model.Search</class>
+    <class>org.elsquatrecaps.jig.sdl.model.SearchResource</class>
     <properties>
       <!--property name="javax.persistence.schema-generation.database.action" value="create"/>
       <property name="javax.persistence.jdbc.url" value="jdbc:derby:sdldb;create=true;user=app;password=app"/>

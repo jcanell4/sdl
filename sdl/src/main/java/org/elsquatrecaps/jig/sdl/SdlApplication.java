@@ -1,10 +1,9 @@
 package org.elsquatrecaps.jig.sdl;
 
+import org.elsquatrecaps.jig.sdl.persistence.patcher.PatchSDLDB;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 @EnableTransactionManagement
@@ -12,6 +11,12 @@ import org.slf4j.LoggerFactory;
 public class SdlApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SdlApplication.class, args);
+            patchDb();
+            SpringApplication.run(SdlApplication.class, args);
 	}
+        
+        private static void patchDb(){
+            PatchSDLDB updater = new PatchSDLDB();
+            updater.patch();            
+        }
 }
