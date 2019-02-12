@@ -220,14 +220,20 @@ var bibliotequesAPI = (function () {
         tables.queryTable = $queryTable.DataTable(defaultOptions);
 
 
-            $queryTable.find('td a').on('click', function (e) {
+        addQueryTableListener();
+        tables.queryTable.on('draw', addQueryTableListener);
+        
+    };
+    
+    var addQueryTableListener = function () {
+        var $queryTable = $('table#searches');
+        
+        $queryTable.find('td a').off();
+        $queryTable.find('td a').on('click', function (e) {
             e.preventDefault();
             var id = $(this).attr('data-search-id');            
             sendSearchDetailRequest(id);
-
         });
-        
-        
     };
     
     var addDetailListener = function() {
@@ -319,6 +325,7 @@ var bibliotequesAPI = (function () {
         addDetailListener();
         
         tables.resourcesTable.on('draw', addDetailListener);
+        
 
     };
 
