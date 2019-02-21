@@ -275,7 +275,7 @@ var bibliotequesAPI = (function () {
         
         options['columnDefs'] = [
             {
-                'targets': 5,
+                'targets': 6,
                 'checkboxes': {
                     'selectRow': true
                 },
@@ -580,7 +580,7 @@ var bibliotequesAPI = (function () {
         $('#filter-select-all').on('click', function (e) {
             e.preventDefault();
 
-            var COL_SELECT = 5;
+            var COL_SELECT = 6;
 
             var check = function (rows, checked) {
 

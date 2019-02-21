@@ -100,6 +100,10 @@ public class SearchResource implements Serializable {
         return resource.getEditionDate();
     }
     
+    public String getCalcDate() {
+        return resource.getCalcDate().getDesc();
+    }
+    
     public String[] getFragments() {
         return resource.getFragments();                
     }

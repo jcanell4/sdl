@@ -31,9 +31,11 @@ public class Utils {
             aDate = date.split(String.valueOf(separators[nSep]));
             if(aDate.length==2){
                 if(aDate[0].length()>2){
-                    ret = String.format("01/%02d/%04d", Integer.parseInt(aDate[1]), Integer.parseInt(aDate[0]));
+//                    ret = String.format("01/%02d/%04d", Integer.parseInt(aDate[1]), Integer.parseInt(aDate[0]));
+                    ret = String.format("00/%02d/%04d", Integer.parseInt(aDate[1]), Integer.parseInt(aDate[0]));
                 }else{
-                    ret = String.format("01/%02d/%04d", Integer.parseInt(aDate[0]), Integer.parseInt(aDate[1]));
+//                    ret = String.format("01/%02d/%04d", Integer.parseInt(aDate[0]), Integer.parseInt(aDate[1]));
+                    ret = String.format("00/%02d/%04d", Integer.parseInt(aDate[0]), Integer.parseInt(aDate[1]));
                 }
             }else{
                 if(aDate[0].length()>2){
@@ -57,9 +59,11 @@ public class Utils {
         String year;
         int day;
         if(reversedate){
-            ret="0001".concat(sep).concat("01").concat(sep).concat("01");
+//            ret="0001".concat(sep).concat("01").concat(sep).concat("01");
+            ret="0000".concat(sep).concat("00").concat(sep).concat("00");
         }else{
-            ret="01".concat(sep).concat("01").concat(sep).concat("0001");
+//            ret="01".concat(sep).concat("01").concat(sep).concat("0001");
+            ret="00".concat(sep).concat("00").concat(sep).concat("0000");
         }
         boolean found = false;
         int id = 0;
@@ -96,7 +100,7 @@ public class Utils {
                         if(dd>0){
                             day = Integer.parseInt(matcher.group(dayGroup[alt]));
                         }else{
-                            day=1;
+                            day=0;
                         }
                         if(reversedate){
                             ret = String.format("%s%s%02d%s%02d", year, sep, id+1, sep, day);
@@ -107,6 +111,28 @@ public class Utils {
                 }
             }
             ++id;
+        }
+        if(!found){
+            id=0;
+            while(!found && id<monthPatterns.length){
+                Pattern mpattern = Pattern.compile(String.format(".*(%s).*", monthPatterns[id]), Pattern.CASE_INSENSITIVE);
+                Matcher mmatcher = mpattern.matcher(date);
+                found = mmatcher.matches();
+                if(found){
+                    Pattern ypattern = Pattern.compile(".*(\\d{4}).*");
+                    Matcher ymatcher = ypattern.matcher(date);
+                    found = ymatcher.matches();
+                    if(found){
+                        year = ymatcher.group(1);
+                        if(reversedate){
+                            ret = String.format("%s%s%02d%s00", year, sep, id+1, sep);
+                        }else{
+                            ret = String.format("00%s%02d%s%s", sep, id+1, sep, year);
+                        }
+                    }
+                }
+                ++id;
+            }            
         }
         return ret;
     }

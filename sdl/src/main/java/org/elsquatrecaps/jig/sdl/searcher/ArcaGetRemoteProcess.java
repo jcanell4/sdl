@@ -94,7 +94,7 @@ public class ArcaGetRemoteProcess extends GetRemoteProcessWithUniqueKeys{
             if(value.startsWith("\"") && value.endsWith("\"")){
                 value = value.substring(0, value.length()-1).substring(1);
                 param = new ArcaExactTextParam(value);
-                this.arcaParams.add(param);
+                    this.arcaParams.add(param);
             }else{
                 String[] words = value.split("\\s+");
                 for(String word:words){

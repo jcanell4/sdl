@@ -16,6 +16,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 import org.elsquatrecaps.jig.sdl.searcher.FormatedResourceUtils;
@@ -31,6 +32,8 @@ public class Resource implements Serializable{
     private String page;
     private String searchDate;
     private String editionDate;
+    @OneToOne
+    private CalcDateMap calcDate;
     private String fileName;
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="RESOURCE_FORMAT")
@@ -69,6 +72,7 @@ public class Resource implements Serializable{
         title = resource.getTitle();
         page = resource.getPage();
         editionDate = resource.getEditionDate();
+        setCalcDate(resource.getProcessDateResult());
         fileName = resource.getFileName();
         _addAllSupportedFormat(resource.getSupportedFormats());
         _addAllFragments(resource.getFragments());
@@ -106,8 +110,28 @@ public class Resource implements Serializable{
         this.editionDate = editionDate;
     }
     
+    protected void setCalcDate(CalcDateMap datemap) {
+        this.calcDate = datemap;
+    }
+    
+    protected void setCalcDate(String calcDate) {
+        this.calcDate = new CalcDateMap(calcDate);
+    }
+    
     public String getEditionDate() {
         return this.editionDate;
+    }
+    
+    public CalcDateMap getCalcDate() {
+        return this.calcDate;
+    }
+    
+    public String getCalcDateDescription() {
+        return this.calcDate.getDesc();
+    }
+    
+    public String getCalcDateId() {
+        return this.calcDate.getId();
     }
     
     public String[] getFragments() {
@@ -232,5 +256,28 @@ public class Resource implements Serializable{
 
     public void setLocalFilePath(String localFilePath) {
         this.localFilePath = localFilePath;
+    }
+    
+    public void updateSingleData(Resource res, boolean updateFilename){
+        if(!getTitle().equals(res.getTitle())){
+            setTitle(res.getTitle());
+        }
+        if(!getPage().equals(res.getPage())){
+            setPage(res.getPage());
+        }
+        if(!getEditionDate().equals(res.getEditionDate())){
+            setEditionDate(res.getEditionDate());
+        }
+        if(!getCalcDate().equals(res.getCalcDate())){
+            setCalcDate(res.getCalcDate());
+        }
+        if(updateFilename && !getFileName().equals(res.getFileName())){
+            setFileName(res.getFileName());
+        }
+        
+    }
+    
+    public void updateSingleData(Resource res){
+        updateSingleData(res, true);
     }
 }

@@ -216,6 +216,7 @@ public class SdlController {
         int c=0;
         Search search = new Search(repository, criteria, String.format("%1$td/%1$tm/%1$tY", Calendar.getInstance()));
         PersistenceService pService = new PersistenceService(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
+        pService.setFileRepositoryPath(fileRepositoryPath);
         
         pService.saveSearch(search);
         logger.debug("Registre principal de la cerca emmagatzemat");

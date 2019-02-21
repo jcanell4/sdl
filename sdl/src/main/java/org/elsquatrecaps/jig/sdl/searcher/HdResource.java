@@ -63,10 +63,10 @@ public class HdResource extends SearcherResource{
     private String getDateFromDateEditonOrTitle(Element dateElement){
         String ret = null;
         if(dateElement==null){
-            ret = ret = getDateFromTitle("0001");
+            ret = ret = getDateFromTitle("0000");
         }else{
             ret = getDateFromDateEdition(dateElement.text().trim());
-            if(ret.equals("01/01/0001")){
+            if(ret.equals("00/00/0000")){
                 ret = getDateFromTitle(dateElement.text().trim());
             }
         }
@@ -74,7 +74,7 @@ public class HdResource extends SearcherResource{
     }    
 
     private String getDateFromDateEdition(String date){
-        String ret="01/01/0001";
+        String ret="00/00/0000";
         Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{1,2}[/-]\\d{4})|(\\d{1}[/-]\\d{1,2}[/-]\\d{4})|(\\d{2}[/-]\\d{4})|(\\d{1}[/-]\\d{4}).*");
         Matcher matcher = pattern.matcher(date);
         if(matcher.find()){
@@ -83,9 +83,9 @@ public class HdResource extends SearcherResource{
             }else if(matcher.group(2)!=null){
                 ret = "0".concat(matcher.group(2));
             }else if(matcher.group(3)!=null){
-                ret = "01/".concat(matcher.group(3));
+                ret = "00/".concat(matcher.group(3));
             }else{
-                ret = "01/0".concat(matcher.group(4));
+                ret = "00/0".concat(matcher.group(4));
             }
         }
         return ret;

@@ -81,7 +81,7 @@ public class BvphResource extends SearcherResource{
     
     protected String getDateFromTitle(){
         String ret = Utils.getDateFromText(this.getTitle(), "/");
-        if(ret.endsWith("0001")){
+        if(ret.endsWith("0000")){
             Pattern pattern = Pattern.compile(patterToExtractDateFromTitle);
             Matcher matcher = pattern.matcher(this.getTitle());
             if(matcher.find()){
@@ -92,11 +92,25 @@ public class BvphResource extends SearcherResource{
     }
     
     private String getDateFromDbi(String bdi){
-        String ret="01/01/0001";
+        String ret="00/00/0000";
         Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{2}[/-]\\d{4}).*");
         Matcher matcher = pattern.matcher(bdi);
         if(matcher.find()){
             ret = matcher.group(1);
+        }else{
+            ret = Utils.getDateFromText(bdi, "/");
+             if(ret.startsWith("00") || ret.substring(3, 5)=="00" || ret.endsWith("0000")){
+                 String dateFromTitle = Utils.getDateFromText(this.getTitle(), "/");
+                 if(ret.startsWith("00") && !dateFromTitle.startsWith("00")){
+                     ret = dateFromTitle.substring(0, 2).concat(ret.substring(2));
+                 }
+                 if(ret.substring(3, 5)=="00" && dateFromTitle.substring(3, 5)!="00"){
+                     ret = ret.substring(0, 2).concat(dateFromTitle.substring(2,6)).concat(ret.substring(6));                     
+                 }
+                 if(ret.endsWith("0000") && !dateFromTitle.endsWith("0000")){
+                     ret = ret.substring(0, 6).concat(dateFromTitle.substring(6));
+                 }
+             }
         }
         return ret;
     }

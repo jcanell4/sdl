@@ -1,5 +1,8 @@
 package org.elsquatrecaps.jig.sdl.searcher;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -11,12 +14,18 @@ import org.slf4j.LoggerFactory;
 public abstract class SearcherResource{
     protected static final Logger logger = LoggerFactory.getLogger(SearcherResource.class);
 
+    public static final String PR_DATE_RES_SENSE_CLASSIFICAR = "SCL";
+    public static final String PR_DATE_RES_FIABLE = "FIA";
+    public static final String PR_DATE_RES_APROXIMADA = "APR";
+    public static final String PR_DATE_RES_ILLEGIBLE = "ILL";
+            
     private String title = "No s'ha pogut extreure el títol";
     private String page = "Pàgina desconeguda. No s'ha trobat la informació";
     private String publicationId = "Identificador de la publicació desconegut. No s'ha trobat la informació";
     private String pageId = "Identificador de la pàgina desconegut. No s'ha trobat la informació";
-    private String editionDate = "Data de la publicació desconeguda. No s'ha trobat la informació";
+    private String editionDate = "00/00/0000";
     private ArrayList<String> fragments= new ArrayList<String>();
+    private String processDateResult = PR_DATE_RES_SENSE_CLASSIFICAR; //SENSE CLASSIFICAR
 
   
     public String getFileName(){
@@ -46,22 +55,11 @@ public abstract class SearcherResource{
             strBuffer.append("0000_00_00");
         }
         strBuffer.append("_");
+        strBuffer.append(this.processDateResult);
+        strBuffer.append("_");
         strBuffer.append(publicationId);
         strBuffer.append("_");
         strBuffer.append(pageId);
-//        locTitle = Normalizer.normalize(this.title, Normalizer.Form.NFD);
-//        locTitle = pattern1.matcher(locTitle).replaceAll("");
-//        locTitle = pattern2.matcher(locTitle).replaceAll("");
-//        String[] words = locTitle.split(" ");
-//        if(words.length>0){
-//            strBuffer.append("_");
-//        }
-//        for (String word : words){
-//            if(word.length()>0){
-//                strBuffer.append(word.substring(0, 1).toUpperCase());
-//                strBuffer.append(word.substring(1).toLowerCase());
-//            }
-//        }
         strBuffer.append(Utils.buildNormalizedFilename(this.title));
         return strBuffer.toString().substring(0,Math.min(60, strBuffer.length()));
     }
@@ -124,6 +122,7 @@ public abstract class SearcherResource{
     }
 
     public void setEditionDate(String editionDate) {
+        editionDate = checkDate(editionDate);
         this.editionDate = editionDate;
     }
     
@@ -161,16 +160,52 @@ public abstract class SearcherResource{
     
     protected String getDateFromTitle(String date){
         String ret = Utils.getDateFromText(this.getTitle(), "/");
-        if(ret.endsWith("0001")){
+        if(ret.endsWith("0000")){
             Pattern pattern = Pattern.compile(".*(\\d{4}).*");
             Matcher matcher = pattern.matcher(date);
             if(matcher.find()){
                 date = matcher.group(1);
             }else{
-                date = "0001";
+                date = "0000";
             }
-            ret = "01/01/".concat(date);
+            ret = "00/00/".concat(date);
         }
         return ret;        
     }    
+
+    private String checkDate(String editionDate) {
+        String ret;
+        try {
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+            df.setLenient(false);
+            df.parse(editionDate);
+            ret =  editionDate;
+            processDateResult = PR_DATE_RES_FIABLE;
+        } catch (ParseException e) {
+            processDateResult = PR_DATE_RES_ILLEGIBLE;
+            if(editionDate.startsWith("00")){
+                editionDate = "01".concat(editionDate.substring(2));
+                processDateResult = PR_DATE_RES_APROXIMADA;
+            }
+            if(editionDate.substring(3, 5).equals("00")){
+                editionDate = editionDate.substring(0, 3).concat("01").concat(editionDate.substring(5));                     
+                processDateResult = PR_DATE_RES_APROXIMADA;
+            }
+            if(editionDate.endsWith("0000")){
+                editionDate = editionDate.substring(0, 6).concat("0001");
+                processDateResult = PR_DATE_RES_ILLEGIBLE;
+            }
+            
+            ret = editionDate;
+        }
+        return ret;
+    }
+
+    public String getProcessDateResult() {
+        return processDateResult;
+    }
+
+    public void setProcessDateResult(String pdr) {
+        this.processDateResult = pdr;
+    }
 }

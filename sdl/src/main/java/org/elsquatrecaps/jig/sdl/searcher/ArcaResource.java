@@ -66,10 +66,10 @@ public class ArcaResource extends SearcherResource{
     private String getDateFromDateEditonOrTitle(Element dateElement){
         String ret = null;
         if(dateElement==null){
-            ret = ret = getDateFromTitle("0001");
+            ret = ret = getDateFromTitle("0000");
         }else{
             ret = getDateFromDateEdition(dateElement.text().trim());
-            if(ret.equals("01/01/0001")){
+            if(ret.equals("00/00/0000")){
                 ret = getDateFromTitle(dateElement.text().trim());
             }
         }
@@ -77,7 +77,7 @@ public class ArcaResource extends SearcherResource{
     }    
 
     private String getDateFromDateEdition(String date){
-        String ret="01/01/0001";
+        String ret="00/00/0000";
         Pattern pattern = Pattern.compile(".*(\\d{2}[/-]\\d{2}[/-]\\d{4}).*");
         Matcher matcher = pattern.matcher(date);
         if(matcher.find()){

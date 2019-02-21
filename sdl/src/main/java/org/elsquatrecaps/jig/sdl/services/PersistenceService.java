@@ -5,9 +5,11 @@
  */
 package org.elsquatrecaps.jig.sdl.services;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import org.elsquatrecaps.jig.sdl.exception.EntityNotFoundException;
+import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
 import org.elsquatrecaps.jig.sdl.model.SearchAndCount;
 import org.elsquatrecaps.jig.sdl.model.SearchId;
@@ -27,8 +29,14 @@ public class PersistenceService {
     SearchResourceRepository searchResourceRepository;
     SearchRepository searchRepository;
     PlatformTransactionManager transactionManager;
+    private String fileRepositoryPath=null;
     
 
+//    public PersistenceService(ResourceRepository resourceRepository, SearchResourceRepository searchResourceRepository, SearchRepository searchRepository, PlatformTransactionManager transactionManager, String resourceFilepath) {
+//        this(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
+//        fileRepositoryPath = resourceFilepath;
+//    }
+    
     public PersistenceService(ResourceRepository resourceRepository, SearchResourceRepository searchResourceRepository, SearchRepository searchRepository, PlatformTransactionManager transactionManager) {
         this.resourceRepository = resourceRepository;
         this.searchResourceRepository = searchResourceRepository;
@@ -51,10 +59,32 @@ public class PersistenceService {
         return searchRepository.findAll(PageRequest.of(pageNum, maxElements));
     }
     
-    private void saveResource(SearchResource resource){
-        String rId = resource.getResource().getId();
+    private void saveResource(SearchResource sr){
+        String rId = sr.getResource().getId();
         if(!resourceRepository.existsById(rId)){
-            resourceRepository.saveAndFlush(resource.getResource());
+            resourceRepository.saveAndFlush(sr.getResource());
+        }else{
+            Resource oldResource = resourceRepository.findById(rId).get();
+            Resource newResource = sr.getResource();
+            boolean hasFile = true;
+            if(this.fileRepositoryPath!=null){
+                String oldFileName = oldResource.getFileName();
+                String newFilename = newResource.getFileName();
+                String[] formats = oldResource.getSupportedFormats();
+
+                for(int i=0; hasFile && i<formats.length; i++){
+                    File f = new File(this.fileRepositoryPath, newFilename.concat(".").concat(formats[i]));
+                    hasFile = f.exists();
+                }
+                if(hasFile && !oldFileName.equals(newFilename)){
+                    for(int i=0; i<formats.length; i++){
+                        File f = new File(this.fileRepositoryPath, oldFileName.concat(".").concat(formats[i]));
+                        f.delete();
+                    }                    
+                }
+            }
+            oldResource.updateSingleData(sr.getResource(), hasFile);
+            resourceRepository.saveAndFlush(oldResource);
         }
     }
     
@@ -64,11 +94,15 @@ public class PersistenceService {
                 String rId = sr.getResource().getId();
                 if(!resourceRepository.existsById(rId)){
                     resourceRepository.saveAndFlush(sr.getResource());
+                }else{
+                    Resource resource = resourceRepository.findById(rId).get();
+                    resource.updateSingleData(sr.getResource());
+                    resourceRepository.saveAndFlush(resource);
                 }
             }
         }
     }
-
+    
     public void saveSearchResource(SearchResource searchResource){
         SearchResourceId id = searchResource.getId();
         saveResource(searchResource);
@@ -160,5 +194,9 @@ public class PersistenceService {
     
     public Optional<Search> findOne(String repository, String searchCriteria){
         return searchRepository.findOne(repository, searchCriteria);
+    }
+
+    public void setFileRepositoryPath(String fileRepositoryPath) {
+        this.fileRepositoryPath = fileRepositoryPath;
     }
 }

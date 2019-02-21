@@ -365,6 +365,7 @@
                                                         <th class="text-center show-overlay">Pàgina</th>
                                                         <th class="show-overlay">Procés d'anàlisi</th>
                                                         <th class="text-center show-overlay" data-options="field:'date-query'">Data d'edició</th>
+                                                        <th class="text-center no-sort">La data és...</th>
                                                         <th class="text-center no-sort">Formats</th>
                                                         <th class="text-center "></th>
                                                         <th class="text-center no-sort">Accions</th>
@@ -378,6 +379,7 @@
                                                         <td class="text-center" th:text="${resource.getPage()}"></td>
                                                         <td th:text="${resource.getProcessingAnalysis()}"></td>
                                                         <td th:text="${resource.getEditionDate()}"></td>
+                                                        <td th:text="${resource.getCalcDate()}"></td>
                                                         <td th:text="${resource.getSupportedFormatsAsSingleString()}"></td>
 
 

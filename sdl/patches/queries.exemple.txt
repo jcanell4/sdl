@@ -1,0 +1,30 @@
+// A aquest fitxer es poden afegir dos tipus de comentaris:
+    - Els que comencen per "//" son ignorats i no augmenta el nombre de versió. Serveixen per afegir explicacions 
+      o anotacions.
+    - Els que comencen per "#" son ignorats però augmentan el nombre de versió. Serveixen per comentar línies que 
+      ja han estat aplicades però es volen eliminar sense modificar el nombre de versió.
+
+Els salts de línia al principi i al final de qualsevol bloc són eliminats.
+
+Si un bloc de codi no és un comentari s'executa com una instrucció SQL.
+
+ALERTA: Tots els blocs, tant comentaris com instruccions SQL han d'acabar amb punt i coma.;
+
+//DROP TABLE IF EXISTS REGISTRATION;
+//CREATE TABLE REGISTRATION (id INTEGER not NULL, first VARCHAR(255), last VARCHAR(255), age INTEGER, PRIMARY KEY ( id ));
+// això és un comentari que es ignorat completament;
+// i no modifica el comptador de versions;
+#això és un altre tipus de comentari que si agumenta la versió, serveix per ignorar un canvi previ sense modificar el nombre de versió;
+#CREATE TABLE REGISTRATION (id INTEGER not NULL, first VARCHAR(255), last VARCHAR(255), age INTEGER, PRIMARY KEY ( id ));
+DROP TABLE 
+    IF EXISTS 
+        REGISTRATION;
+CREATE TABLE REGISTRATION (
+    id INTEGER not NULL,
+    first VARCHAR(255),
+    last VARCHAR(255),
+    age INTEGER,
+    PRIMARY KEY ( id )
+);
+DROP TABLE IF EXISTS REGISTRATION;
+#comentari final que augmenta el comptador però no fa res;
