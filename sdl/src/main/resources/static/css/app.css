@@ -197,3 +197,40 @@ table.dataTable {
 .fixed-bottom {
     z-index: 2000;
 }
+
+.logos img {
+    width: 100%;
+    padding:15px;
+}
+
+.tabs-container {
+    margin-bottom: 15px;
+}
+
+.credits {
+    border: 1px lightgrey solid;
+    margin: 15px;
+    padding:15px;       
+}
+
+.credits>div {
+    margin-bottom:15px;
+}
+
+.credits>div:last-child {
+    margin-bottom:0;
+}
+
+.sidebar p {
+    margin:0;
+}
+
+.sidebar ul {
+    list-style: none;    
+    padding-left: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    padding-left: 15px;
+}
