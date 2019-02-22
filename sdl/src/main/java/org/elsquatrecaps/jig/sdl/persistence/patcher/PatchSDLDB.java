@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -60,6 +61,15 @@ public class PatchSDLDB {
             logger.error(loggerPrefix.concat(e.getMessage()));
         }
     }
+    
+    public void setDbAsUpgraded(){
+        int v = getFinalVersionNum(props.getProperty(QUERIES_FILE));
+        try {
+            savePatchVersion(v);
+        } catch (FileNotFoundException ex) {
+            logger.error(loggerPrefix + "-The version number can not be saved. You may have problems the next time you enter");
+        }
+    }
 
     public boolean isSDLInstalled() {
         File f = new File(props.getProperty(INFO_FILE));
@@ -67,20 +77,37 @@ public class PatchSDLDB {
     }
 
     public void patch() {
-
         if (!isSDLInstalled()) {
-            logger.error(loggerPrefix + "SDL not installed");
-            return;
+            logger.info(loggerPrefix + "SDL not installed. Delegating DB creation to JPA");
+        }else{
+            patchQueries();
         }
+    }
+    
+    public void patchAllMandatory() {
+
+        logger.info(loggerPrefix + "Patching MANDATORY...");
+
+        String[] queries = readQueryFile(props.getProperty(QUERIES_FILE), 0, true);
+
+        if (queries.length > 0) {
+            executeQueries(queries, true);
+        } else {
+            logger.info(loggerPrefix + "SDL is up to date, no patching needed");
+        }
+
+    }
+
+    private void patchQueries() {
 
         logger.info(loggerPrefix + "Patching SDLDB...");
 
         int patchVersion = loadLastPatchVersion();
 
-        String[] queries = readQueryFile(props.getProperty(QUERIES_FILE), patchVersion);
+        String[] queries = readQueryFile(props.getProperty(QUERIES_FILE), patchVersion, false);
 
         if (queries.length > 0) {
-            executeQueries(queries);
+            executeQueries(queries, false);
 
         } else {
             logger.info(loggerPrefix + "SDL is up to date, no patching needed");
@@ -88,11 +115,20 @@ public class PatchSDLDB {
 
     }
 
-    public String[] readQueryFile(String fileUrl) {
+    private String[] readQueryFile(String fileUrl) {
         return readQueryFile(fileUrl, 0);
     }
+    
+    public int getFinalVersionNum(String fileUrl){
+        return readQueryFile(fileUrl).length;
+    }
 
-    public String[] readQueryFile(String fileUrl, int skip) {
+    private String[] readQueryFile(String fileUrl, int skip) {
+        return readQueryFile(fileUrl, skip, false) ;
+    }
+    
+    private String[] readQueryFile(String fileUrl, int skip, boolean mandatoryOnly) {
+        boolean isMandatory=false;
         List<String> queries = new ArrayList<>();
 
         logger.debug(loggerPrefix + "Reading " + fileUrl + " file...");
@@ -109,17 +145,23 @@ public class PatchSDLDB {
             while (scanner.hasNext()) {
 
                 line = scanner.next().trim();
-
-                if (counter >= skip && line.length() > 0 && !line.startsWith(COMMENT_INDICATOR)) {
-                    queries.add(line);
-                    
-                }
                 
-                // Si esta buida o es un comentari no augmenta el comptador
-                if (!(line.length() == 0 || line.startsWith(COMMENT_INDICATOR))) {
-                    counter++;
-                }
+                if(line.startsWith("@MANDATORY_START")){
+                    isMandatory = true;
+                }else if(line.startsWith("@MANDATORY_END")){
+                    isMandatory = false;                    
+                }else{
+                    if(!mandatoryOnly || isMandatory){
+                        if (counter >= skip && line.length() > 0 && !line.startsWith(COMMENT_INDICATOR)) {                    
+                            queries.add(line);
 
+                        }
+                    }
+                    // Si esta buida o es un comentari no augmenta el comptador
+                    if (!(line.length() == 0 || line.startsWith(COMMENT_INDICATOR))) {
+                        counter++;
+                    }
+                }
             }
 
         } catch (FileNotFoundException ex) {
@@ -131,14 +173,13 @@ public class PatchSDLDB {
     }
 
     
-    public void executeQueries(String[] queries) {
-
+    private void executeQueries(String[] queries, boolean avoidSaveVersion) {
         openDBConnection();
 
         try {
 
             for (int i = 0; i < queries.length; i++) {
-                if (!executeQuery(queries[i])) {
+                if (!executeQuery(queries[i], avoidSaveVersion)) {
                     logger.error(loggerPrefix + "Query execution aborted");
                     break;
                 }
@@ -174,7 +215,7 @@ public class PatchSDLDB {
         }
     }
 
-    public boolean executeQuery(String query) {
+    private boolean executeQuery(String query, boolean avoidSaveVersion) {
         Statement stmt = null;
         boolean success = false;
         
@@ -194,8 +235,10 @@ public class PatchSDLDB {
                 stmt.close();
             }
 
-            lastPatchVersion++;
-            saveLastPatchVersion();
+            lastPatchVersion++;    
+            if(!avoidSaveVersion){
+                saveLastPatchVersion();
+            }
 
             success = true;
 
@@ -267,6 +310,12 @@ public class PatchSDLDB {
         return lastPatchVersion;
     }
 
+    private void savePatchVersion(int version) throws FileNotFoundException {
+        loadLastPatchVersion();
+        lastPatchVersion = version;
+        saveLastPatchVersion();
+    }
+    
     private void saveLastPatchVersion() throws FileNotFoundException {
 
         int version = lastPatchVersion;
@@ -276,6 +325,6 @@ public class PatchSDLDB {
 
         PrintStream out = new PrintStream(new FileOutputStream(props.getProperty(INFO_FILE)));
         out.print(infoFileContent);
-
+        out.close();
     }
 }

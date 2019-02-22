@@ -209,7 +209,7 @@ table.dataTable {
 
 .credits {
     border: 1px lightgrey solid;
-    margin: 15px;
+  /*margin: 15px;*/
     padding:15px;       
 }
 
@@ -219,6 +219,11 @@ table.dataTable {
 
 .credits>div:last-child {
     margin-bottom:0;
+}
+
+.footbar img,
+.footbar p{
+    padding: 20px;
 }
 
 .sidebar p {

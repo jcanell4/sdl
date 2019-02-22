@@ -1,8 +1,10 @@
 //S'afegeix un nou camp per controlar s'ha fet un càlcul aproximat de la data d'edició o per contra, es tracta d'una dada fiable;
 CREATE TABLE CALCDATEMAP (ID varchar(3) PRIMARY KEY, DESC varchar(20));
+@MANDATORY_START;
 INSERT INTO CALCDATEMAP VALUES('SCL', 'sense classificar');
 INSERT INTO CALCDATEMAP VALUES('FIA', 'fiable');
 INSERT INTO CALCDATEMAP VALUES('APR', 'aproximada');
 INSERT INTO CALCDATEMAP VALUES('ILL', 'illegible');
+@MANDATORY_END;
 ALTER TABLE RESOURCE ADD CALCDATE_ID varchar(3) default 'SCL';
 ALTER TABLE RESOURCE ADD FOREIGN KEY (CALCDATE_ID) REFERENCES CALCDATEMAP(ID);

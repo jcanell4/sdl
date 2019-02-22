@@ -11,10 +11,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
 import org.elsquatrecaps.jig.sdl.exception.ErrorWritingPropertyFile;
+import org.elsquatrecaps.jig.sdl.persistence.patcher.PatchSDLDB;
 
 public class InfoInstallBean {
     File fout  = new File("info/install.info");
-
+    
     public void close(){
         PrintWriter out = null;
         Calendar today=  Calendar.getInstance();
@@ -31,6 +32,8 @@ public class InfoInstallBean {
         } finally {
             if(out!=null){
                 out.close();
+                PatchSDLDB patcher = new PatchSDLDB();
+                patcher.setDbAsUpgraded();
             }
         }
     }    

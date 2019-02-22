@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.elsquatrecaps.jig.sdl.persistence.SearchResourceRepository;
+import org.elsquatrecaps.jig.sdl.persistence.patcher.MandatoryPatchingBean;
 import org.elsquatrecaps.jig.sdl.searcher.ArcaSearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.HdSearchCriteria;
 import org.elsquatrecaps.jig.sdl.searcher.SearchCriteria;
@@ -73,6 +74,8 @@ public class SdlController {
     SearchRepository searchRepository;
     @Autowired(required = true)
     PlatformTransactionManager transactionManager;
+    @Autowired(required = true)
+    MandatoryPatchingBean mandatoryPatching;
 
     @Autowired
     public void setDp(DownloaderProperties dp) {
@@ -82,11 +85,10 @@ public class SdlController {
     // TESTS Xavi
     @GetMapping("/get")
     public ModelAndView newHandler() {
-
-        
-
         String view = "new";
         ModelAndView ret = new ModelAndView(view);
+        
+        mandatoryPatching.patch();
 
         ret.addObject("title", "Biblioteques SDL");
                 

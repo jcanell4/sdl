@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import org.elsquatrecaps.jig.sdl.configuration.DataSourceProperties;
 import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.elsquatrecaps.jig.sdl.configuration.InfoInstallBean;
+import org.elsquatrecaps.jig.sdl.persistence.patcher.MandatoryPatchingBean;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -57,7 +58,6 @@ public class PersistenceConfig {
         }
         emf.setJpaPropertyMap(dsp.getProperties());
         emf.setPersistenceUnitName("org.elsquatrecaps.jig_sdl_jar_0.0.1-SNAPSHOTPU");
-          
         return emf;
     }
     
@@ -66,6 +66,12 @@ public class PersistenceConfig {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory().getObject() );
         return transactionManager;         
+     }
+    
+    @Bean(name = "mandatoryPatching")
+    public MandatoryPatchingBean mandatoryPatching() {
+        MandatoryPatchingBean ret = new MandatoryPatchingBean();
+        return ret;         
      }
     
     @Bean

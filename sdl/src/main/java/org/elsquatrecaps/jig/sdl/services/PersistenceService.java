@@ -32,11 +32,6 @@ public class PersistenceService {
     private String fileRepositoryPath=null;
     
 
-//    public PersistenceService(ResourceRepository resourceRepository, SearchResourceRepository searchResourceRepository, SearchRepository searchRepository, PlatformTransactionManager transactionManager, String resourceFilepath) {
-//        this(resourceRepository, searchResourceRepository, searchRepository, transactionManager);
-//        fileRepositoryPath = resourceFilepath;
-//    }
-    
     public PersistenceService(ResourceRepository resourceRepository, SearchResourceRepository searchResourceRepository, SearchRepository searchRepository, PlatformTransactionManager transactionManager) {
         this.resourceRepository = resourceRepository;
         this.searchResourceRepository = searchResourceRepository;
