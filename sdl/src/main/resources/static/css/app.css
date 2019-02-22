@@ -199,7 +199,7 @@ table.dataTable {
 }
 
 .logos img {
-    width: 100%;
+    width: 60%;
     padding:15px;
 }
 
@@ -209,8 +209,16 @@ table.dataTable {
 
 .credits {
     border: 1px lightgrey solid;
+    border-radius: 5px;
   /*margin: 15px;*/
-    padding:15px;       
+    padding:15px;      
+    margin: 0;
+    margin-top: 15px;
+    
+}
+
+.credits  p, .credits ul {
+    margin:0;
 }
 
 .credits>div {
