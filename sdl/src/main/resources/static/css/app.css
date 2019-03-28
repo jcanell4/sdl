@@ -199,22 +199,20 @@ table.dataTable {
 }
 
 .logos img {
-    width: 60%;
+    height:auto;
+    max-width: 150px;    
+    width: 45%;
     padding:15px;
 }
+
 
 .tabs-container {
     margin-bottom: 15px;
 }
 
-.credits {
-    border: 1px lightgrey solid;
-    border-radius: 5px;
-  /*margin: 15px;*/
-    padding:15px;      
+.credits {    
     margin: 0;
-    margin-top: 15px;
-    
+    margin-top: 15px;   
 }
 
 .credits  p, .credits ul {
@@ -246,4 +244,30 @@ table.dataTable {
 
 .sidebar li {
     padding-left: 15px;
+}
+
+.logos-small {
+    display: none;
+}
+
+.logos-large {
+
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (max-width: 992px) {
+    .logos-large {
+        display: none;
+    }
+    
+    .logos-small {
+        display: flex;
+    }
+    
+    .logos img {
+        width: auto;
+    }
+
+
+
 }
