@@ -67,13 +67,13 @@ public class ConfigParserOfSearcher {
 
 
             className = pkg.concat(".").concat(repository).concat(SEARCH_ITERATOR);
-            cfg = new ConfigParserOfSearcher(className);
+//            cfg = new ConfigParserOfSearcher(className);
             SearchIterator it =  (SearchIterator) Class.forName(className).newInstance();
-            if(!cfg.isConfigured()){
-                cfg.save(it);
-            }else{
-                it = cfg.get(it);
-            }
+//            if(!cfg.isConfigured()){
+//                cfg.save(it);
+//            }else{
+//                it = cfg.get(it);
+//            }
             it.init(rp);
             return it;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {

@@ -8,10 +8,16 @@ package org.elsquatrecaps.jig.sdl.util;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.Normalizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
+import org.elsquatrecaps.jig.sdl.exception.ErrorParsingUrl;
 
 /**
  *
@@ -201,5 +207,42 @@ public class Utils {
         }
         return strBuffer.toString();
     }
+    
+    public static String urlQueryPath(String url){
+        String ret = "";
+        int i;
+        if(url!=null){
+            i = url.indexOf("?");
+            if(i>-1){
+                ret = url.substring(i+1);
+            }
+        }
+        return ret;
+    }
+    
+    public static String relativeToAbsoluteUrl(String context, String relative){
+        String ret;
+        try {
+            ret = new URL(new URL(context), relative).toString();
+        } catch (MalformedURLException ex) {
+            throw new ErrorParsingUrl(ex);
+        }            
+        return ret;
+    }    
 
+    public static boolean isCorrectContentType(String urlname, String contentType){
+        boolean ret=false;
+        URLConnection connection=null;
+        try {
+            URL url = new URL(urlname);
+            connection = url.openConnection();
+            connection.connect();    
+            ret = connection.getContentType().indexOf(contentType)>-1;
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ret;
+    }
 }

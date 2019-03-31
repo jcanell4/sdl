@@ -5,185 +5,59 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
-import java.util.Iterator;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-@XmlRootElement
-public class ArcaSearchIterator extends SearchIterator<ArcaResource>{
-    int cnt=0;
-    @XmlElement
-    private String navPagesFilter = "#cdmResultsBrowseAllItemsView";
-    @XmlElement
-    private String navPagesNextFilter = "div#link_bar_search div#link_bar_content div#link_bar_container div.link_bar_pagination ul > li#pagination_button_next a#pagination_button_next_link";    //
-    @XmlElement
-    private String newsPaperEditionListFilter = "#cdmResultsBrowseAllItemsView div.listItem";    
-    @XmlElement
-    private String basicInfoNewsPaperListFilter = "div.listItem div.listContentBottom a.body_link_11"; //.child[0].attr("href")   //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
-    @XmlElement
-    private String fragmentsFilter = "div#img_view_text_container div#img_view_text_content pre#full_text_container";
-    @XmlElement
-    private String savePdfFilter = "div#img_view_container div#viewer_wrapper_outer div#viewer_wrapper_inner object#itemViewer embed";
-    @XmlElement
-    private String editionDateFilter = "td#metadata_data a.body_link_11";
-    @XmlElement
-    private String noPdfFileUrl = "http://localhost:8888/files/nopdf.pdf";
+public class ArcaSearchIterator extends BvphTypeSearchIterator<ArcaResource>{
+    String pdfUrl = null;
+    String jpgUrl = null;
     
-    @XmlTransient
-    private Element sourceElement;
-    @XmlTransient
-    private boolean initilized = false;
-    @XmlTransient
-    private ArcaBlockSearhIterator currentBlockIterator;
-    @XmlTransient
-    private boolean nextBlockIsNeeded;
-    @XmlTransient
-    private ArcaGetRemoteProcess getRemoteProcess;    
-    @XmlTransient
-    private AbstractGetRemoteProcess getRemoteProcessAux = new GetRemoteProcessWithoutParams();
-    
-    public ArcaSearchIterator(Element element,  ArcaGetRemoteProcess getRemoteProcess){
+    public ArcaSearchIterator(Element element,  BvphGetRemoteProcess getRemoteProcess){
+        this._initAttr();
         this._init(element, getRemoteProcess);
     }
     
-    public ArcaSearchIterator(ArcaGetRemoteProcess getRemoteProcess){
+    public ArcaSearchIterator(BvphGetRemoteProcess getRemoteProcess){
+        this._initAttr();
         this._init(getRemoteProcess);
     }
 
     public ArcaSearchIterator(){
+        this._initAttr();
     }
     
-    public void init(AbstractGetRemoteProcess getRemoteProcess){
-        this._init((ArcaGetRemoteProcess) getRemoteProcess);
+    private void _initAttr(){
+        numResourcesThreshold = 10000;
+        thereIsTooMuchFilter = "div#consulta_resultados_sumario div.resultados_opciones p.warning span.texto_warning strong";
+        ascendingOrderFilter = "#consulta_resultados_sumario div.resultados_opciones p.resultados_orden span.valor span.campo_fechapublicacionorden span.links_orden span.enlace_cambio span.boton_orden_ascendente a";
+        ascendingOrderOkFilter = "#consulta_resultados_sumario div.resultados_opciones p.resultados_orden span.valor span.campo_fechapublicacionorden span.links_orden span.recurso_orden_ascendente_ok";
+        navPagesFilter = "#navegacion_resultados div.nav_marco div.nav_paginas span.nav_descrip";
+        navPagesNextFilter = "#navegacion_resultados div.nav_marco div.nav_paginas span.nav_alante a#boton_siguiente";
+        newsPaperEditionListFilter = "#navegacion_resultados div.nav_marco ol#nav_registros li ul>li.unidad_textual";
+        pageNewsPaperListFilter = "ul>li.unidad_textual"; //.child[0].attr("href")   //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+        pdfUrl = "div.grupo_noocurrencias p.gruposimagenes a"; //a.parents().get(2).select(pdfUrl).get(1).attr("href");
+        jpgUrl = "div.cabecera_grupo p.gruposimagenes a"; //a.parents().get(2).select(pdfUrl).get(1).attr("href");
+        morePubYearFilter = "#contenidos_periodo ul li.enlacemas a";    
+        mainPublicationYearsFilter = "dd#contenidos_periodo ul li";    
+        pubYearPaginatedRegistersFilter = "ol#nav_registros.nav_registros li";
+        pubYearPaginatedRegistersNextPageFilter = "a#boton_siguiente";
+        fragmentsFilter = "ul.texto_ocurrencias li";
+        actionsFilter = "div#tab_acciones ul li";
+        saveJpgFilter = "ol#nav_registros div.visualizador_menu span#grupo_1 a";
+        titleFilter = "dt span span.titulo a bdi";
+        pageFilter = "p strong a";
+        editionDateBloc = "dt span span.datos_publicacion bdi";
+        downloadPdfJpg = "../catalogo_imagenes/imagen_id.do?formato=jpg&registrardownload=0";
     }
-
-    public void init(Element element,  ArcaGetRemoteProcess getRemoteProcess){
-        this._init(element, getRemoteProcess);
-    }
-
-    private void _init(ArcaGetRemoteProcess getRemoteProcess){
-        this.getRemoteProcess = getRemoteProcess;
-    }
-
-    private void _init(Element element,  ArcaGetRemoteProcess getRemoteProcess){
-        this._init(getRemoteProcess);
-        this.sourceElement = element;
-    }
-
-    @Override
-    public boolean hasNext() {
-        boolean ret;
-        
-        checkNewBlock();
-        
-        ret = !this.noResources();
-        ret = ret && hasNextInCurrentBlock();
-        return ret;
-    }
-
-    @Override
-    public ArcaResource next() {
+    
+    protected ArcaResource getResource(Element a) {       
+//  https://arca.bnc.cat/arcabib_pro/ca/catalogo_imagenes/iniciar_descarga.do?interno=S&posicion=3&path=1008850&formato=Imagen%20JPG        
         ArcaResource ret = null;
-        ret = currentBlockIterator.next();
+        String urlToDownloadPdf = a.parents().get(1).select(pdfUrl).get(1).attr("href");
+        String urlToDownloadJpg = downloadPdfJpg.concat("&").concat(Utils.urlQueryPath(a.child(0).attr("href")));
+        ret = new ArcaResource(fragmentsFilter, actionsFilter, urlToDownloadJpg, urlToDownloadPdf, titleFilter, editionDateBloc, patterToExtractDateFromTitle);
+        ret.updateFromElement(a, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
         return ret;
-    }
-    
-    private void checkNewBlock(){
-        if(!initilized){
-            if(sourceElement==null){
-                updateOriginalSource();
-            }
-            if(!noResources()){
-                currentBlockIterator = new ArcaBlockSearhIterator();
-            }
-        }
-    }
-            
-    protected boolean noResources(){
-        boolean ret;
-        ret = sourceElement.select(navPagesFilter).size()==0;        
-        return ret;
-    }
-    
-    private boolean hasNextInCurrentBlock() {
-        boolean ret= false;
-        if(currentBlockIterator!=null){
-            ret = currentBlockIterator.hasNext();
-        }
-        return ret;
-    }
-    
-    private void updateOriginalSource(){
-        sourceElement = getRemoteProcess.get();
-    }
-    
-    private String relativeToAbsoluteUrl(String relative){
-        return  AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), relative);
-    }
-    
-///// ------ CLASS ArcaBlockSearhIterator  ---------------------//
-
-    private class ArcaBlockSearhIterator implements Iterator<ArcaResource>{
-        Element elementToNextPage;
-        Elements blocElements;
-        int elementsToProcess=0;
-                
-        public ArcaBlockSearhIterator() {
-            updateValues();
-            
-            nextBlockIsNeeded = false;
-            initilized = true;
-        }
-        
-        
-
-        @Override
-        public boolean hasNext() {
-            return elementToNextPage!=null || elementsToProcess>0;
-        }
-
-        @Override
-        public ArcaResource next() {
-            ArcaResource ret;
-            Element a;
-            if(elementsToProcess==0){
-                loadNextPage();
-                updateValues();                
-            }
-            a = blocElements.get(blocElements.size()-elementsToProcess);
-            --elementsToProcess;
-            ret = getResource(a);
-            
-            return ret;
-        }
-        
-        private void loadNextPage(){
-            if(elementToNextPage!=null){
-                String url = relativeToAbsoluteUrl(elementToNextPage.attr("href"));
-                getRemoteProcessAux.setUrl(url);
-                getRemoteProcessAux.setCookies(getRemoteProcess.getCookies());
-                sourceElement = getRemoteProcessAux.get();
-            }
-        }
-        
-        private void updateValues(){
-            elementToNextPage = sourceElement.selectFirst(navPagesNextFilter);
-            blocElements = sourceElement.select(newsPaperEditionListFilter);
-            elementsToProcess = blocElements.size();
-        }
-
-        private ArcaResource getResource(Element elem) {      
-            Element basicInfoElem = elem.selectFirst(basicInfoNewsPaperListFilter);
-            String urlInfoContent = AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), basicInfoElem.attr("href"));
-            getRemoteProcessAux.setUrl(urlInfoContent);
-            getRemoteProcessAux.setCookies(getRemoteProcess.getCookies());
-            Element contentDocum = getRemoteProcessAux.get();
-            ArcaResource ret = new ArcaResource(editionDateFilter, fragmentsFilter, getRemoteProcess._getText(), savePdfFilter, noPdfFileUrl);
-            ret.updateFromElement(basicInfoElem, contentDocum, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
-            return ret;
-        }
     }
 }

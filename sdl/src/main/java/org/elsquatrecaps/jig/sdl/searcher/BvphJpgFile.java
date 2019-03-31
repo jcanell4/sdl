@@ -24,31 +24,31 @@ public class BvphJpgFile extends BasicSearcherFormatedFile{
         super(url, "jpg", Name, fileName);
     }
     
-    @Override
-    public InputStream getImInputStream() {
-        AbstractGetRemoteProcess remoteProcess = new GetRemoteProcessWithoutParams(url);
-        Element elem = remoteProcess.get();
-        Element elemForm = elem.selectFirst("form[name='imprimirForm']");
-        String sep = "?";
-        url = relativeToAbsoluteUrl(remoteProcess.getUrl(), elemForm.attr("action"));
-        Elements inputElems =  elemForm.select("input[type='hidden']");
-        for(Element e : inputElems){
-            url+=sep+e.attr("name")+"="+e.attr("value");
-            sep="&";
-        }
-        return _getImInputStream();
-    }
-    
-    private InputStream _getImInputStream() {
-        try {
-            HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
-            return connection.getInputStream();
-        } catch (IOException ex) {
-           throw new ErrorGettingRemoteResource("Error getting "+url );
-        }
-    }
-    private String relativeToAbsoluteUrl(String base, String relative){
-        return  AbstractGetRemoteProcess.relativeToAbsoluteUrl(base, relative);
-    }
+//    @Override
+//    public InputStream getImInputStream() {
+//        AbstractGetRemoteProcess remoteProcess = new GetRemoteProcessWithoutParams(url);
+//        Element elem = remoteProcess.get();
+//        Element elemForm = elem.selectFirst("form[name='imprimirForm']");
+//        String sep = "?";
+//        url = relativeToAbsoluteUrl(remoteProcess.getUrl(), elemForm.attr("action"));
+//        Elements inputElems =  elemForm.select("input[type='hidden']");
+//        for(Element e : inputElems){
+//            url+=sep+e.attr("name")+"="+e.attr("value");
+//            sep="&";
+//        }
+//        return _getImInputStream();
+//    }
+//    
+//    private InputStream _getImInputStream() {
+//        try {
+//            HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
+//            return connection.getInputStream();
+//        } catch (IOException ex) {
+//           throw new ErrorGettingRemoteResource("Error getting "+url );
+//        }
+//    }
+//    private String relativeToAbsoluteUrl(String base, String relative){
+//        return  AbstractGetRemoteProcess.relativeToAbsoluteUrl(base, relative);
+//    }
     
 }

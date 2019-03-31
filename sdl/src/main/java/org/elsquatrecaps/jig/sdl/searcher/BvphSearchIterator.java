@@ -5,328 +5,122 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
-import org.elsquatrecaps.jig.sdl.exception.PreventiveException;
-import java.util.Iterator;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@XmlRootElement
-public class BvphSearchIterator extends SearchIterator<BvphResource>{
-    private static final Logger logger = LoggerFactory.getLogger(BvphSearchIterator.class);
-    
-    int cnt=0;
-    @XmlElement
-    private int numResourcesThreshold = 10000;
-    @XmlElement
-    private String thereIsTooMuchFilter = "div#consulta_resultados_sumario div.resultados_opciones p.warning span.texto_warning strong"; 
-    @XmlElement
-    private String descendingOrderFilter = "#consulta_resultados_sumario div.resultados_opciones p.resultados_orden span.valor span.campo_fechapublicacionorden span.links_orden span.enlace_cambio span.boton_orden_descendente a";    
-    @XmlElement
-    private String navPagesFilter = "#navegacion_resultados div.nav_marco div.nav_paginas span.nav_descrip";    
-    @XmlElement
-    private String navPagesNextFilter = "#navegacion_resultados div.nav_marco div.nav_paginas span.nav_alante a#boton_siguiente";    
-    @XmlElement
-    private String newsPaperEditionListFilter = "#navegacion_resultados div.nav_marco ol#nav_registros li ul>li.unidad_textual";    
-    @XmlElement
-    private String pageNewsPaperListFilter = "ul>li.unidad_textual"; //.child[0].attr("href")   //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
-    @XmlElement
-    private String morePubYearFilter = "#contenidos_anyopublicacion ul li.enlacemas a";    
-    @XmlElement
-    private String mainPublicationYearsFilter = "dd#contenidos_anyopublicacion ul li";    
-    @XmlElement
-    private String pubYearPaginatedRegistersFilter = "ol#nav_registros.nav_registros li";    
-    @XmlElement
-    private String pubYearPaginatedRegistersNextPageFilter = "a#boton_siguiente";    
-    @XmlElement
-    private String fragmentsFilter = "ul.texto_ocurrencias li";
-    @XmlElement
-    private String actionsFilter = "div#tab_acciones ul li";
-    @XmlElement
-    private String saveJpgFilter = "ol#nav_registros div.visualizador_menu span#grupo_1 a";
-    @XmlElement
-    private String titleFilter = "dt span span.titulo a";
-    @XmlElement
-    private String pageFilter = "p strong a";
-    @XmlElement
-    private String editionDateBloc = "dt span span.datos_publicacion bdi";
-    @XmlElement
-    private String downloadPdfJpg = "http://prensahistorica.mcu.es/es/catalogo_imagenes/iniciar_descarga.cmd";
-    @XmlTransient
-    private String patterToExtractDateFromTitle = ".*(\\d{4}\\s+([Ee]nero|[Ff]ebrero|[Mm]arzo|[Aa]bril|[Mm]ayo|[Jj]unio|[Jj]ulio|[Aa]gosto|[Ss]eptiembre|[Oo]ctubre|[Nn]oviembre|[Dd]iciembre)\\s+\\d{2}).*";
-
-//    @XmlElement
-//    private String noResourcesText = "No hay resultados"; 
-//    @XmlElement
-//    private String noResourcesFilter = "div#consulta_resultados_sumario div.navegacion_resultados p";    
-//    @XmlElement
-//    private String unfulfilledContitionsText = "No hay ningún registro que cumpla las condiciones de búsqueda.";    
-    
-    @XmlTransient
-    private Element sourceElement;
-    @XmlTransient
-    private boolean initilized = false;
-    @XmlTransient
-    private BvphBlockSearhIterator currentBlockIterator;
-    @XmlTransient
-    private boolean nextBlockIsNeeded;
-    @XmlTransient
-    private BvphGetRemoteProcess getRemoteProcess;    
-    @XmlTransient
-    private AbstractGetRemoteProcess getRemoteProcessAux = new GetRemoteProcessWithoutParams();
-    @XmlTransient
-    private int currentBiggerYear;
-    @XmlTransient
-    private int currentSmallerYear=-1;
+public class BvphSearchIterator extends BvphTypeSearchIterator<BvphResource>{
 
     
     public BvphSearchIterator(Element element,  BvphGetRemoteProcess getRemoteProcess){
+        this._initAttr();
         this._init(element, getRemoteProcess);
     }
     
     public BvphSearchIterator(BvphGetRemoteProcess getRemoteProcess){
+        this._initAttr();
         this._init(getRemoteProcess);
     }
 
     public BvphSearchIterator(){
+        this._initAttr();
     }
     
-    public void init(AbstractGetRemoteProcess getRemoteProcess){
-        this._init((BvphGetRemoteProcess) getRemoteProcess);
+    private void _initAttr(){
+        numResourcesThreshold = 10000;
+        thereIsTooMuchFilter = "div#consulta_resultados_sumario div.resultados_opciones p.warning span.texto_warning strong";
+        ascendingOrderFilter = "#consulta_resultados_sumario div.resultados_opciones p.resultados_orden span.valor span.campo_fechapublicacionorden span.links_orden span.enlace_cambio span.boton_orden_ascendente a";
+        ascendingOrderOkFilter = "#consulta_resultados_sumario div.resultados_opciones p.resultados_orden span.valor span.campo_fechapublicacionorden span.links_orden span.recurso_orden_ascendente_ok";
+        navPagesFilter = "#navegacion_resultados div.nav_marco div.nav_paginas span.nav_descrip";
+        navPagesNextFilter = "#navegacion_resultados div.nav_marco div.nav_paginas span.nav_alante a#boton_siguiente";
+        newsPaperEditionListFilter = "#navegacion_resultados div.nav_marco ol#nav_registros li ul>li.unidad_textual";
+        pageNewsPaperListFilter = "ul>li.unidad_textual"; //.child[0].attr("href")   //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+        morePubYearFilter = "#contenidos_anyopublicacion ul li.enlacemas a";
+        mainPublicationYearsFilter = "dd#contenidos_anyopublicacion ul li";
+        pubYearPaginatedRegistersFilter = "ol#nav_registros.nav_registros li";
+        pubYearPaginatedRegistersNextPageFilter = "a#boton_siguiente";
+        fragmentsFilter = "ul.texto_ocurrencias li";
+        actionsFilter = "div#tab_acciones ul li";
+        saveJpgFilter = "ol#nav_registros div.visualizador_menu span#grupo_1 a";
+        titleFilter = "dt span span.titulo a bdi";
+        pageFilter = "p strong a";
+        editionDateBloc = "dt span span.datos_publicacion bdi";
+        downloadPdfJpg = "../catalogo_imagenes/imagen_id.do?formato=jpg&registrardownload=0";
     }
-
-    public void init(Element element,  BvphGetRemoteProcess getRemoteProcess){
-        this._init(element, getRemoteProcess);
-    }
-
-    private void _init(BvphGetRemoteProcess getRemoteProcess){
-        this.getRemoteProcess = getRemoteProcess;
-        currentBiggerYear = getRemoteProcess.getDefaultBiggerYear();
-    }
-
-    private void _init(Element element,  BvphGetRemoteProcess getRemoteProcess){
-        this._init(getRemoteProcess);
-        this.sourceElement = element;
-        currentBiggerYear = getRemoteProcess.getDefaultBiggerYear();
-    }
-
-    @Override
-    public boolean hasNext() {
-        boolean ret;
-        
-        checkNewBlock();
-        
-        ret = !this.noResources();
-        ret = ret && hasNextInCurrentBlock();
-        
-        logger.debug(String.format("hasNext: %s", (ret?"si":"no")));
-        
-        return ret;
-    }
-
-    @Override
-    public BvphResource next() {
-        BvphResource ret = null;
-        ret = currentBlockIterator.next();
-        logger.debug(String.format("next: %s", ret.getTitle()));
+    
+    protected BvphResource getResource(Element a) {       
+        BvphResource ret;
+        String urlToDownloadJpg = downloadPdfJpg.concat("&").concat(Utils.urlQueryPath(a.child(0).attr("href")));
+        ret = new BvphResource(fragmentsFilter, actionsFilter, urlToDownloadJpg, titleFilter, editionDateBloc, patterToExtractDateFromTitle);
+        ret.updateFromElement(a, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
         return ret;
     }
     
-    protected int getCurrentBiggerYear(){
-        return currentBiggerYear;
-    }
-
-    protected int getCurrentSmallerYear(){
-        return currentSmallerYear;
-    }
-
-    private void checkNewBlock(){
-        if(!initilized){
-            if(sourceElement==null){
-                updateOriginalSource();
-            }
-            if(!noResources()){
-                currentBlockIterator = new BvphBlockSearhIterator();
-            }
-        }else{
-            nextBlockIsNeeded = !hasNextInCurrentBlock() && thereIsTooMuchResources();
-        }
-        if(nextBlockIsNeeded){    
-            updateOriginalSource(getCurrentSmallerYear());
-            currentBlockIterator = new BvphBlockSearhIterator();
-        }
-    }
-            
-    protected boolean noResources(){
-        boolean ret;
-        Element elem;
-        String message="";
-        ret = sourceElement.select(navPagesFilter).size()==0;        
-        return ret;
-    }
     
-    private boolean thereIsTooMuchResources(Element e){
-        Element elem;
-        int moreThanThreshold=0;
-        elem = e.selectFirst(thereIsTooMuchFilter);
-        if(elem!=null){
-            moreThanThreshold = Integer.valueOf(elem.text());
-        }
-        return moreThanThreshold > numResourcesThreshold;
-    }
-    
-    protected boolean thereIsTooMuchResources(){
-        return thereIsTooMuchResources(sourceElement);
-    }
-
-    private boolean hasNextInCurrentBlock() {
-        boolean ret= false;
-        if(currentBlockIterator!=null){
-            ret = currentBlockIterator.hasNext();
-        }
-        return ret;
-    }
-    
-    private void updateOriginalSource(){
-        updateOriginalSource(currentBiggerYear);
-    }
-    
-    private void updateOriginalSource(int currentBiggerYear){
-        Element aElement;
-
-        getRemoteProcess.setBiggerYear(currentBiggerYear);
-        sourceElement = getRemoteProcess.get();
-        if(thereIsTooMuchResources()){
-            aElement = sourceElement.selectFirst(descendingOrderFilter);
-            if(aElement!=null){
-                String url = relativeToAbsoluteUrl(aElement.attr("href"));
-                getRemoteProcessAux.setUrl(url);
-                sourceElement = getRemoteProcessAux.get();
-                updateCurrentSmallerYear();
-            }
-        }
-    }
-    
-    private void updateCurrentSmallerYear(){
-        Element aElem = sourceElement.selectFirst(morePubYearFilter);
-        if(aElem!=null){
-            //paging publication years
-            String url = relativeToAbsoluteUrl(aElem.attr("href"));
-            getRemoteProcessAux.setUrl(url);
-            currentSmallerYear = getMinimumYearOfPaginatedList(getRemoteProcessAux.get());
-        }else{
-            //navigate in default list
-            currentSmallerYear = getMinimumYearOfSingleList(sourceElement.select(mainPublicationYearsFilter));
-        }
-    }
-    
-    private int getMinimumYearOfSingleList(Elements list){
-        int value;
-        int ret = Integer.valueOf(list.get(0).child(0).text());
-        for(Element elem: list){
-            value = Integer.valueOf(elem.child(0).text());
-            if(value<ret){
-                ret=value;
-            }
-        }
-        return ret;
-    }
-    
-    private int getMinimumYearOfPaginatedList(Element paginatedList){
-        String url;
-        int ret=currentSmallerYear;      
-        Element nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
-        //Alerta. Comprovar que si nextPage és null, ñes degut a que no hi ha més anys disponibles i cal aplicar getMinimumYearOfSingleList
-        if(nextPage != null){
-            logger.debug("Cercant getMinimumYearOfPaginatedList");
-            do{
-                Elements list = paginatedList.select(pubYearPaginatedRegistersFilter);
-                int value = getMinimumYearOfSingleList(list);
-                if(value<ret || ret==-1){
-                    ret = value;
-                }
-                url = relativeToAbsoluteUrl(nextPage.attr("href"));
-                getRemoteProcessAux.setUrl(url);
-                paginatedList = getRemoteProcessAux.get();
-                nextPage = paginatedList.selectFirst(pubYearPaginatedRegistersNextPageFilter);
-            }while(nextPage!=null);
-            logger.debug("getMinimumYearOfPaginatedList trobat");
-        }else{
-            logger.error("next page of getMinimumYearOfPaginatedList és null. Suposem que l'ultim any és l'actual currentSmallerYear:"
-                    .concat(String.valueOf(ret)).concat(". Es llançarà una excepció preventiva."));
-            logger.info("L'element que no conté la informació per trobar la llista d'anys (nextPage) és: ".concat(paginatedList.toString()));
-            throw new PreventiveException("currentSmallerYear no trobat");
-        }
-        return ret;
-    }
-    
-    private String relativeToAbsoluteUrl(String relative){
-        return  AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), relative);
-    }
-    
-///// ------ CLASS BvphBlockSearhIterator  ---------------------//
-
-    private class BvphBlockSearhIterator implements Iterator<BvphResource>{
-        Element elementToNextPage;
-        Elements blocElements;
-        int elementsToProcess=0;
-                
-        public BvphBlockSearhIterator() {
-            updateValues();
-            
-            nextBlockIsNeeded = false;
-            initilized = true;
-        }
-        
-        
-
-        @Override
-        public boolean hasNext() {
-            logger.debug(String.format("Elements actuals: %d", elementsToProcess));
-            logger.debug(String.format("Hi hamés pàgines: %s", elementToNextPage!=null?"SI":"NO"));
-            return elementToNextPage!=null || elementsToProcess>0;
-        }
-
-        @Override
-        public BvphResource next() {
-            BvphResource ret;
-            Element a;
-            if(elementsToProcess==0){
-                logger.debug("S'ha acabta la pàgina actual, s'inicia la càrrega d'una nova pàgina (LoadingNextPage)");
-                loadNextPage();
-                updateValues();          
-                logger.debug("nova pàgina carregada");
-            }
-            a = blocElements.get(blocElements.size()-elementsToProcess);
-            --elementsToProcess;
-            logger.debug("S'ha localitzat el registre. Es passa a extreure'n la informació");
-            ret = getResource(a);
-            logger.debug("Informació extreta");
-            return ret;
-        }
-        
-        private void loadNextPage(){
-            if(elementToNextPage!=null){
-                String url =  url = relativeToAbsoluteUrl(elementToNextPage.attr("href"));
-                getRemoteProcessAux.setUrl(url);
-                sourceElement = getRemoteProcessAux.get();
-            }
-        }
-        
-        private void updateValues(){
-            elementToNextPage = sourceElement.selectFirst(navPagesNextFilter);
-            blocElements = sourceElement.select(newsPaperEditionListFilter);
-            elementsToProcess = blocElements.size();
-        }
-
-        private BvphResource getResource(Element a) {       
-            BvphResource ret = new BvphResource(fragmentsFilter, actionsFilter, saveJpgFilter, titleFilter, pageFilter, editionDateBloc, patterToExtractDateFromTitle);
-            ret.updateFromElement(a, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
-            return ret;
-        }
-    }
+/////// ------ CLASS BvphBlockSearhIterator  ---------------------//
+//
+//    private class BvphBlockSearhIterator implements Iterator<BvphResource>{
+//        Element elementToNextPage;
+//        Elements blocElements;
+//        int elementsToProcess=0;
+//                
+//        public BvphBlockSearhIterator() {
+//            updateValues();
+//            
+//            nextBlockIsNeeded = false;
+//            initilized = true;
+//        }
+//        
+//        
+//
+//        @Override
+//        public boolean hasNext() {
+//            logger.debug(String.format("Elements actuals: %d", elementsToProcess));
+//            logger.debug(String.format("Hi hamés pàgines: %s", elementToNextPage!=null?"SI":"NO"));
+//            return elementToNextPage!=null || elementsToProcess>0;
+//        }
+//
+//        @Override
+//        public BvphResource next() {
+//            BvphResource ret;
+//            Element a;
+//            if(elementsToProcess==0){
+//                logger.debug("S'ha acabta la pàgina actual, s'inicia la càrrega d'una nova pàgina (LoadingNextPage)");
+//                loadNextPage();
+//                updateValues();          
+//                logger.debug("nova pàgina carregada");
+//            }
+//            a = blocElements.get(blocElements.size()-elementsToProcess);
+//            --elementsToProcess;
+//            logger.debug("S'ha localitzat el registre. Es passa a extreure'n la informació");
+//            ret = getResource(a);
+//            logger.debug("Informació extreta");
+//            return ret;
+//        }
+//        
+//        private void loadNextPage(){
+//            if(elementToNextPage!=null){
+//                String url =  url = relativeToAbsoluteUrl(elementToNextPage.attr("href"));
+//                getRemoteProcessAux.setUrl(url);
+//                getRemoteProcessAux.setDefaultCookies(getRemoteProcess.getCookies());
+////                if(getRemoteProcessAux.getCookies()==null || getRemoteProcessAux.getCookies().size()==0){
+////                    getRemoteProcessAux.setCookies(getRemoteProcess.getCookies());
+////                }
+//                sourceElement = getRemoteProcessAux.get();
+//            }
+//        }
+//        
+//        private void updateValues(){
+//            elementToNextPage = sourceElement.selectFirst(navPagesNextFilter);
+//            blocElements = sourceElement.select(newsPaperEditionListFilter);
+//            elementsToProcess = blocElements.size();
+//        }
+//
+//        private BvphResource getResource(Element a) {       
+//            BvphResource ret;
+//            String urlToDownloadJpg = downloadPdfJpg.concat("&").concat(Utils.urlQueryPath(a.child(0).attr("href")));
+//            ret = new BvphResource(fragmentsFilter, actionsFilter, urlToDownloadJpg, titleFilter, editionDateBloc, patterToExtractDateFromTitle);
+//            ret.updateFromElement(a, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
+//            return ret;
+//        }
+//    }
 }

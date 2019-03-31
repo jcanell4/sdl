@@ -185,6 +185,7 @@ public class SdlController {
         
         if (optional.isPresent()) {
             ret.addObject("selected", optional.get().getId());
+            logger.debug("Dades enviades al navegador");
         }
         
         return ret;
@@ -257,6 +258,10 @@ public class SdlController {
                                 error = true;
                             }
                             if(error){
+                                resource.deleteSupportedFormat(format);
+                                if(file.exists()){
+                                    file.delete();
+                                }
                                 logger.info(String.format("Fitxer %s NO copiat", ff.getFileName()));
                             }else{
                                 logger.info(String.format("Fitxer %s copiat.", ff.getFileName()));

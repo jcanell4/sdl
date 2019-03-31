@@ -1,8 +1,6 @@
 package org.elsquatrecaps.jig.sdl.searcher;
 
-public final class ArcaSearchCriteria extends SearchCriteria{
-    private String dateStart=null;
-    private String dateEnd=null;
+public final class ArcaSearchCriteria extends BvphTypeSearchCriteria{
 
     public ArcaSearchCriteria() {
     }
@@ -17,31 +15,9 @@ public final class ArcaSearchCriteria extends SearchCriteria{
         setDateEnd(dateEnd);
     }
     
-    /**
-     * @return the dateStart
-     */
-    public String getDateStart() {
-        return dateStart;
-    }
-
-    /**
-     * @param dateStart the dateStart to set
-     */
-    public void setDateStart(String dateStart) {
-        this.dateStart = dateStart;
-    }
-
-    /**
-     * @return the dateEnd
-     */
-    public String getDateEnd() {
-        return dateEnd;
-    }
-
-    /**
-     * @param dateEnd the dateEnd to set
-     */
-    public void setDateEnd(String dateEnd) {
-        this.dateEnd = dateEnd;
+    public ArcaSearchCriteria(String text, Integer smaller, Integer bigger){
+        super(text);
+        setSmallerYear(smaller);
+        setBiggerYear(bigger);
     }
 }

@@ -6,26 +6,26 @@
 package org.elsquatrecaps.jig.sdl.searcher;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;
-import org.elsquatrecaps.jig.sdl.exception.ErrorParsingUrl;
+import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-@XmlType()
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 abstract public class AbstractGetRemoteProcess {
     @XmlElement
     private int connectionAttempts = 30;
-    @XmlTransient
+    @XmlElement
     private String url;
     @XmlTransient
     private String queryPath = "";
@@ -80,7 +80,7 @@ abstract public class AbstractGetRemoteProcess {
             try{
                 Connection con = getConnection();
                 resp = con.execute();
-                setCookies(resp.cookies());
+                mergeCookies(resp.cookies());
                 remote = resp.parse();
             } catch (UncheckedIOException | IOException ex ) {
                 ioe = ex;
@@ -105,21 +105,35 @@ abstract public class AbstractGetRemoteProcess {
     }
     
     public static String relativeToAbsoluteUrl(String context, String relative){
-        String ret;
-        try {
-            ret = new URL(new URL(context), relative).toString();
-        } catch (MalformedURLException ex) {
-            throw new ErrorParsingUrl(ex);
-        }            
-        return ret;
+        return Utils.relativeToAbsoluteUrl(context, relative);
     }    
 
     public Map<String, String> getCookies() {
         return cookies;
     }
 
+    public void setDefaultCookies(Map<String, String> cookies) {
+        if(this.getCookies()==null || this.getCookies().size()==0){
+            this.setCookies(cookies);
+        }        
+    }
+    
     public void setCookies(Map<String, String> cookies) {
         this.cookies = cookies;
+    }
+
+    public void mergeCookies(Map<String, String> cookies) {
+        if(this.cookies==null){
+            this.cookies = cookies;
+        }else{
+            AbstractGetRemoteProcess self = this;
+            cookies.forEach(new BiConsumer<String, String>(){
+                @Override
+                public void accept(String key, String value) {
+                    self.cookies.put(key, value);
+                }
+            });
+        }
     }
 
     public String getQueryPath() {

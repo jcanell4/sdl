@@ -170,6 +170,14 @@ public class Resource implements Serializable{
         return supportedFormats.get(idx);
     }
 
+    public void deleteSupportedFormat(String format) {
+        this.supportedFormats.remove(format);
+    }
+
+    protected void deleteSupportedFormat(int ind) {
+        this.supportedFormats.remove(ind);
+    }
+
     protected void addSupportedFormat(String format) {
         this.supportedFormats.add(format);
     }
