@@ -484,8 +484,6 @@ var bibliotequesAPI = (function () {
 
     var initFilter = function () {
 
-        initQueryForm();
-
         var $filterQueryDateOriginal = $('#filter-query-date-original');
         var $filterQueryDateOriginal1 = $('#filter-query-date-original-1');
         var $filterQueryDateOriginal2 = $('#filter-query-date-original-2');
@@ -728,6 +726,7 @@ var bibliotequesAPI = (function () {
                 
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 // resposta retornada am codi d'error
+                showOverlay();
                 alert("S'ha produït un error");
             
             });
@@ -745,6 +744,7 @@ var bibliotequesAPI = (function () {
         
         
         initSearchForm();
+        initQueryForm();
         initFilter();
         initExportButton();
 
@@ -1033,7 +1033,7 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
     var COL_PROCESS = 2,
             COL_DATA = 3,
-            COL_FORMATS = 4;
+            COL_FORMATS = 5;
 
     var stringToDate = function (dateString, reverse) { // reverse pel format aaaa/mm/dd <-- ALERTA[Xavi] el peràmetre reverse sempre es undefined?
         
@@ -1136,6 +1136,8 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
 
     var textContainsAnyToken = function (tokenString, text, separator) { // el separador per defecte es l'espai, admet expresió regular
 
+        //console.log("textContainsAnyToken:", tokenString, text, separator);
+        
         if (!separator) {
             separator = ' ';
         }
