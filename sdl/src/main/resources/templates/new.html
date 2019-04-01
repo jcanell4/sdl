@@ -300,29 +300,29 @@
                     </div>
 
                 </div>
-                
+
                 <div class="row logos logos-small">
-                        
+
                     <div class="col-sm-12 credits">
                         <p>This software has been elaborated with the financial support of the research project of the European Research Council “SeaLiT. Seafaring Lives in transition. Mediterranean Maritime Labour and Shipping during Globalization, 1850s-1920s” ERC-2016STG 714437</p>
                         <p>Direction: Jordi Ibarz</p>
                         <p>Development: Josep Cañellas, Xavier Garcia</p>
                     </div>
-                    
-                    
+
+
                     <div class="col-sm-3 col-6 text-center">
                         <img src="/img/logo-sealit.png" alt="logo SeaLiT"/>
                     </div>
-                    
+
                     <div class="col-sm-3 col-6 text-center">
                         <img src="/img/logo-grup-historia-treball.png" alt="logo Grup d'Historia del Treball"/>
                     </div>                    
-                    
-                    
+
+
                     <div class="col-sm-3 col-6 text-center">
                         <img src="/img/logo-ub.jpg" alt="logo Universitat de Barcelona"/>                    
                     </div>
-                    
+
                     <div class="col-sm-3 col-6 text-center">
                         <img src="/img/logo-erc.jpg" alt="logo European Research Council"/>
                     </div>
@@ -330,437 +330,435 @@
                 </div>
             </div>
 
-    </main>
+        </main>
 
 
-    <footer class="fixed-bottom">
-        <nav class="container text-center">
-            <small>&copy; 2018. <a href="https://www.apache.org/licenses/LICENSE-2.0" title="Apache License 2.0">Apache License 2.0.</a></small>
-        </nav>
+        <footer class="fixed-bottom">
+            <nav class="container text-center">
+                <small>&copy; 2018. <a href="https://www.apache.org/licenses/LICENSE-2.0" title="Apache License 2.0">Apache License 2.0.</a></small>
+            </nav>
 
-        <div id="progress-overlay">
-            <div class="progress-circle"></div>
-            <div class="progress-text"></div>
-        </div>
+            <div id="progress-overlay">
+                <div class="progress-circle"></div>
+                <div class="progress-text"></div>
+            </div>
 
-    </footer>
-    <!-- Modal -->
-    <!-- dialeg que mostra el llistat de recursos d'una cerca -->
-    <div class="modal fade" id="resourcesBySearchDialog" tabindex="-1" role="dialog"
-         aria-hidden="true">    
-        <div th:fragment="resourcesBySearchDialog">
-            <div th:if="${resourcesCount &gt; 0}">
+        </footer>
+        <!-- Modal -->
+        <!-- dialeg que mostra el llistat de recursos d'una cerca -->
+        <div class="modal fade" id="resourcesBySearchDialog" tabindex="-1" role="dialog"
+             aria-hidden="true">    
+            <div th:fragment="resourcesBySearchDialog">
+                <div th:if="${resourcesCount &gt; 0}">
+                    <div class="modal-dialog  modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Detall dels resultats de cerca</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row detall-header">
+                                    <div class="col-4">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <b>Repositori</b>:
+                                            </div>
+                                            <div class="col-sm-6" th:text="${search.getRepository()}">
+                                                ARCA
+                                            </div>
+                                            <input type="hidden" id="export-repository" th:value="${search.getRepository()}"/>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <b>Criteri de cerca:</b>
+                                            </div>
+
+                                            <div class="col-sm-6" th:text="${search.getSearchCriteria()}">
+                                                Unes partides
+                                            </div>
+                                            <input type="hidden" id="export-criteria" th:value="${search.getSearchCriteria()}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <div class="row">
+                                            <div class="col-sm-7">
+                                                <b>Data original:</b>
+                                            </div>
+                                            <div class="col-sm-5 text-right" th:text="${search.getOriginalDate()}">
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-7 ">
+                                                <b>Darrera actualització:</b>
+                                            </div>
+                                            <div class="col-sm-5 text-right" th:text="${search.getUpdateDate()}">                                
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="row">
+
+                                            <div class="col-sm-6">
+                                                <b>Quantitat de resultats:</b>
+                                            </div>
+                                            <div class="col-sm-6" th:text="${resourcesCount}"></div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="row">
+                                    <div class="col-xl-8 col-sm-12">
+
+                                        <h2>Llistat de recursos</h2>
+
+                                        <div class="table-container">
+                                            <table class="table table-striped" id="resources">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="show-overlay">Títol</th>
+                                                        <th class="text-center show-overlay">Pàgina</th>
+                                                        <th class="show-overlay">Procés d'anàlisi</th>
+                                                        <th class="text-center show-overlay" data-options="field:'date-query'">Data d'edició</th>
+                                                        <th class="text-center no-sort">La data és...</th>
+                                                        <th class="text-center no-sort">Formats</th>
+                                                        <th class="text-center "></th>
+                                                        <th class="text-center no-sort">Accions</th>
+
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody th:fragment="llistat-realitzades" th:if="${resources}" th:object="${resources}">
+                                                    <tr th:each="resource : ${resources}" th:data-id="${resource.getId()}">
+                                                        <td th:attr="title=${resource.getTitle()}"><span th:text="${#strings.substring(resource.getTitle(), 0, 12)}"></span><span th:if="${#strings.length(resource.getTitle())>12}" th:text="..."></span></td>
+                                                        <td class="text-center" th:text="${resource.getPage()}"></td>
+                                                        <td th:text="${resource.getProcessingAnalysis()}"></td>
+                                                        <td th:text="${resource.getEditionDate()}"></td>
+                                                        <td th:text="${resource.getCalcDate()}"></td>
+                                                        <td th:text="${resource.getSupportedFormatsAsSingleString()}"></td>
+
+
+                                                        <td class="text-center">
+                                                            <input type="checkbox" aria-label="Checkbox">
+                                                        </td>
+
+                                                        <td class="text-center">
+
+                                                            <a href="#" th:data-resource-id="${resource.getId()}">
+                                                                <i class="fa fa-search" title="Veure detall"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <!--<tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>02/03/2018</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>03/02/2018</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>13/02/2018</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>13/01/2018</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>13/02/2008</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>13/02/218</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>-->
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-xl-4 col-sm-12">
+                                        <h2>Configuració dels filtres <a title="Mostra o amaga la configuració dels filtres" data-toggle="collapse" href="#detail-filters-setup" role="button"><i class="fas fa-angle-down"></i></a></h2>
+
+                                        <div class="collapse show" id="detail-filters-setup">
+                                            <div class="row" >
+
+
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="filter-process">Procés d'anàlisi</label> (invertir selecció <input
+                                                            type="checkbox" aria-label="Checkbox" id="filter-process-not"/>)
+                                                        <select class="form-control" id="filter-process">
+                                                            <option value="*">qualsevol</option>
+                                                            <option value="-">sense processar</option>
+                                                            <option value="Selecció AI">Selecció AI</option>
+                                                            <option value="Atlas-ti">Atlas-ti</option>
+                                                        </select>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="filter-formats">Formats (separats per espais)</label>
+                                                        <input type="text" class="form-control" id="filter-formats"
+                                                               placeholder="xml txt jpg etc."/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="filter-date-order">
+                                                        <label for="filter-date-order">Data d'edició</label>
+                                                        <select class="form-control" id="filter-date-order">
+                                                            <option value="*">qualsevol</option>
+                                                            <option value="<">anterior a</option>
+                                                            <option value=">">posterior a</option>
+                                                            <option value="=">igual a</option>
+                                                            <option value="^">entre</option>
+                                                        </select>
+                                                    </div>
+
+
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="filter-date-1">Data 1</label>
+                                                        <input type="date" class="form-control" id="filter-date-1">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label for="filter-date-2">Data 2</label>
+                                                        <input type="date" class="form-control" id="filter-date-2">
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-sm-6">
+                                                    <div id="filter-execute" class="btn btn-primary ">Filtrar resultats
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div id="filter-remove" class="btn btn-primary ">Eliminar filtres
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <hr />
+                                        </div>
+
+
+
+                                        <div class="row">
+
+                                            <div id="exportMessages" class="col-12">
+                                                <div th:fragment="exportMessages">
+                                                    <div th:if="${errorExportMessage}" class="alert alert-danger"  role="alert">
+                                                        <h2>Error</h2>
+                                                        <p th:text="${errorExportMessage}"></p>
+                                                    </div>                                                
+                                                    <div th:if="${successExportMessage}" class="alert alert-success"  role="alert">
+                                                        <h2>Éxit</h2>
+                                                        <p th:text="${successExportMessage}"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="col-sm-12 text-center">
+                                                <div id="export-selected" class="btn btn-primary disabled">Exportar els recursos
+                                                    seleccionats
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <hr />
+
+                                        <div id="resourceDetail">
+
+                                            <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
+                                                <h2>Detall del recurs <a title="Mostra o amaga el detall del recurs" data-toggle="collapse" href="#resource-detail" role="button"><i class="fas fa-angle-down"></i></a></h2>
+
+                                                <div>
+                                                    <div class="collapse show" id="resource-detail">
+                                                        <div class="row" id="detall-recurs">
+                                                            <div class="col-sm-3 ">
+                                                                <b>Títol:</b>
+                                                            </div>
+                                                            <div class="col-sm-9" th:text="${resource.getTitle()}">
+                                                                Títol
+                                                            </div>
+
+                                                            <div class="col-sm-3" >
+                                                                <b>Pàgina:</b>
+                                                            </div>
+
+                                                            <div class="col-sm-3" th:text="${resource.getPage()}">
+                                                                42
+                                                            </div>
+
+                                                            <div class="col-sm-3">
+                                                                <b>Any d'edició</b>
+                                                            </div>
+
+                                                            <div class="col-sm-3" th:text="${resource.getEditionDate()}">
+                                                                1983
+                                                            </div>
+
+                                                            <div class="col-sm-3 ">
+                                                                <b>Procés d'anàlisi:</b>
+                                                            </div>
+                                                            <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
+                                                                Selecció AI
+                                                            </div>
+
+                                                            <div class="col-sm-3">
+                                                                <b>Data de cerca:</b>
+                                                            </div>
+                                                            <div class="col-sm-3" th:text="${resource.getSearchDate()}">
+                                                                21/02/2018
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <h3>Fragments:</h3>
+
+                                                    <ul>
+                                                        <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
+                                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
+                                                            nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
+                                                        </li>
+
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+
+            <div th:unless="${resourcesCount &gt; 0}">
                 <div class="modal-dialog  modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLongTitle">Detall dels resultats de cerca</h5>
+                            <h5 class="modal-title" id="exampleModalLongTitle">No s'ha trobat cap recurs</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <div class="row detall-header">
-                                <div class="col-4">
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <b>Repositori</b>:
-                                        </div>
-                                        <div class="col-sm-6" th:text="${search.getRepository()}">
-                                            ARCA
-                                        </div>
-                                        <input type="hidden" id="export-repository" th:value="${search.getRepository()}"/>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <b>Criteri de cerca:</b>
-                                        </div>
-
-                                        <div class="col-sm-6" th:text="${search.getSearchCriteria()}">
-                                            Unes partides
-                                        </div>
-                                        <input type="hidden" id="export-criteria" th:value="${search.getSearchCriteria()}"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-4">
-                                    <div class="row">
-                                        <div class="col-sm-7">
-                                            <b>Data original:</b>
-                                        </div>
-                                        <div class="col-sm-5 text-right" th:text="${search.getOriginalDate()}">
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-sm-7 ">
-                                            <b>Darrera actualització:</b>
-                                        </div>
-                                        <div class="col-sm-5 text-right" th:text="${search.getUpdateDate()}">                                
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="col-sm-4">
-                                    <div class="row">
-
-                                        <div class="col-sm-6">
-                                            <b>Quantitat de resultats:</b>
-                                        </div>
-                                        <div class="col-sm-6" th:text="${resourcesCount}"></div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-
-                            <div class="row">
-                                <div class="col-xl-8 col-sm-12">
-
-                                    <h2>Llistat de recursos</h2>
-
-                                    <div class="table-container">
-                                        <table class="table table-striped" id="resources">
-                                            <thead>
-                                                <tr>
-                                                    <th class="show-overlay">Títol</th>
-                                                    <th class="text-center show-overlay">Pàgina</th>
-                                                    <th class="show-overlay">Procés d'anàlisi</th>
-                                                    <th class="text-center show-overlay" data-options="field:'date-query'">Data d'edició</th>
-                                                    <th class="text-center no-sort">La data és...</th>
-                                                    <th class="text-center no-sort">Formats</th>
-                                                    <th class="text-center "></th>
-                                                    <th class="text-center no-sort">Accions</th>
-
-                                                </tr>
-                                            </thead>
-
-                                            <tbody th:fragment="llistat-realitzades" th:if="${resources}" th:object="${resources}">
-                                                <tr th:each="resource : ${resources}" th:data-id="${resource.getId()}">
-                                                    <td th:attr="title=${resource.getTitle()}"><span th:text="${#strings.substring(resource.getTitle(), 0, 12)}"></span><span th:if="${#strings.length(resource.getTitle())>12}" th:text="..."></span></td>
-                                                    <td class="text-center" th:text="${resource.getPage()}"></td>
-                                                    <td th:text="${resource.getProcessingAnalysis()}"></td>
-                                                    <td th:text="${resource.getEditionDate()}"></td>
-                                                    <td th:text="${resource.getCalcDate()}"></td>
-                                                    <td th:text="${resource.getSupportedFormatsAsSingleString()}"></td>
-
-
-                                                    <td class="text-center">
-                                                        <input type="checkbox" aria-label="Checkbox">
-                                                    </td>
-
-                                                    <td class="text-center">
-
-                                                        <a href="#" th:data-resource-id="${resource.getId()}">
-                                                            <i class="fa fa-search" title="Veure detall"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                                <!--<tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>02/03/2018</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>03/02/2018</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>13/02/2018</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>13/01/2018</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>13/02/2008</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>13/02/218</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>-->
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                </div>
-
-
-                                <div class="col-xl-4 col-sm-12">
-                                    <h2>Configuració dels filtres <a title="Mostra o amaga la configuració dels filtres" data-toggle="collapse" href="#detail-filters-setup" role="button"><i class="fas fa-angle-down"></i></a></h2>
-
-                                    <div class="collapse show" id="detail-filters-setup">
-                                        <div class="row" >
-
-
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="filter-process">Procés d'anàlisi</label> (invertir selecció <input
-                                                        type="checkbox" aria-label="Checkbox" id="filter-process-not"/>)
-                                                    <select class="form-control" id="filter-process">
-                                                        <option value="*">qualsevol</option>
-                                                        <option value="-">sense processar</option>
-                                                        <option value="Selecció AI">Selecció AI</option>
-                                                        <option value="Atlas-ti">Atlas-ti</option>
-                                                    </select>
-                                                </div>
-
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="filter-formats">Formats (separats per espais)</label>
-                                                    <input type="text" class="form-control" id="filter-formats"
-                                                           placeholder="xml txt jpg etc."/>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <div class="filter-date-order">
-                                                    <label for="filter-date-order">Data d'edició</label>
-                                                    <select class="form-control" id="filter-date-order">
-                                                        <option value="*">qualsevol</option>
-                                                        <option value="<">anterior a</option>
-                                                        <option value=">">posterior a</option>
-                                                        <option value="=">igual a</option>
-                                                        <option value="^">entre</option>
-                                                    </select>
-                                                </div>
-
-
-                                            </div>
-
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="filter-date-1">Data 1</label>
-                                                    <input type="date" class="form-control" id="filter-date-1">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="filter-date-2">Data 2</label>
-                                                    <input type="date" class="form-control" id="filter-date-2">
-                                                </div>
-                                            </div>
-
-
-                                            <div class="col-sm-6">
-                                                <div id="filter-execute" class="btn btn-primary ">Filtrar resultats
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-6">
-                                                <div id="filter-remove" class="btn btn-primary ">Eliminar filtres
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <hr />
-                                    </div>
-
-
-
-                                    <div class="row">
-
-                                        <div id="exportMessages" class="col-12">
-                                            <div th:fragment="exportMessages">
-                                                <div th:if="${errorExportMessage}" class="alert alert-danger"  role="alert">
-                                                    <h2>Error</h2>
-                                                    <p th:text="${errorExportMessage}"></p>
-                                                </div>                                                
-                                                <div th:if="${successExportMessage}" class="alert alert-success"  role="alert">
-                                                    <h2>Éxit</h2>
-                                                    <p th:text="${successExportMessage}"></p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-
-                                        <div class="col-sm-12 text-center">
-                                            <div id="export-selected" class="btn btn-primary disabled">Exportar els recursos
-                                                seleccionats
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <hr />
-
-                                    <div id="resourceDetail">
-
-                                        <div th:fragment="resourceDetail" th:if="${resource}" th:object="${resource}">
-                                            <h2>Detall del recurs <a title="Mostra o amaga el detall del recurs" data-toggle="collapse" href="#resource-detail" role="button"><i class="fas fa-angle-down"></i></a></h2>
-
-                                            <div>
-                                                <div class="collapse show" id="resource-detail">
-                                                    <div class="row" id="detall-recurs">
-                                                        <div class="col-sm-3 ">
-                                                            <b>Títol:</b>
-                                                        </div>
-                                                        <div class="col-sm-9" th:text="${resource.getTitle()}">
-                                                            Títol
-                                                        </div>
-
-                                                        <div class="col-sm-3" >
-                                                            <b>Pàgina:</b>
-                                                        </div>
-
-                                                        <div class="col-sm-3" th:text="${resource.getPage()}">
-                                                            42
-                                                        </div>
-
-                                                        <div class="col-sm-3">
-                                                            <b>Any d'edició</b>
-                                                        </div>
-
-                                                        <div class="col-sm-3" th:text="${resource.getEditionDate()}">
-                                                            1983
-                                                        </div>
-
-                                                        <div class="col-sm-3 ">
-                                                            <b>Procés d'anàlisi:</b>
-                                                        </div>
-                                                        <div class="col-sm-3" th:text="${resource.getProcessingAnalysis()}">
-                                                            Selecció AI
-                                                        </div>
-
-                                                        <div class="col-sm-3">
-                                                            <b>Data de cerca:</b>
-                                                        </div>
-                                                        <div class="col-sm-3" th:text="${resource.getSearchDate()}">
-                                                            21/02/2018
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                                <h3>Fragments:</h3>
-
-                                                <ul>
-                                                    <li th:each="fragment : ${resource.getFragments()}" th:text="${fragment}">
-                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu libero blandit
-                                                        nisl interdum vulputate. Duis interdum vitae dui sed ullamcorpe
-                                                    </li>
-
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            No s'ha trobat cap recurs que coincideixi amb aquest criteri.
                         </div>
-                    </div>                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
 
-        <div th:unless="${resourcesCount &gt; 0}">
-            <div class="modal-dialog  modal-lg" role="document">
+
+
+        <!-- Modal: Exportar -->
+        <div class="modal fade" id="export-modal" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle">No s'ha trobat cap recurs</h5>
+                        <h5 class="modal-title">Exportar recursos</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        No s'ha trobat cap recurs que coincideixi amb aquest criteri.
+                        <!--<h2>Exportar recursos seleccionats</h2>-->
+                        <p>S'han seleccionat <span id="export-count">0</span> recursos.</p>
+
+                        <div class="form-group">
+                            <label for="export-process">Procés d'anàlisi </label>
+                            <select class="form-control" id="export-process">
+                                <option value="Selecció AI">Selecció AI</option>
+                                <option value="Atlas-ti">Atlas-ti</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="export-formats">Formats (separats per espai)</label>
+                            <input type="text" class="form-control" id="export-formats" placeholder="xml jpg txt  etc."/>
+                        </div>
                     </div>
+
+
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel·lar</button>
+                        <button type="button" class="btn btn-primary disabled" id="export-execute">Exportar</button>
                     </div>
                 </div>
             </div>
-
         </div>
-    </div>
-</div>
-</div>
 
 
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script type="text/javascript" src="js/moment.js"></script>
+        <script type="text/javascript" src="js/datatables.min.js"></script>
+        <script type="text/javascript" src="js/datatables.datetime-moment.js"></script>
+        <script type="text/javascript" src="js/datatables.scroller.min.js"></script>
+        <script type="text/javascript" src="js/datatables.checkboxes.min.js"></script>
 
-<!-- Modal: Exportar -->
-<div class="modal fade" id="export-modal" tabindex="-1" role="dialog"
-     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Exportar recursos</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!--<h2>Exportar recursos seleccionats</h2>-->
-                <p>S'han seleccionat <span id="export-count">0</span> recursos.</p>
-
-                <div class="form-group">
-                    <label for="export-process">Procés d'anàlisi </label>
-                    <select class="form-control" id="export-process">
-                        <option value="Selecció AI">Selecció AI</option>
-                        <option value="Atlas-ti">Atlas-ti</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="export-formats">Formats (separats per espai)</label>
-                    <input type="text" class="form-control" id="export-formats" placeholder="xml jpg txt  etc."/>
-                </div>
-            </div>
+        <script src="js/app.js"></script>
 
 
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel·lar</button>
-                <button type="button" class="btn btn-primary disabled" id="export-execute">Exportar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/bootstrap.js"></script>
-<script type="text/javascript" src="js/moment.js"></script>
-<script type="text/javascript" src="js/datatables.min.js"></script>
-<script type="text/javascript" src="js/datatables.datetime-moment.js"></script>
-<script type="text/javascript" src="js/datatables.scroller.min.js"></script>
-<script type="text/javascript" src="js/datatables.checkboxes.min.js"></script>
-
-<script src="js/app.js"></script>
-
-
-</body>
+    </body>
 
 </html>
