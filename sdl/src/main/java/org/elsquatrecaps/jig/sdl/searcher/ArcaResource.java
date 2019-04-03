@@ -81,12 +81,11 @@ public class ArcaResource extends BvphTypeResource{
     }
     
     private void updateSupportedFormats(){
-        this.supportedFormats.add("txt");
-        this.supportedFormats.add("xml");
         if(Utils.isCorrectContentType(jpgTemporalUrl, "jpeg")){
+            this.supportedFormats.add("txt");
+            this.supportedFormats.add("xml");
             this.supportedFormats.add("jpg");
-        }
-        if(Utils.isCorrectContentType(pdfTemporalUrl, "pdf")){
+        }else if(Utils.isCorrectContentType(pdfTemporalUrl, "pdf")){
             this.supportedFormats.add("pdf");
         }
     }
@@ -100,5 +99,45 @@ public class ArcaResource extends BvphTypeResource{
             ret = super.getStrictFormatedFile(format);
         }
         return ret;        
+    }
+    
+    public String getFileName(){
+        String fileName;
+        if(isFormatSupported("pdf")){
+            fileName = _getPdfFileName();
+        }else{
+            fileName = super.getFileName();
+        }
+        return fileName;
+        
+    }
+
+    private String _getPdfFileName(){
+        StringBuilder strBuffer = new StringBuilder();
+        if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{2}\\/[0-9]{2}\\/[0-9]{2,4}")){            
+            String[] aDate = getEditionDate().split("\\/");
+            strBuffer.append(aDate[2]);
+            strBuffer.append("_");
+            strBuffer.append(aDate[1]);
+            strBuffer.append("_");
+            strBuffer.append(aDate[0]);
+        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{4}.+?[0-9]{1,2}")){            
+            strBuffer.append(getEditionDate().substring(0, 4));
+            strBuffer.append("_00_00");
+        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{2}.+?[0-9]{4}")){            
+            strBuffer.append(getEditionDate().substring(getEditionDate().length()-4, getEditionDate().length()));
+            strBuffer.append("_00_00");
+        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{1}.+?[0-9]{4}")){            
+            strBuffer.append(getEditionDate().substring(getEditionDate().length()-4, getEditionDate().length()));
+            strBuffer.append("_00_00");
+        }else{
+            strBuffer.append("0000_00_00");
+        }
+        strBuffer.append("_");
+        strBuffer.append(this.getProcessDateResult());
+        strBuffer.append("_");
+        strBuffer.append(this.getPublicationId());
+        strBuffer.append(Utils.buildNormalizedFilename(this.getTitle()));
+        return strBuffer.toString().substring(0,Math.min(60, strBuffer.length()));        
     }
 }
