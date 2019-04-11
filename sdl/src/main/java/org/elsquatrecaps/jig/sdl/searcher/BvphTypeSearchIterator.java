@@ -173,6 +173,7 @@ public abstract class BvphTypeSearchIterator<T extends SearcherResource> extends
             if (aElement != null) {
                 String url = relativeToAbsoluteUrl(aElement.attr("href"));
                 getRemoteProcessAux.setUrl(url);
+                getRemoteProcessAux.setDefaultCookies(getRemoteProcess.getCookies());
                 sourceElement = getRemoteProcessAux.get();
             }
             updateCurrentBiggerYear();

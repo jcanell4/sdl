@@ -1,5 +1,5 @@
-rmdir .\info
-rmdir .\db
-rmdir .\resourcefiles
+rmdir ./info
+rmdir ./db
+rmdir ./resourcefiles
 
 
