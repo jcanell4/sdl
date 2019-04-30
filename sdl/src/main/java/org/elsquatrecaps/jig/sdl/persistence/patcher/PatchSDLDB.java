@@ -63,7 +63,7 @@ public class PatchSDLDB {
     }
     
     public void setDbAsUpgraded(){
-        patchAllMandatory();
+//        patchAllMandatory();
         int v = getFinalVersionNum(props.getProperty(QUERIES_FILE));
         try {
             savePatchVersion(v);
