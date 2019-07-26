@@ -17,7 +17,7 @@ import org.jsoup.nodes.Element;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType
 public class BvphGetRemoteProcess extends BvphTypeGetRemoteProcess{
-    private static final String URL = "http://prensahistorica.mcu.es/es/consulta/resultados_ocr.cmd";
+    private static final String URL = "https://prensahistorica.mcu.es/es/consulta/resultados_ocr.cmd";
 
     public BvphGetRemoteProcess(){ 
         super.setUrl(URL);
