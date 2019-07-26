@@ -5,7 +5,9 @@
  */
 package org.elsquatrecaps.jig.sdl.services;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.elsquatrecaps.jig.sdl.exception.EntityNotFoundException;
@@ -61,24 +63,31 @@ public class PersistenceService {
         }else{
             Resource oldResource = resourceRepository.findById(rId).get();
             Resource newResource = sr.getResource();
-            boolean hasFile = true;
+            boolean updateFilename = false;
             if(this.fileRepositoryPath!=null){
                 String oldFileName = oldResource.getFileName();
                 String newFilename = newResource.getFileName();
-                String[] formats = oldResource.getSupportedFormats();
+                String[] oldFormats = oldResource.getSupportedFormats();
+                List<String> newFormats = Arrays.asList(newResource.getSupportedFormats());
 
-                for(int i=0; hasFile && i<formats.length; i++){
-                    File f = new File(this.fileRepositoryPath, newFilename.concat(".").concat(formats[i]));
-                    hasFile = f.exists();
-                }
-                if(hasFile && !oldFileName.equals(newFilename)){
-                    for(int i=0; i<formats.length; i++){
-                        File f = new File(this.fileRepositoryPath, oldFileName.concat(".").concat(formats[i]));
-                        f.delete();
-                    }                    
+                updateFilename = newFormats.size()>0;
+                if(updateFilename){
+                    if(!oldFileName.equals(newFilename)){
+                        for(int i=0; i<oldFormats.length; i++){
+                            File f = new File(this.fileRepositoryPath, oldFileName.concat(".").concat(oldFormats[i]));
+                            f.delete();
+                        }                    
+                    }else{
+                        for(int i=0; i<oldFormats.length; i++){
+                            if(!newFormats.contains(oldFormats[i])){
+                                File f = new File(this.fileRepositoryPath, oldFileName.concat(".").concat(oldFormats[i]));
+                                f.delete();
+                            }
+                        }                    
+                    }
                 }
             }
-            oldResource.updateSingleData(sr.getResource(), hasFile);
+            oldResource.updateSingleData(sr.getResource(), updateFilename);
             resourceRepository.saveAndFlush(oldResource);
         }
     }

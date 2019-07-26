@@ -6,6 +6,7 @@
 package org.elsquatrecaps.jig.sdl.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -258,6 +259,10 @@ public class Resource implements Serializable{
         this.supportedFormats = supportedFormats;
     }
 
+    protected void setSupportedFormats(String[] supportedFormats) {
+        this.supportedFormats = Arrays.asList(supportedFormats);
+    }
+
     public String getLocalFilePath() {
         return localFilePath;
     }
@@ -279,10 +284,22 @@ public class Resource implements Serializable{
         if(!getCalcDate().equals(res.getCalcDate())){
             setCalcDate(res.getCalcDate());
         }
-        if(updateFilename && !getFileName().equals(res.getFileName())){
-            setFileName(res.getFileName());
+        if(updateFilename){
+            if(!getFileName().equals(res.getFileName())){
+                setFileName(res.getFileName());
+            }
+            List<String> aux = Arrays.asList(res.getSupportedFormats());
+            for(int i=this.supportedFormats.size()-1; i>=0; i--){
+                if(!aux.contains(this.supportedFormats.get(i))){
+                    this.supportedFormats.remove(i);
+                }
+            }
+            for(int i=0; i<aux.size(); i++){
+                if(!this.supportedFormats.contains(aux.get(i))){
+                    this.supportedFormats.add(aux.get(i));
+                }
+            }
         }
-        
     }
     
     public void updateSingleData(Resource res){

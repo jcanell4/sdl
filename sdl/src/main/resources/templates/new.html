@@ -436,7 +436,7 @@
 
                                                 <tbody th:fragment="llistat-realitzades" th:if="${resources}" th:object="${resources}">
                                                     <tr th:each="resource : ${resources}" th:data-id="${resource.getId()}">
-                                                        <td th:attr="title=${resource.getTitle()}"><span th:text="${#strings.substring(resource.getTitle(), 0, 12)}"></span><span th:if="${#strings.length(resource.getTitle())>12}" th:text="..."></span></td>
+                                                        <td th:attr="title=${resource.getTitle()}"><span th:if="${#strings.length(resource.getTitle())<=21}" th:text="${resource.getTitle()}"></span><span th:if="${#strings.length(resource.getTitle())>21}" th:text="|${#strings.substring(resource.getTitle(), 0, 21)}...|"></span></td>
                                                         <td class="text-center" th:text="${resource.getPage()}"></td>
                                                         <td th:text="${resource.getProcessingAnalysis()}"></td>
                                                         <td th:text="${resource.getEditionDate()}"></td>
