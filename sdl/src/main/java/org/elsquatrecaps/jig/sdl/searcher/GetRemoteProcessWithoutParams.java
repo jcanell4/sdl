@@ -5,9 +5,7 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
-import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlTransient;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 

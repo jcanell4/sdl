@@ -13,9 +13,7 @@ public class SdlApplication {
 
 	public static void main(String[] args) {
             
-            // Afegim els certificats
-            CertImporter.importCerts();
-            
+            System.setProperty("javax.net.ssl.trustStore", "certs/cacerts");
             patchDb();
             SpringApplication.run(SdlApplication.class, args);
 	}

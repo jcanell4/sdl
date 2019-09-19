@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 //VERY IMPORTANT.  SOME OF THESE EXIST IN MORE THAN ONE PACKAGE!
-import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
