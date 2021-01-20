@@ -5,7 +5,6 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
 
@@ -36,8 +35,7 @@ public class ArcaSearchIterator extends BvphTypeSearchIterator<ArcaResource>{
         navPagesNextFilter = "#navegacion_resultados div.nav_marco div.nav_paginas span.nav_alante a#boton_siguiente";
         newsPaperEditionListFilter = "#navegacion_resultados div.nav_marco ol#nav_registros li ul>li.unidad_textual";
         pageNewsPaperListFilter = "ul>li.unidad_textual"; //.child[0].attr("href")   //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
-        pdfUrl = "div.grupo_noocurrencias p.gruposimagenes a"; //a.parents().get(2).select(pdfUrl).get(1).attr("href");
-        jpgUrl = "div.cabecera_grupo p.gruposimagenes a"; //a.parents().get(2).select(pdfUrl).get(1).attr("href");
+        pdfUrl = "div.grupo_imagenes p.gruposimagenes a[data-analytics-group$='PDF']"; //a.parents().get(2).select(pdfUrl).get(1).attr("href");
         morePubYearFilter = "#contenidos_periodo ul li.enlacemas a";    
         mainPublicationYearsFilter = "dd#contenidos_periodo ul li";    
         pubYearPaginatedRegistersFilter = "ol#nav_registros.nav_registros li";
@@ -54,7 +52,7 @@ public class ArcaSearchIterator extends BvphTypeSearchIterator<ArcaResource>{
     protected ArcaResource getResource(Element a) {       
 //  https://arca.bnc.cat/arcabib_pro/ca/catalogo_imagenes/iniciar_descarga.do?interno=S&posicion=3&path=1008850&formato=Imagen%20JPG        
         ArcaResource ret = null;
-        String urlToDownloadPdf = a.parents().get(1).select(pdfUrl).get(1).attr("href");
+        String urlToDownloadPdf = a.parents().get(1).select(pdfUrl).get(0).attr("href");
         String urlToDownloadJpg = downloadPdfJpg.concat("&").concat(Utils.urlQueryPath(a.child(0).attr("href")));
         ret = new ArcaResource(fragmentsFilter, actionsFilter, urlToDownloadJpg, urlToDownloadPdf, titleFilter, editionDateBloc, patterToExtractDateFromTitle);
         ret.updateFromElement(a, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());

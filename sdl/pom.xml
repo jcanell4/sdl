@@ -69,7 +69,7 @@ This is an application built with Spring boot framework</description>
                 <dependency>
                     <groupId>junit</groupId>
                     <artifactId>junit</artifactId>
-                    <version>4.12</version>
+                    <version>4.13.1</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
@@ -202,9 +202,14 @@ This is an application built with Spring boot framework</description>
 	</build>
     <repositories>
         <repository>
-            <id>unknown-jars-temp-repo</id>
-            <name>A temporary repository created by NetBeans for libraries and jars it could not identify. Please replace the dependencies in this repository with correct ones and delete this repository.</name>
-            <url>file:${project.basedir}/lib</url>
+            <id>central</id>
+            <name>Centarl repository MAVEN.</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>local</id>
+            <name>Repositori loca.</name>
+            <url>file:///home/josep/.m2/</url>
         </repository>
     </repositories>
 </project>

@@ -64,11 +64,12 @@ abstract public class AbstractGetRemoteProcess {
 
     abstract protected Connection getConnection();
     
-    protected void configConnection(Connection con){
+    protected  void configConnection(Connection con){
         if(getCookies()!=null && !cookies.isEmpty()){
             con.cookies(getCookies());
         }
         con.timeout(60000).maxBodySize(0);
+        con.ignoreContentType(true);
     }
     
     private synchronized Element getOriginalSource() {

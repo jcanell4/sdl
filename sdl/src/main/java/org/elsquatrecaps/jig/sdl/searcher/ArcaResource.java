@@ -4,9 +4,6 @@ import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
@@ -50,11 +47,19 @@ public class ArcaResource extends BvphTypeResource{
             String url = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, relativeUrl);
             Element toDonwloading = getToDownloading(url);
             Elements actions = toDonwloading.select(actionsFilter);
-            ocrtextUrl = actions.get(0).child(0).attr("href");
-            altoXmlUrl = actions.get(1).child(0).attr("href");
+            if(actions.size()>0){
+                ocrtextUrl = actions.get(0).child(0).attr("href");
+                ocrtextUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, ocrtextUrl + "&aceptar=Aceptar");
+            }else{
+                ocrtextUrl=null;
+            }
+            if(actions.size()>1){
+                altoXmlUrl = actions.get(1).child(0).attr("href");
+                altoXmlUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, altoXmlUrl + "&aceptar=Aceptar");
+            }else{
+                altoXmlUrl=null;
+            }
             //            jpgTemporalUrl = toDonwloading.select(saveJpgFilter).last().attr("href");
-            ocrtextUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, ocrtextUrl + "&aceptar=Aceptar");
-            altoXmlUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, altoXmlUrl + "&aceptar=Aceptar");
             jpgTemporalUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, jpgTemporalUrl);
             pdfTemporalUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, pdfTemporalUrl);
             this.updateSupportedFormats();
@@ -82,10 +87,15 @@ public class ArcaResource extends BvphTypeResource{
     
     private void updateSupportedFormats(){
         if(Utils.isCorrectContentType(jpgTemporalUrl, "jpeg")){
-            this.supportedFormats.add("txt");
-            this.supportedFormats.add("xml");
+            if(ocrtextUrl!=null){
+                this.supportedFormats.add("txt");
+            }
+            if(altoXmlUrl!=null){
+                this.supportedFormats.add("xml");
+            }
             this.supportedFormats.add("jpg");
-        }else if(Utils.isCorrectContentType(pdfTemporalUrl, "pdf")){
+        }
+        if(Utils.isCorrectContentType(pdfTemporalUrl, "pdf")){
             this.supportedFormats.add("pdf");
         }
     }
