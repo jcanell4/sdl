@@ -100,7 +100,8 @@ public class Search implements Serializable {
 
     public void addResource(SearchResource resource) {
         String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
-        resource.getResource().setSearchDate(date);
+//        resource.getResource().setSearchDate(date);
+        resource.setSearchDate(date);
         resource.setSearch(this);
         if(!this.resources.contains(resource)){
             this.resources.add(resource);
@@ -110,8 +111,9 @@ public class Search implements Serializable {
     public SearchResource addResource(Resource resource) {
         SearchResource ret;
         String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
-        resource.setSearchDate(date);
+//        resource.setSearchDate(date);
         ret = new SearchResource(this, resource);
+        ret.setSearchDate(date);
         this.resources.add(ret);
         return ret;
     }

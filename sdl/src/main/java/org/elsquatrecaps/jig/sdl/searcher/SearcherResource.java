@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.elsquatrecaps.jig.sdl.util.Utils;
@@ -27,41 +29,10 @@ public abstract class SearcherResource{
     private ArrayList<String> fragments= new ArrayList<String>();
     private String processDateResult = PR_DATE_RES_SENSE_CLASSIFICAR; //SENSE CLASSIFICAR
 
+
   
-    public String getFileName(){
-        StringBuilder strBuffer = new StringBuilder();
-//        String locTitle;
-//        Pattern pattern1 = Pattern.compile(
-//                              "[\\p{InCombiningDiacriticalMarks}\\p{IsLm}\\p{IsSk}]+");
-//        Pattern pattern2 = Pattern.compile(
-//                              "[+-.:,;<>\\{\\}\\[\\]\\*\\^\\¿\\?\\=\\)\\(\\/\\&\\%ºº$\\·\\#\\@\\|\\\\!\"]+");
-        if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{2}\\/[0-9]{2}\\/[0-9]{2,4}")){            
-            String[] aDate = editionDate.split("\\/");
-            strBuffer.append(aDate[2]);
-            strBuffer.append("_");
-            strBuffer.append(aDate[1]);
-            strBuffer.append("_");
-            strBuffer.append(aDate[0]);
-        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{4}.+?[0-9]{1,2}")){            
-            strBuffer.append(editionDate.substring(0, 4));
-            strBuffer.append("_00_00");
-        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{2}.+?[0-9]{4}")){            
-            strBuffer.append(editionDate.substring(editionDate.length()-4, editionDate.length()));
-            strBuffer.append("_00_00");
-        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{1}.+?[0-9]{4}")){            
-            strBuffer.append(editionDate.substring(editionDate.length()-4, editionDate.length()));
-            strBuffer.append("_00_00");
-        }else{
-            strBuffer.append("0000_00_00");
-        }
-        strBuffer.append("_");
-        strBuffer.append(this.processDateResult);
-        strBuffer.append("_");
-        strBuffer.append(publicationId);
-        strBuffer.append("_");
-        strBuffer.append(pageId);
-        strBuffer.append(Utils.buildNormalizedFilename(this.title));
-        return strBuffer.toString().substring(0,Math.min(60, strBuffer.length()));
+    public String getFileName(String format){
+        return Utils.getFilename(this, format);
     }
     
     
@@ -140,6 +111,8 @@ public abstract class SearcherResource{
 
     public abstract String[] getSupportedFormats();
 
+    public abstract String getContentTypeFormat(String format);
+
     public abstract FormatedFile getFormatedFile();
 
     public FormatedFile getFormatedFile(String format) {
@@ -149,7 +122,7 @@ public abstract class SearcherResource{
     
     protected FormatedFile getFormatedFileInstance(String url, String format){
         FormatedFile ret;
-        String name = getFileName();
+        String name = getFileName(format);
         ret = new BasicSearcherFormatedFile(url, format, name, name.concat(".").concat(format));
         return ret;
     }

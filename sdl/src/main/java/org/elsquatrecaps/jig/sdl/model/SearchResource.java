@@ -29,6 +29,7 @@ public class SearchResource implements Serializable {
     private Resource resource;
 
     private String processingAnalysis;
+    private String searchDate;
 
     public SearchResource() {
     }
@@ -93,7 +94,11 @@ public class SearchResource implements Serializable {
     }
 
     public String getSearchDate() {
-        return resource.getSearchDate();
+        return searchDate;
+    }
+    
+    protected void setSearchDate(String searchDate) {
+        this.searchDate = searchDate;
     }
 
     public String getEditionDate() {

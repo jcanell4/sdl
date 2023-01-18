@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class PatchSDLDB {
     private static final String DELIMITER_INDICATOR = ";";
     private static final String COMMENT_INDICATOR = "//";
     private static final String SKIP_INDICATOR = "#";
+    private static final String RUNCLASS_INDICATOR = "RUN PACHCODE CLASS:";
     
     private static final Logger logger = LoggerFactory.getLogger(PatchSDLDB.class);
     private static final String loggerPrefix = "[Patcher] ";
@@ -225,6 +227,8 @@ public class PatchSDLDB {
             if (query.startsWith(SKIP_INDICATOR)) { // s'ha de saltar
                 logger.debug(loggerPrefix + "Skiping:" + query);
                 
+            } else if(query.startsWith(RUNCLASS_INDICATOR)) {
+                runCode(query.substring(RUNCLASS_INDICATOR.length()));
             } else {
                 logger.info(loggerPrefix + "Executing query...");
                 stmt = conn.createStatement();
@@ -324,8 +328,32 @@ public class PatchSDLDB {
 
         logger.debug(loggerPrefix + "Updating infofile to version " + (version));
 
-        PrintStream out = new PrintStream(new FileOutputStream(props.getProperty(INFO_FILE)));
-        out.print(infoFileContent);
-        out.close();
+        try (PrintStream out = new PrintStream(new FileOutputStream(props.getProperty(INFO_FILE)))) {
+            out.print(infoFileContent);
+        }
+    }
+    
+    private void runCode(String className) throws WrongPachCodeClassException{
+        Integer version = lastPatchVersion;
+        Object obj;            
+        try {
+            Class<?> clazz = Class.forName(className.trim());
+            Constructor<?> ctor = clazz.getConstructor(Integer.class, Properties.class);
+            obj = ctor.newInstance(new Object[] {version, props});
+            if (obj instanceof PatchCodeClass){
+                if(obj instanceof PatchCodeClassWithDBConnection){
+                    ((PatchCodeClassWithDBConnection) obj).init(conn);
+                }
+                ((PatchCodeClass) obj).run();
+            }else{
+                logger.debug(loggerPrefix + className + " is not an instance of PatchCodeClass to version " + (version));
+                throw new WrongPachCodeClassException(className + " is not an instance of PatchCodeClass"); 
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException 
+                | SecurityException | InstantiationException | IllegalAccessException 
+                | IllegalArgumentException | InvocationTargetException ex) {
+            logger.debug(loggerPrefix + "PatchCodeClass error: " + ex.getMessage() + " to version " + (version));
+            throw new WrongPachCodeClassException("PatchCodeClass error: " + ex.getMessage(), ex); 
+        }
     }
 }

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
+import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
+import org.elsquatrecaps.jig.sdl.exception.UnsupportedFormat;
 import org.elsquatrecaps.jig.sdl.model.SearchResource;
 import org.elsquatrecaps.jig.sdl.model.SearchResourceId;
 import org.jsoup.Jsoup;
@@ -52,11 +54,35 @@ public class ExportService {
 //        
 //    }
     
-    public void exportResourcesById(String[] ids, String format, String process) {
+    public int exportResourcesById(String[] ids, String format, String process) {
+        int ret =0;
         for (String id : ids) {
             id = id.replaceAll("\\|", ",");
-            exportResourceById(id, format, process);
+            try{
+                exportResourceById(id, format, process);
+                ++ret;
+            } catch (UnsupportedFormat e) {
+            } catch(ErrorCopyingFileFormaException e){
+                throw new ErrorCopyingFileFormaException("Error en copiar el fitxer: ".concat(id));
+            }
         }
+        return ret;
+    }
+
+    
+    public int exportResourcesById(String id, String formats[], String process) {
+        int ret =0;
+        for (String format : formats) {
+            id = id.replaceAll("\\|", ",");
+            try{
+                exportResourceById(id, format, process);
+                ++ret;
+            } catch (UnsupportedFormat e) {
+            } catch(ErrorCopyingFileFormaException e){
+                throw new ErrorCopyingFileFormaException("Error en copiar el fitxer: ".concat(id));
+            }
+        }
+        return ret;
     }
 
     
@@ -77,12 +103,14 @@ public class ExportService {
         File path = new File(fileExportPath);
         
         // ALERTA[Xavi] només cal per les imatges jpg (de moment)
-        String baseName = ret.getResource().getFileName();        
-        if (aId[0].equalsIgnoreCase("BVPH") && format.equals("jpg") && aId[1].length()>0) {
-            baseName = baseName.concat("_").concat(Utils.buildNormalizedFilename(aId[1]));
-        }else if(aId[1].length()>0){
+        String baseName = ret.getResource().getFileName(format);        
+        if(aId[0].length()>0){
+            baseName = baseName.concat("_").concat(Utils.buildNormalizedFilename(aId[0]));
+        }
+        if(aId[1].length()>0){
             baseName = baseName.concat("_").concat(Utils.buildNormalizedFilename(aId[1]));
         }
+
         
         File file = new File(fileExportPath, baseName.concat(".").concat(format));
         
@@ -103,12 +131,9 @@ public class ExportService {
             
             if (format.equals("jpg") && aId[1].length()>0) {
                 File inFile = new File(this.dp.getLocalReasourceRepo(), ff.getFileName());
-                exportHighlightedImage(ret.getResource(), inFile, file, aId[1]);
-                        
-                        
+                exportHighlightedImage(ret.getResource(), inFile, file, aId[1]);                        
             } else {
-                Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
-            
+                Utils.copyToFile(ff.getImInputStream(), fileOutputStream);            
             }
             
             resourceRepository.saveAndFlush(ret);

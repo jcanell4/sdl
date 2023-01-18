@@ -2,8 +2,10 @@ package org.elsquatrecaps.jig.sdl.searcher;
 
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
@@ -11,7 +13,8 @@ import org.jsoup.select.Elements;
 
 public class ArcaResource extends BvphTypeResource{
 //    protected static final String[] ALL_SUPPORTED_FORMATS = {"pdf","jpg", "txt", "xml"};
-    protected ArrayList<String> supportedFormats = new ArrayList<>();
+//    protected ArrayList<String> supportedFormats = new ArrayList<>();
+    protected HashMap<String, String> contentTypeAndSupportedFormats = new HashMap();    
     private String pdfTemporalUrl;
 
     public ArcaResource() {
@@ -70,33 +73,43 @@ public class ArcaResource extends BvphTypeResource{
         }
     }
 
+//    @Override
+//    protected boolean isFormatSupported(String format) {
+//        return this.contentTypeAndSupportedFormats.containsKey(format);
+////        boolean ret = false;
+////        for (int i = 0; !ret && i < supportedFormats.size(); i++) {
+////            ret = supportedFormats.get(i).equalsIgnoreCase(format);
+////        }
+////        return ret;    
+//    }
+
+    
     @Override
-    protected boolean isFormatSupported(String format) {
-        boolean ret = false;
-        for (int i = 0; !ret && i < supportedFormats.size(); i++) {
-            ret = supportedFormats.get(i).equalsIgnoreCase(format);
+    public String[] getSupportedFormats() {
+        String[] ret = new String[contentTypeAndSupportedFormats.size()];
+        int i=0;
+        for(Entry<String, String> entry: contentTypeAndSupportedFormats.entrySet()){
+            ret[i++] = entry.getKey();
         }
         return ret;
     }
-
-    @Override
-    public String[] getSupportedFormats() {
-        String[] ret = new String[supportedFormats.size()];
-        return supportedFormats.toArray(ret);
+    
+    public String getContentTypeFormat(String format){
+        return this.contentTypeAndSupportedFormats.get(format);
     }
     
     private void updateSupportedFormats(){
         if(Utils.isCorrectContentType(jpgTemporalUrl, "jpeg")){
             if(ocrtextUrl!=null){
-                this.supportedFormats.add("txt");
+                this.contentTypeAndSupportedFormats.put("txt", "P");
             }
             if(altoXmlUrl!=null){
-                this.supportedFormats.add("xml");
+                this.contentTypeAndSupportedFormats.put("xml", "P");
             }
-            this.supportedFormats.add("jpg");
+            this.contentTypeAndSupportedFormats.put("jpg", "P");
         }
         if(Utils.isCorrectContentType(pdfTemporalUrl, "pdf")){
-            this.supportedFormats.add("pdf");
+            this.contentTypeAndSupportedFormats.put("pdf", "D");
         }
     }
     
@@ -111,43 +124,43 @@ public class ArcaResource extends BvphTypeResource{
         return ret;        
     }
     
-    public String getFileName(){
-        String fileName;
-        if(isFormatSupported("pdf")){
-            fileName = _getPdfFileName();
-        }else{
-            fileName = super.getFileName();
-        }
-        return fileName;
-        
-    }
-
-    private String _getPdfFileName(){
-        StringBuilder strBuffer = new StringBuilder();
-        if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{2}\\/[0-9]{2}\\/[0-9]{2,4}")){            
-            String[] aDate = getEditionDate().split("\\/");
-            strBuffer.append(aDate[2]);
-            strBuffer.append("_");
-            strBuffer.append(aDate[1]);
-            strBuffer.append("_");
-            strBuffer.append(aDate[0]);
-        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{4}.+?[0-9]{1,2}")){            
-            strBuffer.append(getEditionDate().substring(0, 4));
-            strBuffer.append("_00_00");
-        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{2}.+?[0-9]{4}")){            
-            strBuffer.append(getEditionDate().substring(getEditionDate().length()-4, getEditionDate().length()));
-            strBuffer.append("_00_00");
-        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{1}.+?[0-9]{4}")){            
-            strBuffer.append(getEditionDate().substring(getEditionDate().length()-4, getEditionDate().length()));
-            strBuffer.append("_00_00");
-        }else{
-            strBuffer.append("0000_00_00");
-        }
-        strBuffer.append("_");
-        strBuffer.append(this.getProcessDateResult());
-        strBuffer.append("_");
-        strBuffer.append(this.getPublicationId());
-        strBuffer.append(Utils.buildNormalizedFilename(this.getTitle()));
-        return strBuffer.toString().substring(0,Math.min(60, strBuffer.length()));        
-    }
+//    public String getFileName(){
+//        String fileName;
+//        if(isFormatSupported("pdf")){
+//            fileName = _getPdfFileName();
+//        }else{
+//            fileName = super.getFileName();
+//        }
+//        return fileName;
+//        
+//    }
+//
+//    private String _getPdfFileName(){
+//        StringBuilder strBuffer = new StringBuilder();
+//        if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{2}\\/[0-9]{2}\\/[0-9]{2,4}")){            
+//            String[] aDate = getEditionDate().split("\\/");
+//            strBuffer.append(aDate[2]);
+//            strBuffer.append("_");
+//            strBuffer.append(aDate[1]);
+//            strBuffer.append("_");
+//            strBuffer.append(aDate[0]);
+//        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{4}.+?[0-9]{1,2}")){            
+//            strBuffer.append(getEditionDate().substring(0, 4));
+//            strBuffer.append("_00_00");
+//        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{2}.+?[0-9]{4}")){            
+//            strBuffer.append(getEditionDate().substring(getEditionDate().length()-4, getEditionDate().length()));
+//            strBuffer.append("_00_00");
+//        }else if(getEditionDate()!=null && !getEditionDate().isEmpty() && getEditionDate().matches("[0-9]{1}.+?[0-9]{4}")){            
+//            strBuffer.append(getEditionDate().substring(getEditionDate().length()-4, getEditionDate().length()));
+//            strBuffer.append("_00_00");
+//        }else{
+//            strBuffer.append("0000_00_00");
+//        }
+//        strBuffer.append("_");
+//        strBuffer.append(this.getProcessDateResult());
+//        strBuffer.append("_");
+//        strBuffer.append(this.getPublicationId());
+//        strBuffer.append(Utils.buildNormalizedFilename(this.getTitle()));
+//        return strBuffer.toString().substring(0,Math.min(60, strBuffer.length()));        
+//    }
 }

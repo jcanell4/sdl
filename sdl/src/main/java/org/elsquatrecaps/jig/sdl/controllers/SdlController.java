@@ -239,7 +239,7 @@ public class SdlController {
                         boolean error=false;
                         FileOutputStream fileOutputStream = null;
                         File path = new File(fileRepositoryPath);
-                        File file = new File(fileRepositoryPath, res.getFileName().concat(".").concat(format));
+                        File file = new File(fileRepositoryPath, res.getFileName(format).concat(".").concat(format));
                         FormatedFile ff = res.getFormatedFile(format);
                         if(!path.exists()){
                             path.mkdirs();
@@ -310,26 +310,41 @@ public class SdlController {
         String[] formatArray = formats.split(",");
         
         String errorMessage = null;
+        String warningMessage = null;
+        int cformats;
+        int cfiles=0;
         
-        for (String format : formatArray) {
-            try {
-                instance.exportResourcesById(ids, format, process);
-                
-            } catch (UnsupportedFormat e) {
-                if (errorMessage == null) {
-                    errorMessage = "Format no suportat: ".concat(format);
-                } else {
-                    errorMessage.concat(", ".concat(format));
+        try{
+            for (String id : ids) {
+                cformats=instance.exportResourcesById(id, formatArray, process);
+                ++cfiles;
+                if(cformats==0){
+                    if (errorMessage == null) {
+                        errorMessage = "Fitxers no exportats (sense cap dels formats suportat): ";
+                    }
+                    errorMessage.concat("\n\t-").concat(id);
+                    --cfiles;
+                }else if(cformats!=formatArray.length){
+                    if (warningMessage == null) {
+                        warningMessage = "Fitxers amb algun dels formats no suportat: ";
+                    }
+                    warningMessage.concat("\n\t-").concat(id);                
                 }
-                
-            } 
-            
+            }
+        }catch(ErrorCopyingFileFormaException e){
+            errorMessage = e.getMessage();
         }
         
         if (errorMessage !=null) {
             ret.addObject("errorExportMessage", errorMessage);
             ret.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        } else {
+        }
+        
+        if (warningMessage !=null) {
+            ret.addObject("warningExportMessage", warningMessage);
+        }
+        
+        if(errorMessage==null && warningMessage==null){
             ret.addObject("successExportMessage", "Recursos exportats amb éxit");
         }
         return ret;

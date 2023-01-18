@@ -123,4 +123,9 @@ public class HdResource extends SearcherResource{
             addFragment(text.substring(m.start(), m.end()));
         }
     }    
+
+    @Override
+    public String getContentTypeFormat(String format) {
+        return "P";
+    }
 }

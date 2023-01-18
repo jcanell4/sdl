@@ -26,7 +26,8 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
     @XmlElement
     private String defaultFromDate = "01/01/1600";
     @XmlElement
-    private String url ="http://hemerotecadigital.bne.es/results.vm";
+    //private String url ="http://hemerotecadigital.bne.es/results.vm";
+    private String url ="https://hemerotecadigital.bne.es/hd/es/results";
 
     @XmlTransient
     private HdParam hdParams=new HdParam();

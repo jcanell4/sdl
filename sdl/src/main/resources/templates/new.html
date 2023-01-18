@@ -598,6 +598,10 @@
                                                         <h2>Error</h2>
                                                         <p th:text="${errorExportMessage}"></p>
                                                     </div>                                                
+                                                    <div th:if="${warningExportMessage}" class="alert alert-warning"  role="alert">
+                                                        <h2>Atenció</h2>
+                                                        <p th:text="${warningExportMessage}"></p>
+                                                    </div>                                                
                                                     <div th:if="${successExportMessage}" class="alert alert-success"  role="alert">
                                                         <h2>Éxit</h2>
                                                         <p th:text="${successExportMessage}"></p>

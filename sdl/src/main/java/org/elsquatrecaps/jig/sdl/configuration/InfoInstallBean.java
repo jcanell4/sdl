@@ -14,7 +14,7 @@ import org.elsquatrecaps.jig.sdl.exception.ErrorWritingPropertyFile;
 import org.elsquatrecaps.jig.sdl.persistence.patcher.PatchSDLDB;
 
 public class InfoInstallBean {
-    File fout  = new File("info/install.info");
+    File fout  = new File("info/install.info");// canviar per la propietat corresponeny (app.db.patcher.info_file)
     
     public void close(){
         PrintWriter out = null;

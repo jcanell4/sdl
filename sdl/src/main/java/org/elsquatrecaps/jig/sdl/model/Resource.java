@@ -8,6 +8,7 @@ package org.elsquatrecaps.jig.sdl.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import java.io.Serializable;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Access;
@@ -22,6 +23,7 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 import org.elsquatrecaps.jig.sdl.searcher.FormatedResourceUtils;
 import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
+import org.elsquatrecaps.jig.sdl.util.Utils;
 
 @Entity
 @Access(AccessType.FIELD)
@@ -31,21 +33,21 @@ public class Resource implements Serializable{
     private String id;
     private String title;
     private String page;
-    private String searchDate;
     private String editionDate;
     @OneToOne
     private CalcDateMap calcDate;
-    private String fileName;
+    private String docId;
+    private String pageId;
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="RESOURCE_FORMAT")
     @OrderColumn
-    private List<String> supportedFormats=new ArrayList<>();
+    private List<ResourceFormat> resourceFormats=new ArrayList<>();
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="RESOURCE_FRAGMENT")
     @OrderColumn
     private List<String> fragments= new ArrayList<String>();
     @Transient
-    private String localFilePath;
+    private String localFilePath="";
 
     public Resource() {        
     }
@@ -54,29 +56,33 @@ public class Resource implements Serializable{
         this.id = id;
     }
 
-    public Resource(String id, String title, String page, String editionDate, String fileName, String processing, String searchDate, String[] fragments) {        
-        this.id = id;
-        this.title = title;
-        this.page = page;
-        this.editionDate = editionDate;
-        this.fileName = fileName;
-        _addAllSupportedFormat(new String[] {"pdf", "jpg", "xml", "text"});
-        _addAllFragments(fragments);
-    }
+//    public Resource(String id, String title, String page, String editionDate, String fileName, String processing, String searchDate, String[] fragments) {        
+//        this.id = id;
+//        this.title = title;
+//        this.page = page;
+//        this.editionDate = editionDate;
+//        this.fileName = fileName;
+//        addSupportedFormat("pdf");
+//        addSupportedFormat("jpg");
+//        addSupportedFormat("xml");
+//        addSupportedFormat("text");
+//        _addAllFragments(fragments);
+//    }
 
     public Resource(SearcherResource resource) {
+        docId = resource.getPublicationId();
         if(resource.getPageId()!=null && !resource.getPageId().isEmpty()){
-            id = resource.getPublicationId().concat("_").concat(resource.getPageId());
+            pageId = resource.getPageId();
+            id = docId.concat("_").concat(pageId);
         }else{
-            id = resource.getPublicationId();
+            id = docId;
         }
         title = resource.getTitle();
         page = resource.getPage();
         editionDate = resource.getEditionDate();
         setCalcDate(resource.getProcessDateResult());
-        fileName = resource.getFileName();
-        _addAllSupportedFormat(resource.getSupportedFormats());
-        _addAllFragments(resource.getFragments());
+        _addAllSupportedFormat(resource);
+        _addAllFragments(resource.getFragments());        
     }
     
     public String getId() {
@@ -97,14 +103,6 @@ public class Resource implements Serializable{
 
     protected void setPage(String page) {
         this.page = page;
-    }
-
-    protected void setSearchDate(String searchDate) {
-        this.searchDate = searchDate;
-    }
-    
-    public String getSearchDate() {
-        return this.searchDate;
     }
 
     protected void setEditionDate(String editionDate) {
@@ -162,34 +160,70 @@ public class Resource implements Serializable{
         return String.join(" ", getSupportedFormats());
     }
     
+    public ResourceFormat[] getResourceFormats() {
+        ResourceFormat[] ret = new ResourceFormat[resourceFormats.size()];        
+        for(int i=0; i<resourceFormats.size(); i++){
+            ret[i]= resourceFormats.get(i);
+        }
+        return resourceFormats.toArray(ret);
+    }
+
     public String[] getSupportedFormats() {
-        String[] ret = new String[supportedFormats.size()];
-        return supportedFormats.toArray(ret);
+        String[] ret = new String[resourceFormats.size()];        
+        for(int i=0; i<resourceFormats.size(); i++){
+            ret[i]= resourceFormats.get(i).getFormat();
+        }
+        return ret;
     }
 
     public String getSupportedFormat(int idx) {
-        return supportedFormats.get(idx);
+        return resourceFormats.get(idx).getFormat();
     }
 
     public void deleteSupportedFormat(String format) {
-        this.supportedFormats.remove(format);
+        int i=0;
+        while(i<resourceFormats.size()&&resourceFormats.get(i).getFormat().equalsIgnoreCase(format)){
+            i++;
+        }
+        if(i<resourceFormats.size()){
+            this.resourceFormats.remove(i);
+        }
     }
 
     protected void deleteSupportedFormat(int ind) {
-        this.supportedFormats.remove(ind);
+        this.resourceFormats.remove(ind);
     }
 
     protected void addSupportedFormat(String format) {
-        this.supportedFormats.add(format);
+        this.resourceFormats.add(new ResourceFormat(format, "P"));
     }
 
-    protected void addAllSupportedFormat(String[] formats) {
-        _addAllSupportedFormat(formats);;
+    protected void addSupportedFormat(String format, String type) {
+        this.resourceFormats.add(new ResourceFormat(format, type));
+    }
+
+//    protected void addAllSupportedFormat(String[] formats) {
+//        _addAllSupportedFormat(formats);;
+//    }
+//    
+    private void _addAllSupportedFormat(SearcherResource sr) {
+        String[] formats = sr.getSupportedFormats();
+        for(String format: formats){
+            this.resourceFormats.add(new ResourceFormat(format, sr.getContentTypeFormat(format)));
+        }
     }
     
-    private void _addAllSupportedFormat(String[] formats) {
-        for(String format: formats){
-            this.supportedFormats.add(format);
+    protected void addResourceFormat(String format, String type) {
+        this.resourceFormats.add(new ResourceFormat(format, type));
+    }
+
+    protected void addAllResourceFormat(SimpleImmutableEntry<String,String>[] formats) {
+        _addAllResourceFormat(formats);;
+    }
+    
+    private void _addAllResourceFormat(SimpleImmutableEntry<String,String>[] formats) {
+        for(SimpleImmutableEntry<String, String> format: formats){
+            this.resourceFormats.add(new ResourceFormat(format.getKey(), format.getValue()));
         }
     }
     
@@ -214,7 +248,8 @@ public class Resource implements Serializable{
 
     @JsonIgnore
     protected FormatedFile getStrictFormatedFile(String format){
-        LocalFormatedFile ff = new LocalFormatedFile(this.getLocalFilePath(), this.getFileName().concat(".").concat(format), format, this.getFileName());
+        String filaName = this.getFileName(format);
+        LocalFormatedFile ff = new LocalFormatedFile(this.getLocalFilePath(), filaName.concat(".").concat(format), format, filaName);
         return ff;
     }
 
@@ -227,8 +262,8 @@ public class Resource implements Serializable{
         strb.append(this.page);
         strb.append("' and id:  ");
         strb.append(this.id);
-        strb.append(". Searched on; ");
-        strb.append(this.searchDate);
+//        strb.append(". Searched on; ");
+//        strb.append(this.searchDate);
         strb.append(" )");
         return strb.toString();
     }
@@ -247,20 +282,34 @@ public class Resource implements Serializable{
         return this.id.hashCode();
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getFileName(String format) {
+        return Utils.getFilename(this, format);
+    }
+    
+    public String getDocId(){
+        return docId;
     }
 
-    protected void setFileName(String fileName) {
-        this.fileName = fileName;
+    public String getPageId(){
+        return pageId;
     }
 
-    protected void setSupportedFormats(List<String> supportedFormats) {
-        this.supportedFormats = supportedFormats;
+    public String getContentTypeFromFormat(String format){
+        String ret = "";
+        for(int i=0; i<resourceFormats.size()&&ret.length()==0; i++){
+            if(format.equalsIgnoreCase(resourceFormats.get(i).getFormat())){
+                ret = resourceFormats.get(i).getContentType();
+            }
+        }
+        return ret;
+    }
+    
+    protected void setSupportedFormats(List<ResourceFormat> supportedFormats) {
+        this.resourceFormats = supportedFormats;
     }
 
-    protected void setSupportedFormats(String[] supportedFormats) {
-        this.supportedFormats = Arrays.asList(supportedFormats);
+    protected void setSupportedFormats(ResourceFormat[] supportedFormats) {
+        this.resourceFormats = Arrays.asList(supportedFormats);
     }
 
     public String getLocalFilePath() {
@@ -271,7 +320,8 @@ public class Resource implements Serializable{
         this.localFilePath = localFilePath;
     }
     
-    public void updateSingleData(Resource res, boolean updateFilename){
+    public void updateSingleData(Resource res, boolean updateFormats){
+        int oldi;
         if(!getTitle().equals(res.getTitle())){
             setTitle(res.getTitle());
         }
@@ -284,19 +334,18 @@ public class Resource implements Serializable{
         if(!getCalcDate().equals(res.getCalcDate())){
             setCalcDate(res.getCalcDate());
         }
-        if(updateFilename){
-            if(!getFileName().equals(res.getFileName())){
-                setFileName(res.getFileName());
-            }
-            List<String> aux = Arrays.asList(res.getSupportedFormats());
-            for(int i=this.supportedFormats.size()-1; i>=0; i--){
-                if(!aux.contains(this.supportedFormats.get(i))){
-                    this.supportedFormats.remove(i);
+        if(updateFormats){
+            List<ResourceFormat> aux = Arrays.asList(res.getResourceFormats());
+            for(int i=this.resourceFormats.size()-1; i>=0; i--){
+                if(!aux.contains(this.resourceFormats.get(i))){
+                    this.resourceFormats.remove(i);
                 }
             }
             for(int i=0; i<aux.size(); i++){
-                if(!this.supportedFormats.contains(aux.get(i))){
-                    this.supportedFormats.add(aux.get(i));
+                if((oldi = this.resourceFormats.indexOf(aux.get(i)))!=-1){
+                    this.resourceFormats.get(oldi).setContentType(aux.get(i).getContentType());
+                }else{
+                    this.resourceFormats.add(aux.get(i));
                 }
             }
         }
@@ -304,5 +353,5 @@ public class Resource implements Serializable{
     
     public void updateSingleData(Resource res){
         updateSingleData(res, true);
-    }
+    }    
 }

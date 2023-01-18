@@ -72,4 +72,9 @@ public class BvphResource extends BvphTypeResource{
     public String[] getSupportedFormats() {
         return SUPPORTED_FORMATS;
     }
+
+    @Override
+    public String getContentTypeFormat(String format) {
+        return "P";
+    }
 }

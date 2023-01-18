@@ -5,16 +5,11 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 /**
  *

@@ -18,6 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
 import org.elsquatrecaps.jig.sdl.exception.ErrorParsingUrl;
+import org.elsquatrecaps.jig.sdl.model.Resource;
+import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
 
 /**
  *
@@ -244,5 +246,50 @@ public class Utils {
             Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return ret;
+    }
+    
+    public static String getFilename(SearcherResource res, String format){
+        return getFileName(res.getEditionDate(), res.getProcessDateResult(), res.getContentTypeFormat(format)
+                , res.getPublicationId(), res.getPageId(), res.getPage(), res.getTitle());
+    }
+    
+    public static String getFilename(Resource res, String format){
+        return getFileName(res.getEditionDate(), res.getCalcDateId(), res.getContentTypeFromFormat(format)
+                , res.getDocId(), res.getPageId(), res.getPage(), res.getTitle());
+    }
+    
+    public static String getFileName(String editionDate, String calcDate, String contentType, String docId, String pageId, String page, String title) {
+        StringBuilder strBuffer = new StringBuilder();
+        if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{2}\\/[0-9]{2}\\/[0-9]{2,4}")){            
+            String[] aDate = editionDate.split("\\/");
+            strBuffer.append(aDate[2]);
+            strBuffer.append("_");
+            strBuffer.append(aDate[1]);
+            strBuffer.append("_");
+            strBuffer.append(aDate[0]);
+        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{4}.+?[0-9]{1,2}")){            
+            strBuffer.append(editionDate.substring(0, 4));
+            strBuffer.append("_00_00");
+        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{2}.+?[0-9]{4}")){            
+            strBuffer.append(editionDate.substring(editionDate.length()-4, editionDate.length()));
+            strBuffer.append("_00_00");
+        }else if(editionDate!=null && !editionDate.isEmpty() && editionDate.matches("[0-9]{1}.+?[0-9]{4}")){            
+            strBuffer.append(editionDate.substring(editionDate.length()-4, editionDate.length()));
+            strBuffer.append("_00_00");
+        }else{
+            strBuffer.append("0000_00_00");
+        }
+        strBuffer.append("_");
+        strBuffer.append(calcDate);
+        strBuffer.append("_");
+        strBuffer.append(docId);            
+        if(!contentType.equals("D")){
+            strBuffer.append("_");
+            strBuffer.append(pageId);                        
+        }
+        strBuffer.append("_");
+        strBuffer.append(Utils.buildNormalizedFilename(page));            
+        strBuffer.append(Utils.buildNormalizedFilename(title));
+        return strBuffer.toString().substring(0,Math.min(75, strBuffer.length()));        
     }
 }

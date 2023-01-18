@@ -63,31 +63,29 @@ public class PersistenceService {
         }else{
             Resource oldResource = resourceRepository.findById(rId).get();
             Resource newResource = sr.getResource();
-            boolean updateFilename = false;
+            boolean updateFormats = false;
             if(this.fileRepositoryPath!=null){
-                String oldFileName = oldResource.getFileName();
-                String newFilename = newResource.getFileName();
                 String[] oldFormats = oldResource.getSupportedFormats();
                 List<String> newFormats = Arrays.asList(newResource.getSupportedFormats());
 
-                updateFilename = newFormats.size()>0;
-                if(updateFilename){
-                    if(!oldFileName.equals(newFilename)){
-                        for(int i=0; i<oldFormats.length; i++){
-                            File f = new File(this.fileRepositoryPath, oldFileName.concat(".").concat(oldFormats[i]));
-                            f.delete();
-                        }                    
-                    }else{
-                        for(int i=0; i<oldFormats.length; i++){
-                            if(!newFormats.contains(oldFormats[i])){
+                updateFormats = newFormats.size()>0;
+                if(updateFormats){
+                    for(int i=0; i<oldFormats.length; i++){
+                        String oldFileName = oldResource.getFileName(oldFormats[i]);
+                        if(newFormats.contains(oldFormats[i])){
+                            String newFilename = newResource.getFileName(oldFormats[i]);
+                            if(!oldFileName.equals(newFilename)){
                                 File f = new File(this.fileRepositoryPath, oldFileName.concat(".").concat(oldFormats[i]));
                                 f.delete();
-                            }
-                        }                    
-                    }
+                            }                            
+                        }else{
+                            File f = new File(this.fileRepositoryPath, oldFileName.concat(".").concat(oldFormats[i]));
+                            f.delete();                            
+                        }                        
+                    }                    
                 }
             }
-            oldResource.updateSingleData(sr.getResource(), updateFilename);
+            oldResource.updateSingleData(sr.getResource(), updateFormats);
             resourceRepository.saveAndFlush(oldResource);
         }
     }

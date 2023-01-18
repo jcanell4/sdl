@@ -26,7 +26,7 @@
 
 ### DB ###
 /export/
-/resourcefiles/
+/resourcefiles*/
 /sdldb/
-/db/
-/info/
+/db*/
+/info*/
