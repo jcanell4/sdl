@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
 import org.elsquatrecaps.jig.sdl.exception.UnsupportedFormat;
@@ -142,22 +143,119 @@ public class ExportService {
         }
     }
     
-    // TODO: Moure això al util i afegir el format per poder gestionar altrs tipus defitexer
-    private void exportHighlightedImage(Resource resource, File inFile, File outFile, String pCriteria) {
-        // TODO: Obtenir del XML les coordenades on s'ha de dibuixar el resaltat
+    private void exportHighlightedImageFromWholePhrase(Resource resource, File inFile, File outFile, String pCriteria) {
+         // TODO: Obtenir del XML les coordenades on s'ha de dibuixar el resaltat
         double totWidth =  0;
         double totHeight = 0;
+        int criteriaInd;
         
+        // TODO: Obtenir del XML les coordenades on s'ha de dibuixar el resaltat
         FormatedFile XMLFormatedFile = resource.getFormatedFile("xml");
         File XMLFile = new File(this.dp.getLocalReasourceRepo(), XMLFormatedFile.getFileName());
         
+        pCriteria = pCriteria.substring(1, pCriteria.length()-1);
+        String[] aCriteria = pCriteria.split(" +");
         
+        for(int x=0; x<aCriteria.length; x++){
+            if(aCriteria[x]!=null && !aCriteria[x].isEmpty()){
+                aCriteria[x] = aCriteria[x].trim().replaceAll("\\*", ".*").replaceAll("\\?", ".?");
+            }
+            if(x==0){
+                aCriteria[x] = "\\p{Punct}*".concat(aCriteria[x]);
+            }
+            if(x==aCriteria.length-1){
+                aCriteria[x] = aCriteria[x].concat("\\p{Punct}*");
+            }
+        }
         
+
         FileInputStream XMLInputStream;
         List<Rectangle> rectangles = new ArrayList<>();
-        String[] aCriteria = pCriteria.split("\\s|\\p{Punct}");
-        pCriteria = pCriteria.replaceAll("()", ".*?)|(.*?");
+
+        try {
+            XMLInputStream = new FileInputStream(XMLFile);
+            Document doc = Jsoup.parse(XMLInputStream, null, "", Parser.xmlParser());
+            Element page = doc.getElementsByTag("a:page").first();            
+            if(page==null){
+                page = doc.getElementsByTag("page").first();            
+            }
+            totWidth =  Integer.parseInt(page.attr("WIDTH"));
+            totHeight =  Integer.parseInt(page.attr("HEIGHT"));
+            criteriaInd =0;
+            while(criteriaInd<aCriteria.length && (aCriteria[criteriaInd]==null || aCriteria[criteriaInd].isEmpty())) {
+                criteriaInd++;
+            }            
+            if(criteriaInd<aCriteria.length){
+                Pattern pattern = Pattern.compile(aCriteria[criteriaInd]
+                        ,Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE|Pattern.UNICODE_CHARACTER_CLASS);
+                Elements elements = doc.getElementsByAttributeValueMatching("CONTENT", pattern);
+//                Elements elements = doc.select("[CONTENT~=".concat(aCriteria[criteriaInd]).concat("]"));
+                
+                for(Element element: elements){
+                    Elements elementsList = new Elements();
+                    if(matchContentElementWithCriteria(element, aCriteria, criteriaInd+1, elementsList)){
+                        addRectangles(elementsList, rectangles);
+                    }
+                }
+                elements = doc.getElementsByAttributeValueMatching("SUBS_CONTENT", pattern);                
+//                elements = doc.select("[SUBS_CONTENT*=".concat(aCriteria[criteriaInd]).concat("]"));
+
+                for(Element element: elements){
+                    Elements elementsList = new Elements();
+                    if(matchContentElementWithCriteria(element, aCriteria, criteriaInd+1, elementsList)){
+                        Element hyphenSibling = nextSiblingStringFromString(element); 
+                        if(hyphenSibling!=null){
+                            elementsList.add(hyphenSibling);
+                        }
+                        addRectangles(elementsList, rectangles);
+                    }
+                }
+
+            }
+            try {
+                BufferedImage br = ImageIO.read(inFile);
+                Graphics2D g = br.createGraphics();
+                g.setColor(new Color(1f, 0.1f, 0, 0.5f));
+
+                for (Rectangle rectangle : rectangles) {
+                    double factorh = br.getHeight()/totHeight;
+                    double factorw = br.getWidth()/totWidth;
+                    g.fillRect((int)(rectangle.x*factorw), (int)(rectangle.y*factorh), (int)(rectangle.width*factorw), (int)(rectangle.height*factorh));
+                }
+
+                g.dispose();
+
+                ImageIO.write(br, "jpg", outFile);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
+
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+    
+    private void exportHighlightedImageFromSeparatedWords(Resource resource, File inFile, File outFile, String pCriteria) {
+         // TODO: Obtenir del XML les coordenades on s'ha de dibuixar el resaltat
+        double totWidth =  0;
+        double totHeight = 0;
         
+        // TODO: Obtenir del XML les coordenades on s'ha de dibuixar el resaltat
+        FormatedFile XMLFormatedFile = resource.getFormatedFile("xml");
+        File XMLFile = new File(this.dp.getLocalReasourceRepo(), XMLFormatedFile.getFileName());
+        
+        String[] aCriteria = pCriteria.split(" +");
+        
+        for(int x=0; x<aCriteria.length; x++){
+            if(aCriteria[x]!=null && !aCriteria[x].isEmpty()){
+                aCriteria[x] = aCriteria[x].trim().replaceAll("\\*", ".*").replaceAll("\\?", ".?");
+            }
+            aCriteria[x] = "\\p{Punct}*".concat(aCriteria[x]).concat("\\p{Punct}*");
+        }
+
+        FileInputStream XMLInputStream;
+        List<Rectangle> rectangles = new ArrayList<>();
+
         try {
             XMLInputStream = new FileInputStream(XMLFile);
             Document doc = Jsoup.parse(XMLInputStream, null, "", Parser.xmlParser());
@@ -171,10 +269,21 @@ public class ExportService {
                 if(criteria==null || criteria.isEmpty()){
                     continue;
                 }
-                Elements elements = doc.select("[CONTENT*=".concat(criteria).concat("]"));
+                Pattern pattern = Pattern.compile(criteria
+                        ,Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE|Pattern.UNICODE_CHARACTER_CLASS);
+                Elements elements = doc.getElementsByAttributeValueMatching("CONTENT", pattern);    
+//                Elements elements = doc.select("[CONTENT*=".concat(criteria).concat("]"));
                 addRectangles(elements, rectangles);
                 
-                elements = doc.select("[SUBS_CONTENT*=".concat(criteria).concat("]"));
+                elements = doc.getElementsByAttributeValueMatching("SUBS_CONTENT", pattern);                
+//                elements = doc.select("[SUBS_CONTENT*=".concat(criteria).concat("]")); 
+                ArrayList<Element> list = new ArrayList<>(elements);
+                for(Element element: list){
+                    Element hyphenSibling = nextSiblingStringFromString(element); 
+                    if(hyphenSibling!=null){
+                        elements.add(hyphenSibling);
+                    }
+                }
                 addRectangles(elements, rectangles);
 
             }
@@ -201,6 +310,18 @@ public class ExportService {
         }
     }
     
+    // TODO: Moure això al util i afegir el format per poder gestionar altrs tipus defitexer
+    private void exportHighlightedImage(Resource resource, File inFile, File outFile, String pCriteria) {
+        pCriteria = pCriteria.trim();
+        if(pCriteria.charAt(0)=='"' && pCriteria.charAt(pCriteria.length()-1)=='"'){
+            //allCriteria
+            exportHighlightedImageFromWholePhrase(resource, inFile, outFile, pCriteria);
+        }else{
+            //singleCriteria
+            exportHighlightedImageFromSeparatedWords(resource, inFile, outFile, pCriteria);
+        }                
+    }
+    
     private void addRectangles(Elements elements, List<Rectangle> rectangles){
         for ( Element element : elements) {
 
@@ -212,5 +333,159 @@ public class ExportService {
             rectangles.add(new Rectangle(x, y, width, height));
         }
     }
+
+    private boolean matchContentElementWithCriteria(Element element, String[] aCriteria, int criteriaInd, Elements elementsList) {
+        boolean ret=false;
+        Element siblingElement;
+        while(criteriaInd<aCriteria.length && (aCriteria[criteriaInd]==null || aCriteria[criteriaInd].isEmpty())) {
+            criteriaInd++;
+        }  
+        if(criteriaInd>=aCriteria.length){
+            ret = true;
+        }else{
+            siblingElement = nextSiblingStringFromString(element);                       
+            Pattern pattern = Pattern.compile(aCriteria[criteriaInd]
+                        ,Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE|Pattern.UNICODE_CHARACTER_CLASS);
+            if(siblingElement!=null && (pattern.matcher(siblingElement.attr("CONTENT").trim()).matches() ||
+                    pattern.matcher(siblingElement.attr("SUBS_CONTENT").trim()).matches())){
+                ret = matchContentElementWithCriteria(siblingElement, aCriteria, ++criteriaInd, elementsList);
+            } 
+        }
+        if(ret){
+            elementsList.add(element);
+        }
+        return ret;
+    }
     
+    private Element nextSiblingStringFromString(Element element){
+        Element siblingElement = null;
+        siblingElement = stringFromStringLevel(element.nextElementSibling());
+        if(siblingElement==null){
+            Element siblingTextLine = element.parent().nextElementSibling();
+            siblingElement = nextSiblingStringFromTextLine(element.parent());
+        }        
+        return siblingElement;
+    }
+    
+    private Element elementFromElementLevel(Element element, String tagname){
+        while(element!=null && !element.tagName().equalsIgnoreCase(tagname)) {
+            element = element.nextElementSibling();
+        }
+        return element;
+    }
+
+    private Element stringFromStringLevel(Element element){
+        return elementFromElementLevel(element, "a:String");
+    }
+    
+    private Element nextSiblingStringFromTextLine(Element parentTextLine){
+        Element siblingElement = null;
+        Element siblingTextLine = textLineFromTextLineLevel(parentTextLine.nextElementSibling());
+        if(siblingTextLine==null){
+            siblingElement = nextSiblingStringFromTextBlock(parentTextLine.parent());
+        }else{
+            siblingElement = stringFromStringLevel(siblingTextLine.firstElementChild());
+        }
+        return siblingElement;
+    }
+    
+    private Element textLineFromTextLineLevel(Element element){
+        return elementFromElementLevel(element, "a:TextLine");
+    }
+    
+    private Element nextSiblingStringFromTextBlock(Element parentTextBlock){
+        Element siblingElement = null;
+        Element siblingTextLine =null;
+        Element siblingtextBlock = textBlockFromTextBlockLevel(parentTextBlock.nextElementSibling());
+        if(siblingtextBlock==null){
+            siblingElement = nextSiblingStringFromPrintSpace(parentTextBlock.parent());
+        }else{
+            siblingTextLine = textLineFromTextLineLevel(siblingtextBlock.firstElementChild());
+            if(siblingTextLine!=null){
+                siblingElement = stringFromStringLevel(siblingTextLine.firstElementChild());
+            }
+        }        
+        return siblingElement;
+    }
+    
+    private Element textBlockFromTextBlockLevel(Element element){
+        return elementFromElementLevel(element, "a:TextBlock");
+    }
+    
+    private Element nextSiblingStringFromPrintSpace(Element parentPrintSpace){
+        Element siblingElement = null;
+        Element siblingTextLine =null;
+        Element siblingtextBlock = null;
+        Element siblingtextPrintSpace = printSpaceFromPrintSpaceLevel(parentPrintSpace.nextElementSibling());
+        if(siblingtextPrintSpace==null){
+            siblingElement = nextSiblingStringFromPage(parentPrintSpace.parent());
+        }else{
+            siblingtextBlock = textBlockFromTextBlockLevel(siblingtextPrintSpace.firstElementChild());
+            if(siblingtextBlock!=null){
+                siblingTextLine = textLineFromTextLineLevel(siblingtextBlock.firstElementChild());
+                if(siblingTextLine!=null){
+                    siblingElement = stringFromStringLevel(siblingTextLine.firstElementChild());
+                }
+            }
+        }        
+        return siblingElement;
+    }
+    
+    private Element printSpaceFromPrintSpaceLevel(Element element){
+        return elementFromElementLevel(element, "a:PrintSpace");
+    }
+    
+    private Element nextSiblingStringFromPage(Element parentPage){
+        Element siblingElement = null;
+        Element siblingTextLine =null;
+        Element siblingtextBlock = null;
+        Element siblingPrintSpace = null;
+        Element siblingPage = printSpaceFromPrintSpaceLevel(parentPage.nextElementSibling());
+        if(siblingPage==null){
+            siblingElement = nextSiblingStringFromLayout(parentPage.parent());
+        }else{
+            siblingPrintSpace = printSpaceFromPrintSpaceLevel(siblingPage.firstElementChild());
+            if(siblingPrintSpace!=null){
+                siblingtextBlock = textBlockFromTextBlockLevel(siblingPrintSpace.firstElementChild());
+                if(siblingtextBlock!=null){
+                    siblingTextLine = textLineFromTextLineLevel(siblingtextBlock.firstElementChild());
+                    if(siblingTextLine!=null){
+                        siblingElement = stringFromStringLevel(siblingTextLine.firstElementChild());
+                    }
+                }
+            }
+        }        
+        return siblingElement;
+    }
+    
+    private Element pageFromPageLevel(Element element){
+        return elementFromElementLevel(element, "a:Page");
+    }
+
+    private Element nextSiblingStringFromLayout(Element parentLayout){
+        Element siblingElement = null;
+        Element siblingTextLine =null;
+        Element siblingtextBlock = null;
+        Element siblingPrintSpace = null;
+        Element siblingPage = null;
+        Element siblingLayout = layoutFromLayoutLevel(parentLayout.nextElementSibling());
+        if(siblingLayout!=null){
+            siblingPrintSpace = printSpaceFromPrintSpaceLevel(siblingPage.firstElementChild());
+            if(siblingPrintSpace!=null){
+                siblingtextBlock = textBlockFromTextBlockLevel(siblingPrintSpace.firstElementChild());
+                if(siblingtextBlock!=null){
+                    siblingTextLine = textLineFromTextLineLevel(siblingtextBlock.firstElementChild());
+                    if(siblingTextLine!=null){
+                        siblingElement = stringFromStringLevel(siblingTextLine.firstElementChild());
+                    }
+                }
+            }
+        }        
+        return siblingElement;
+    }
+    
+    private Element layoutFromLayoutLevel(Element element){
+        return elementFromElementLevel(element, "a:Layout");
+    }
+
 }

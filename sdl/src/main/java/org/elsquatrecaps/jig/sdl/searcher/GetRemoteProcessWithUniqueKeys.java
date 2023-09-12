@@ -59,11 +59,10 @@ public class GetRemoteProcessWithUniqueKeys extends AbstractGetRemoteProcess {
     protected Connection getConnection(){
         Connection con;
         if(getParams()!=null){
-            con = Jsoup.connect(getUrl().concat(getQueryPath())).data(getParams());
+            con = getConnection(getUrl().concat(getQueryPath())).data(getParams());
         }else{
-            con = Jsoup.connect(getUrl().concat(getQueryPath()));
+            con = getConnection(getUrl().concat(getQueryPath()));
         }
-        this.configConnection(con);
         return con;
     }
     

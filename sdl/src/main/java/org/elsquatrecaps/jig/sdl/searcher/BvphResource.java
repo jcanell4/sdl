@@ -45,7 +45,7 @@ public class BvphResource extends BvphTypeResource{
             }
             String relativeUrl = elem.child(0).attr("href");
             String url = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, relativeUrl);
-            Element toDonwloading = getToDownloading(url);
+            Element toDonwloading = getToDownloading(url, cookies);
             Elements actions = toDonwloading.select(actionsFilter);
             ocrtextUrl = actions.get(0).child(0).attr("href");
             altoXmlUrl = actions.get(1).child(0).attr("href");

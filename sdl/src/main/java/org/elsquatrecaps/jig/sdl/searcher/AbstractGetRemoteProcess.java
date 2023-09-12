@@ -6,6 +6,9 @@
 package org.elsquatrecaps.jig.sdl.searcher;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,6 +19,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -64,12 +68,32 @@ abstract public class AbstractGetRemoteProcess {
 
     abstract protected Connection getConnection();
     
+    protected Connection getConnection(String url){
+        Connection con;
+        con = Jsoup.connect(url);
+        this.configConnection(con);
+        return con;
+    }
+    
     protected  void configConnection(Connection con){
         if(getCookies()!=null && !cookies.isEmpty()){
             con.cookies(getCookies());
         }
-        con.timeout(60000).maxBodySize(0);
+        con.timeout(60000).maxBodySize(0).ignoreHttpErrors(true);
         con.ignoreContentType(true);
+    }
+    
+    private synchronized Document getDocumentResponse(Connection con) throws Exception {
+        Document remote=null;
+        Connection.Response resp;
+        resp = con.execute();
+        mergeCookies(resp.cookies());
+        remote = resp.parse();
+        return remote;
+    }
+    
+    private String getUrlAndQuery(){
+        return getUrl().concat(getQueryPath());
     }
     
     private synchronized Element getOriginalSource() {
@@ -80,9 +104,43 @@ abstract public class AbstractGetRemoteProcess {
         for(int c=1; remote==null && c<=connectionAttempts; c++){
             try{
                 Connection con = getConnection();
-                resp = con.execute();
-                mergeCookies(resp.cookies());
-                remote = resp.parse();
+                try{
+                remote = getDocumentResponse(con);
+//                resp = con.execute();
+//                mergeCookies(resp.cookies());
+//                remote = resp.parse();
+                } catch (MalformedURLException ex ) {
+                    Throwable cause = ex.getCause();
+                    if(cause instanceof URISyntaxException){
+                        String url = ((URISyntaxException) cause).getInput();
+                        if(!url.equals(getUrlAndQuery())){
+                            StringBuilder strb = new StringBuilder();
+                            String[] aUrl= url.split("\\?", 2);
+                            strb.append(aUrl[0]);
+                            if(aUrl.length>1){
+                               aUrl = aUrl[1].split("\\&");
+                               strb.append("?");
+                               String[] keyValue = aUrl[0].split("\\=");
+                               strb.append(URLEncoder.encode(keyValue[0], "UTF-8"));
+                               strb.append("=");
+                               strb.append(URLEncoder.encode(keyValue[1], "UTF-8"));
+                               for(int x=1; x<aUrl.length; x++){
+                                  keyValue = aUrl[x].split("=");
+                                   strb.append("&");
+                                   strb.append(URLEncoder.encode(keyValue[0], "UTF-8"));
+                                   strb.append("=");
+                                   strb.append(URLEncoder.encode(keyValue[1], "UTF-8"));                                   
+                               }
+                            }
+                            con = getConnection(strb.toString());
+                            remote = getDocumentResponse(con);
+                        }else{
+                            ioe = ex;
+                        }
+                    }else{
+                        ioe = ex;
+                    }
+                }
             } catch (UncheckedIOException | IOException ex ) {
                 ioe = ex;
                 try {

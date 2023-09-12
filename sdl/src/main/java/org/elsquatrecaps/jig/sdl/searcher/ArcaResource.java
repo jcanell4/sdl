@@ -48,7 +48,7 @@ public class ArcaResource extends BvphTypeResource{
             }
             String relativeUrl = elem.child(0).attr("href");
             String url = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, relativeUrl);
-            Element toDonwloading = getToDownloading(url);
+            Element toDonwloading = getToDownloading(url, cookies);
             Elements actions = toDonwloading.select(actionsFilter);
             if(actions.size()>0){
                 ocrtextUrl = actions.get(0).child(0).attr("href");

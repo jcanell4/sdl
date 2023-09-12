@@ -151,8 +151,8 @@ public class SdlController {
             @RequestParam(defaultValue = "", name = "criteria") String criteria,
             @RequestParam(defaultValue = "BVPH", name = "repository") String repository,
             @RequestParam(defaultValue = "", name = "date-end") String dateEnd,
-            @RequestParam(defaultValue = "", name = "date-start") String dateStart){
-            //@RequestParam(defaultValue = "3", name = "quant") int quantity) {
+            @RequestParam(defaultValue = "", name = "date-start") String dateStart,
+            @RequestParam(defaultValue = "", name = "title") String title){
 
         ModelAndView ret = new ModelAndView("new :: searches");
         
@@ -167,7 +167,7 @@ public class SdlController {
         }
         
         if (criteria.length()>0) {
-            if(!iterate(criteria, repository, dateStart, dateEnd)){
+            if(!iterate(criteria, repository, dateStart, dateEnd, title)){
                 // TODO[Xavi] Enviar un dialeg amb un missatge d'error indicant que no s'ha pogut completar la baixada i que es miri el registre de logs
                 logger.debug("S'interromp la cerca degut a una excepció que no permet continuar.");
             }
@@ -191,19 +191,19 @@ public class SdlController {
         return ret;
     }
     
-    private SearchCriteria buildSearchCriteria(String criteria, String repository, String dateStart, String dateEnd){
+    private SearchCriteria buildSearchCriteria(String criteria, String repository, String dateStart, String dateEnd, String title){
         SearchCriteria ret = null;
         if(repository.equalsIgnoreCase("BVPH")){
-            ret = new BvphSearchCriteria(criteria, dateStart, dateEnd);
+            ret = new BvphSearchCriteria(criteria, dateStart, dateEnd, title);
         }else if(repository.equalsIgnoreCase("ARCA")){
-            ret = new ArcaSearchCriteria(criteria, dateStart, dateEnd);
+            ret = new ArcaSearchCriteria(criteria, dateStart, dateEnd, title);
         }else if(repository.equalsIgnoreCase("HD")){
-            ret = new HdSearchCriteria(criteria, dateStart, dateEnd);
+            ret = new HdSearchCriteria(criteria, dateStart, dateEnd, title);
         }
         return ret;
     }
     
-    private boolean iterate(String criteria, String repository, String dateStart, String dateEnd){
+    private boolean iterate(String criteria, String repository, String dateStart, String dateEnd, String title){
         SearcherResource res = null;
         boolean ret = true;
         String fileRepositoryPath = this.dp.getLocalReasourceRepo();
@@ -211,7 +211,7 @@ public class SdlController {
         
         logger.info(String.format("S'inicia la cerca de %s des de %s fins a %s a la biblioteca %s", criteria, dateStart, dateEnd, repository));
 //        System.out.println("Cercant: " + criteria);
-        SearchIterator<SearcherResource> iterator = ConfigParserOfSearcher.getIterator(repository, buildSearchCriteria(criteria, repository, dateStart, dateEnd));
+        SearchIterator<SearcherResource> iterator = ConfigParserOfSearcher.getIterator(repository, buildSearchCriteria(criteria, repository, dateStart, dateEnd, title));
         
 //        System.out.println("Iterador obtingut");
         logger.debug("Iterador obtingut");

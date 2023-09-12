@@ -5,6 +5,7 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
@@ -75,9 +76,12 @@ public abstract class BvphTypeResource extends SearcherResource {
         return ret;
     }
 
-    protected Element getToDownloading(String url) {
+    protected Element getToDownloading(String url, Map<String, String> cookies) {
         AbstractGetRemoteProcess grp = new GetRemoteProcessWithUniqueKeys(url);
         grp.setParam("aceptar", "Aceptar");
+        if(cookies!=null && cookies.size()>0){
+            grp.setCookies(cookies);
+        }
         Element toDonwloading = grp.get();
         return toDonwloading;
     }

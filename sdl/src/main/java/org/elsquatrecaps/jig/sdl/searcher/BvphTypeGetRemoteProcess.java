@@ -13,12 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.elsquatrecaps.jig.sdl.exception.ErrorParsingDate;
-import org.jsoup.nodes.Element;
 
 /**
  *
@@ -53,6 +50,8 @@ public class BvphTypeGetRemoteProcess extends GetRemoteProcessWithUniqueKeys {
     protected int smallerYear = 1500;
     @XmlTransient
     protected int biggerYear = Calendar.getInstance().get(Calendar.YEAR);
+    @XmlTransient
+    protected String titleKey = "busq_titulo";
 
     public BvphTypeGetRemoteProcess() {
     }
@@ -91,6 +90,9 @@ public class BvphTypeGetRemoteProcess extends GetRemoteProcessWithUniqueKeys {
         } else {
             this.setBiggerYear(biggerYear);
         }
+        if(criteria.hasTitle()){
+            this.setTitle(criteria.getTitle());
+        }
     }
 
     @Override
@@ -108,6 +110,10 @@ public class BvphTypeGetRemoteProcess extends GetRemoteProcessWithUniqueKeys {
 
     public void setText(String criteria) {
         this.setParam(textKey, criteria);
+    }
+
+    public void setTitle(String criteria) {
+        this.setParam(titleKey, criteria);
     }
 
     public void setBiggerYear(int bigger) {

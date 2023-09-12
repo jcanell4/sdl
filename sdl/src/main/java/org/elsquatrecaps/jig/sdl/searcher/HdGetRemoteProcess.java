@@ -20,6 +20,8 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
     @XmlTransient
     private String textField = "text";
     @XmlTransient
+    private String titleField = "tit";
+    @XmlTransient
     private String fromDateField = "from_date";
     @XmlTransient
     private String toDateField = "to_date";
@@ -54,9 +56,10 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
             hdParams.setFromDate(value);
         }else if(toDateField.equalsIgnoreCase(key)){
             hdParams.setToDate(value);
+        }else if(textField.equalsIgnoreCase(key)){
+            hdParams.setText(key);
         }else{
-//            value = value.replaceAll(" ", "+");
-            hdParams.setText(value);
+            hdParams.setTitle(value);
         }
         parsedParams = false;
     }
@@ -72,6 +75,9 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
         if(hdSearchCriteria.getDateEnd()!=null
                 && !hdSearchCriteria.getDateEnd().isEmpty()){
             this.setParam(toDateField, hdSearchCriteria.getDateEnd());
+        }
+        if(criteria.hasTitle()){
+            this.setParam(titleField, criteria.getTitle());
         }
     }
     
@@ -114,6 +120,7 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
         private String text;
         private String fromDate=null;
         private String toDate=null;
+        private String title=null;
 
         public HdParam() {
         }
@@ -128,6 +135,9 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
             this.text = sc.getText();
             this.fromDate = sc.getDateStart();
             this.toDate = sc.getDateEnd();
+            if(sc.hasTitle()){
+                this.title = sc.getTitle();
+            }
         }
 
         public String getText() {
@@ -197,6 +207,14 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
             ret.add("lang");
             ret.add("ca");
             return ret;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
         }
     }
 }

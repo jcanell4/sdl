@@ -11,10 +11,22 @@ public final class HdSearchCriteria extends SearchCriteria{
         super(text);
     }
 
+    public HdSearchCriteria(String text, String tit){
+        super(text);
+        setTitle(tit);
+    }
+
     public HdSearchCriteria(String text, String dateStart, String dateEnd){
         super(text);
         setDateStart(dateStart);
         setDateEnd(dateEnd);
+    }
+    
+    public HdSearchCriteria(String text, String dateStart, String dateEnd, String tit){
+        super(text);
+        setDateStart(dateStart);
+        setDateEnd(dateEnd);
+        setTitle(tit);
     }
     
     /**

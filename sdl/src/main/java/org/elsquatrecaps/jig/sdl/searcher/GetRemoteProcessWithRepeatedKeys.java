@@ -71,11 +71,10 @@ public class GetRemoteProcessWithRepeatedKeys extends AbstractGetRemoteProcess {
         if(getParams()!=null){            
             String[] aParams = new String[getParams().size()];
             aParams = getParams().toArray(aParams);
-            con = Jsoup.connect(getUrl().concat(getQueryPath())).data(aParams);
+            con = getConnection(getUrl().concat(getQueryPath())).data(aParams);
         }else{
-            con = Jsoup.connect(getUrl().concat(getQueryPath()));
-        }
-        this.configConnection(con);
+            con = getConnection(getUrl().concat(getQueryPath()));
+        };
         return con;
     }
     

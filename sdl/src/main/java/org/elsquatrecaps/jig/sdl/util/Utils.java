@@ -285,11 +285,12 @@ public class Utils {
         strBuffer.append(docId);            
         if(!contentType.equals("D")){
             strBuffer.append("_");
-            strBuffer.append(pageId);                        
+            strBuffer.append(pageId.trim());                        
+            strBuffer.append("_");
+            strBuffer.append(Utils.buildNormalizedFilename(page.trim()));            
         }
         strBuffer.append("_");
-        strBuffer.append(Utils.buildNormalizedFilename(page));            
-        strBuffer.append(Utils.buildNormalizedFilename(title));
+        strBuffer.append(Utils.buildNormalizedFilename(title.trim()));
         return strBuffer.toString().substring(0,Math.min(75, strBuffer.length()));        
     }
 }

@@ -172,7 +172,7 @@ var bibliotequesAPI = (function () {
 
 
     var sendSearchDetailRequest = function(id) {
-    var url = '/searchDetail/' + id; // TODO: extreure la ruta per facilitar onfigurar-la
+    var url = '/searchDetail/' + encodeURIComponent(id); // TODO: extreure la ruta per facilitar onfigurar-la
 
             var timecounter = Date.now();
 
@@ -244,7 +244,7 @@ var bibliotequesAPI = (function () {
             e.stopPropagation();
             
             var id = $(this).attr('data-resource-id');
-            var url = '/resourceDetail/' + id; // TODO: extreure la ruta per facilitar configurar-la
+            var url = '/resourceDetail/' + encodeURIComponent(id); // TODO: extreure la ruta per facilitar configurar-la
 
             showOverlay("Actualitzant");
 
