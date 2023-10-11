@@ -132,7 +132,11 @@ public class ExportService {
             
             if (format.equals("jpg") && aId[1].length()>0) {
                 File inFile = new File(this.dp.getLocalReasourceRepo(), ff.getFileName());
-                exportHighlightedImage(ret.getResource(), inFile, file, aId[1]);                        
+                if(ret.getResource().isFormatSupported("xml")){
+                    exportHighlightedImage(ret.getResource(), inFile, file, aId[1]);                        
+                }else{
+                    Utils.copyToFile(ff.getImInputStream(), fileOutputStream);         
+                }
             } else {
                 Utils.copyToFile(ff.getImInputStream(), fileOutputStream);            
             }

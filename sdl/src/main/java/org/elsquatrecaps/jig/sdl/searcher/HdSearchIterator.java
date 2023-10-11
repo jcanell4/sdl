@@ -16,25 +16,32 @@ import org.jsoup.select.Elements;
 public class HdSearchIterator extends SearchIterator<HdResource>{
     int cnt=0;
     @XmlElement
-    private String navPagesFilter = "div#top-results div.results";
+//    private String navPagesFilter = "div#top-results div.results";
+    private String navPagesFilter = "section#main div.pagination-top";
     @XmlElement
     private String navPagesNextFilter = "a#top-next";    //
     @XmlElement
-    private String newsPaperEditionListFilter = "body form div.list div.list-frame";    
+//    private String newsPaperEditionListFilter = "body form div.list div.list-frame";    
+    private String newsPaperEditionListFilter = "section#main div.list article";    
     @XmlElement
-    private String idFilter = "input"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+//    private String idFilter = "input"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+    private String idFilter = "figure div a"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
     @XmlElement
-    private String basicInfoNewsPaperListFilter = "div.list-record div a[id^=\"details\"]"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+//    private String basicInfoNewsPaperListFilter = "div.list-record div a[id^=\"details\"]"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
+    private String basicInfoNewsPaperListFilter = "div.list-item-record *.list-item-name"; //relative to its father, a tag li got aplying  newsPaperEditionListFilter filter
     @XmlElement
-    private String fragmentsFilter = "table#generic-pane tbody td.value textarea#text";
+//    private String fragmentsFilter = "table#generic-pane tbody td.value textarea#text";
+    private String fragmentsFilter = "div.list-item-record *.list-item-description";
     @XmlElement
-    private String savePdfFilter = "iframe#page-preview";
+    private String relativeUrlDownloadPdfFile = "/hd/es/pdf";
     @XmlElement
-    private String titleFilter = "p#breadcrumbs em a[title=\"Títol\"]";
+    private String relativeUrlDownloadTxtFile = "/hd/es/text";
     @XmlElement
-    private String pageNumFilter = "p#breadcrumbs em span[title=\"Pàgina\"]";
+    private String titleFilter = "strong span.name-part";
     @XmlElement
-    private String editionDateFilter = "p#breadcrumbs em a[title=\"Exemplar\"]";
+    private String pageNumFilter = "span.name-part:nth-child(3)";
+    @XmlElement
+    private String editionDateFilter = "span.name-part:nth-child(2)";
     @XmlElement
     private String noPdfFileUrl = "http://localhost:8888/files/nopdf.pdf";
     
@@ -110,7 +117,7 @@ public class HdSearchIterator extends SearchIterator<HdResource>{
             
     protected boolean noResources(){
         boolean ret;
-        ret = sourceElement.select(navPagesFilter)==null;        
+        ret = sourceElement.select(navPagesFilter).size() == 0;     
         return ret;
     }
     
@@ -183,14 +190,17 @@ public class HdSearchIterator extends SearchIterator<HdResource>{
 
         private HdResource getResource(Element elem) {
             HdResource ret =null;
-            String id = elem.selectFirst(idFilter).val();
-            Element basicInfoElem = elem.selectFirst(basicInfoNewsPaperListFilter);
-            String urlInfoContent = AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), basicInfoElem.attr("href"));
-            getRemoteProcessAux.setUrl(urlInfoContent);
-            getRemoteProcessAux.setCookies(getRemoteProcess.getCookies());
-            Element contentDocum = getRemoteProcessAux.get();
-            ret = new HdResource(titleFilter, editionDateFilter, pageNumFilter, fragmentsFilter, savePdfFilter, noPdfFileUrl, getRemoteProcess._getText());
-            ret.updateFromElement(contentDocum, id, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
+            String urlDownloadPdfFile = relativeToAbsoluteUrl(relativeUrlDownloadPdfFile);
+            String urlDownloadTextFile = relativeToAbsoluteUrl(relativeUrlDownloadTxtFile);
+                    
+            ///----------------------------------------------------//
+//            String urlInfoContent = AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), basicInfoElem.attr("href"));
+//            getRemoteProcessAux.setUrl(urlInfoContent);
+//            getRemoteProcessAux.setCookies(getRemoteProcess.getCookies());
+//            Element contentDocum = getRemoteProcessAux.get();
+            ret = new HdResource(idFilter, basicInfoNewsPaperListFilter, titleFilter, editionDateFilter, 
+                    pageNumFilter, fragmentsFilter, urlDownloadPdfFile, urlDownloadPdfFile.concat("?jpeg=true"), urlDownloadTextFile);
+            ret.updateFromElement(elem, getRemoteProcess.getUrl(), getRemoteProcess.getCookies());
             return ret;
         }
     }

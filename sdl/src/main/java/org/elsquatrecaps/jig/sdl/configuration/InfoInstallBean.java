@@ -12,7 +12,9 @@ import java.io.PrintWriter;
 import java.util.Calendar;
 import org.elsquatrecaps.jig.sdl.exception.ErrorWritingPropertyFile;
 import org.elsquatrecaps.jig.sdl.persistence.patcher.PatchSDLDB;
+import org.springframework.stereotype.Component;
 
+@Component
 public class InfoInstallBean {
     File fout  = new File("info/install.info");// canviar per la propietat corresponeny (app.db.patcher.info_file)
     

@@ -30,12 +30,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableConfigurationProperties
 public class PersistenceConfig {
-    @Autowired
-    DownloaderProperties dp;
-    @Autowired
-    DataSourceProperties dsp;
-    @Autowired
-    InfoInstallBean infoInstallBean;
+    private DownloaderProperties dp;
+    private DataSourceProperties dsp;
+    private InfoInstallBean infoInstallBean;
     
 //    private final Logger log = LoggerFactory.getLogger(getClass());
             
@@ -44,6 +41,33 @@ public class PersistenceConfig {
         InfoInstallBean prop = new InfoInstallBean();
         return prop;
     }  
+    
+    @Autowired
+    public void setInfoInstallBean(InfoInstallBean infoInstallBean){
+        this.infoInstallBean = infoInstallBean;
+    }
+    
+    public InfoInstallBean getInfoInstallBean() {
+        return infoInstallBean;
+    }
+    
+   public DownloaderProperties getDp() {
+        return dp;
+    }
+
+    @Autowired
+    public void setDp(DownloaderProperties dp) {
+        this.dp = dp;
+    }
+
+    public DataSourceProperties getDsp() {
+        return dsp;
+    }
+
+    @Autowired
+    public void setDsp(DataSourceProperties dsp) {
+        this.dsp = dsp;
+    }
 
     @Bean
     @ConfigurationProperties(prefix="spring.jpa")
@@ -53,10 +77,10 @@ public class PersistenceConfig {
         emf.setPersistenceProviderClass(HibernatePersistenceProvider.class);
         emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         emf.setPackagesToScan("org.elsquatrecaps.jig.sdl.model");
-        if(!infoInstallBean.isDataBaseInstalled()){
-            dsp.getProperties().put("javax.persistence.schema-generation.database.action", "create");
+        if(!getInfoInstallBean().isDataBaseInstalled()){
+            getDsp().getProperties().put("javax.persistence.schema-generation.database.action", "create");
         }
-        emf.setJpaPropertyMap(dsp.getProperties());
+        emf.setJpaPropertyMap(getDsp().getProperties());
         emf.setPersistenceUnitName("org.elsquatrecaps.jig_sdl_jar_0.0.1-SNAPSHOTPU");
         return emf;
     }
@@ -76,11 +100,11 @@ public class PersistenceConfig {
     
     @Bean
     public DataSource getDataSource() {
-        String username = dsp.getName().equalsIgnoreCase("derby")?"app":"sa";
-        String password = dsp.getName().equalsIgnoreCase("derby")?"app":"sa";
-        String dname = dsp.getClassName();
+        String username = getDsp().getName().equalsIgnoreCase("derby")?"app":"sa";
+        String password = getDsp().getName().equalsIgnoreCase("derby")?"app":"sa";
+        String dname = getDsp().getClassName();
         return DataSourceBuilder
-                .create().url(dsp.getUrl())
+                .create().url(getDsp().getUrl())
                 .username(username).password(password)
                 .driverClassName(dname)
                 .build();
@@ -129,4 +153,4 @@ public class PersistenceConfig {
 //        jdbcDataSource.setUser("sa");
 //        return jdbcDataSource;
 //    }
-}
+ }

@@ -5,7 +5,6 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;

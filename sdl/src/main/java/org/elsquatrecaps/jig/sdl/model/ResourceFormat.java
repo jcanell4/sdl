@@ -6,7 +6,6 @@
 package org.elsquatrecaps.jig.sdl.model;
 
 import java.io.Serializable;
-import java.util.Map.Entry;
 import javax.persistence.Embeddable;
 
 /**
@@ -32,6 +31,7 @@ public class ResourceFormat implements Serializable {
         return format;
     }
 
+    //Indica si el contingut és una pàgina "P" o un document "D"
     public String getContentType() {
         return contentType;
     } 

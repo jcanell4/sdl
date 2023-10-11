@@ -33,6 +33,7 @@ public class SearchId implements Serializable{
         this.searchCriteria = searchCriteria.toLowerCase();
     }
     
+    @Override
     public boolean equals(Object obj){
         boolean ret = false;
         if(obj!=null && obj instanceof SearchId){
@@ -43,10 +44,12 @@ public class SearchId implements Serializable{
         return ret;
     }
     
+    @Override
     public int hashCode(){
         return Objects.hash(repository, searchCriteria);
     }
     
+    @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append(repository);

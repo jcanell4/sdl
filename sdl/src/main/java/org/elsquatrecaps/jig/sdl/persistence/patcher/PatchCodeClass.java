@@ -4,10 +4,7 @@
  */
 package org.elsquatrecaps.jig.sdl.persistence.patcher;
 
-import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.FileHandler;
-import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

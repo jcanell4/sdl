@@ -1,3 +1,3 @@
-cmd /k "java -jar sdl-0.0.1-SNAPSHOT-spring-boot.jar"
+cmd /k "java -jar sdl-1.0.0-spring-boot.jar"
 
 

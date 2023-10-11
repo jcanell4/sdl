@@ -4,55 +4,82 @@ import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
 import static org.elsquatrecaps.jig.sdl.searcher.SearcherResource.logger;
 import org.elsquatrecaps.jig.sdl.util.Utils;
 import org.jsoup.nodes.Element;
 
 public class HdResource extends SearcherResource{
-    private static final String[] SUPPORTED_FORMATS={"pdf"};
+    private static final String[] SUPPORTED_FORMATS={"pdf", "jpg", "txt"};
+    private String idFilter;
+    private String basicInfoNewsPaperListFilter;
     private String titleFilter;
     private String pageNumFilter;
     private String editionDateFilter;
     private String pdfUrl;
     private String fragmentsFilter;
-    private String savePdfFilter;
-    private String noPdfUrl;
-    private String textKey;
+    private String urlDownloadPdfFile;
+    private String urlDownloadJpgFile;
+    private String urlDownloadTxtFile;
+//    private String savePdfFilter;
+    private Integer iPageNumber;
+//    private String textKey;
 
 
     public HdResource() {
     }
     
-    public HdResource(String titleFilter, String editionDateFilter, String pageNumFilter, String fragmentsFilter, String savePdfFilter, String noPdfFileUrl, String textKey) {
+    public HdResource(String idFilter, String basicInfoNewsPaperListFilter, String titleFilter, String editionDateFilter, 
+            String pageNumFilter, String fragmentsFilter, String urlDownloadPdfFile, String urlDownloadJpgFile, String urlDownloadTxtFile) {
+        this.idFilter = idFilter;
+        this.basicInfoNewsPaperListFilter = basicInfoNewsPaperListFilter;
         this.titleFilter = titleFilter;
         this.editionDateFilter = editionDateFilter;
         this.pageNumFilter = pageNumFilter;
         this.fragmentsFilter = fragmentsFilter;
-        this.savePdfFilter = savePdfFilter;
-        this.noPdfUrl = noPdfFileUrl;
-        this.textKey = textKey.replaceAll("\"", "").replaceAll("( )+", "|");        
+        this.urlDownloadPdfFile = urlDownloadPdfFile;
+        this.urlDownloadJpgFile = urlDownloadJpgFile;
+        this.urlDownloadTxtFile = urlDownloadTxtFile;
+//        this.savePdfFilter = savePdfFilter;
+//        this.noPdfUrl = noPdfFileUrl;
+//        this.textKey = textKey.replaceAll("\"", "").replaceAll("( )+", "|");        
     }
     
-    public void updateFromElement(Element contentDocum, String id, String context, Map<String, String> cookies){
+    public void updateFromElement(Element contentDocum, String context, Map<String, String> cookies){
+        String idhref = contentDocum.selectFirst(idFilter).attr("href");
+        String id = idhref.substring(17, idhref.indexOf("&page"));
         try{
+            Element basicInfoElem = contentDocum.selectFirst(basicInfoNewsPaperListFilter);
+            String title = basicInfoElem.selectFirst(titleFilter).text().trim();
+            String editionDate = basicInfoElem.selectFirst(editionDateFilter).text().trim();
+            String strPageNumber = basicInfoElem.selectFirst(pageNumFilter).text().trim();
+            iPageNumber = Integer.valueOf(strPageNumber.replaceAll("[^0-9]", ""));
+            String fragmentsText = contentDocum.selectFirst(fragmentsFilter).text().trim();            
             setPublicationId(Utils.getNormalizedText(id));
-            setTitle(contentDocum.selectFirst(titleFilter).text().trim());
-            setPage(contentDocum.selectFirst(pageNumFilter).text().trim());
-            setPageId(Utils.getNormalizedText(getPage()));
-            setEditionDate(getDateFromDateEditonOrTitle(contentDocum.selectFirst(editionDateFilter)));
-            Element elementText = contentDocum.selectFirst(this.fragmentsFilter);
-            if(elementText!=null){
-                saveFragments(elementText.val());
-            }
-            //ALERTA DE VEGADES EL FORMAT ÉS JPG!
-            Element pdfElement = contentDocum.selectFirst(savePdfFilter);
-            if(pdfElement==null){
-                throw new ErrorGettingRemoteData("Error. Nonexistent pdf for: ".concat(this.getTitle()));
-            }else{
-                pdfUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, pdfElement.attr("src"));
-            }
+            setTitle(title);
+            setPage(strPageNumber);
+            setPageId(Utils.getNormalizedText("P".concat(iPageNumber.toString())));
+            setEditionDate(getDateFromDateEditonOrTitle(editionDate));
+            saveFragments(fragmentsText.split("\\.\\.\\."));
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+//            //ALERTA DE VEGADES EL FORMAT ÉS JPG!
+//            Element pdfElement = contentDocum.selectFirst(savePdfFilter);
+//            if(pdfElement==null){
+//                throw new ErrorGettingRemoteData("Error. Nonexistent pdf for: ".concat(this.getTitle()));
+//            }else{
+//                pdfUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, pdfElement.attr("src"));
+//            }
         }catch(Exception ex){
             logger.error("Error carregant un registre: ".concat(ex.getMessage()));
             throw new ErrorGettingRemoteResource(ex);
@@ -60,14 +87,14 @@ public class HdResource extends SearcherResource{
         
     }
     
-    private String getDateFromDateEditonOrTitle(Element dateElement){
+    private String getDateFromDateEditonOrTitle(String dateElement){
         String ret = null;
         if(dateElement==null){
-            ret = ret = getDateFromTitle("0000");
+            ret = getDateFromTitle("0000");
         }else{
-            ret = getDateFromDateEdition(dateElement.text().trim());
+            ret = getDateFromDateEdition(dateElement.trim());
             if(ret.equals("00/00/0000")){
-                ret = getDateFromTitle(dateElement.text().trim());
+                ret = getDateFromTitle(dateElement.trim());
             }
         }
         return Utils.getNormalizedData(ret);
@@ -107,7 +134,21 @@ public class HdResource extends SearcherResource{
 
     @Override
     protected FormatedFile getStrictFormatedFile(String format) {
-        String urlFile = format.equals("pdf")?pdfUrl:null;
+        String urlFile=null;
+        switch (format) {
+            case "pdf":
+                urlFile = urlDownloadPdfFile.concat("?id=").concat(getPublicationId()).concat("&page=")
+                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".pdf");
+                break;
+            case "txt":
+                urlFile = urlDownloadTxtFile.concat("?id=").concat(getPublicationId()).concat("&page=")
+                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".txt");
+                break;
+            case "jpg":
+                urlFile = urlDownloadJpgFile.concat("&id=").concat(getPublicationId()).concat("&page=")
+                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".jpg");
+                break;
+        }        
         return getFormatedFileInstance(urlFile, format);
     }
     
@@ -116,11 +157,13 @@ public class HdResource extends SearcherResource{
         return SUPPORTED_FORMATS;
     }
 
-    private void saveFragments(String text){
-        Pattern p = Pattern.compile(".{0,100}(".concat(textKey).concat(").{0,100}"), Pattern.CASE_INSENSITIVE+Pattern.DOTALL);
-        Matcher m = p.matcher(text);
-        while(m.find()){
-            addFragment(text.substring(m.start(), m.end()));
+    private void saveFragments(String[] text){
+        for(int id=0; id < text.length; id++){
+            if(text[id].length()<500){
+                addFragment(text[id]);
+            }else{
+                addFragment(text[id].substring(0, 500));
+            }
         }
     }    
 

@@ -14,6 +14,7 @@ import java.util.List;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -44,6 +45,7 @@ public class Resource implements Serializable{
     private List<ResourceFormat> resourceFormats=new ArrayList<>();
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="RESOURCE_FRAGMENT")
+    @Column(length = 500)
     @OrderColumn
     private List<String> fragments= new ArrayList<String>();
     @Transient
@@ -231,7 +233,7 @@ public class Resource implements Serializable{
         return FormatedResourceUtils.getAlternativeFormats(format);
     }
 
-    protected boolean isFormatSupported(String format) {
+    public boolean isFormatSupported(String format) {
         return FormatedResourceUtils.isFormatSupported(format, getSupportedFormats());
     }
 

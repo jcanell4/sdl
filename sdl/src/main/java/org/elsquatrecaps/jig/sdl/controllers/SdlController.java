@@ -9,6 +9,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +20,6 @@ import org.elsquatrecaps.jig.sdl.configuration.DownloaderProperties;
 import org.elsquatrecaps.jig.sdl.exception.ErrorCopyingFileFormaException;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteData;
 import org.elsquatrecaps.jig.sdl.exception.ErrorGettingRemoteResource;
-import org.elsquatrecaps.jig.sdl.exception.UnsupportedFormat;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import org.elsquatrecaps.jig.sdl.model.Resource;
 import org.elsquatrecaps.jig.sdl.model.Search;
@@ -58,6 +60,9 @@ public class SdlController {
     private static final java.util.logging.Logger errorList = java.util.logging.Logger.getLogger(ErrorGettingRemoteResource.class.getName());
     static {
         try { 
+            if(Files.notExists(Paths.get("log"))){
+                Files.createDirectories(Paths.get("log"));
+            }
             errorList.addHandler(new FileHandler("log/DocumentsNoBaixats.txt"));
         } catch (SecurityException | IOException ex) {
             logger.error("Error creant el fitxer de registres dels documents no obtinguts a casoa de: ".concat(ex.getMessage()), ex);
@@ -186,6 +191,8 @@ public class SdlController {
         if (optional.isPresent()) {
             ret.addObject("selected", optional.get().getId());
             logger.debug("Dades enviades al navegador");
+        }else{
+            
         }
         
         return ret;

@@ -57,7 +57,7 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
         }else if(toDateField.equalsIgnoreCase(key)){
             hdParams.setToDate(value);
         }else if(textField.equalsIgnoreCase(key)){
-            hdParams.setText(key);
+            hdParams.setText(value);
         }else{
             hdParams.setTitle(value);
         }
@@ -148,7 +148,7 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
             String date;
             List<String> list = new ArrayList<>();
             list.add("d");
-            list.add("creation");
+            list.add("date");
             date = fromDate;
             if(date==null){
                 date = defaultFromDate;
@@ -163,12 +163,17 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
         }
 
         private List<String> _getDate(String date) {
+            StringBuilder strb = new StringBuilder();
             List<String> list = new ArrayList<>();
             String[] adate = date.split("/");
             for(int i=2; i>=0; i--){
-                list.add("d");
-                list.add(adate[i]);
+                strb.append(adate[i]);
+                if(i>0){
+                    strb.append("-");
+                }
             }
+            list.add("d");
+            list.add(strb.toString());
             return list;
         }
 
@@ -194,18 +199,16 @@ public class HdGetRemoteProcess extends GetRemoteProcessWithRepeatedKeys{
             ret.add("f");
             ret.add("text");
             ret.addAll(this.getDate());
-            ret.add("b");
-            ret.add("search-visible");
             ret.add("t");
-            ret.add("+creation");
+            ret.add("date-asc");
             ret.add("l");
-            ret.add("600");
-            ret.add("l");
-            ret.add("700");
-            ret.add("s");
-            ret.add("0");
-            ret.add("lang");
-            ret.add("ca");
+            ret.add("100");
+            ret.add("g");
+            ret.add("p");
+            ret.add("g");
+            ret.add("o");
+            ret.add("g");
+            ret.add("fa");
             return ret;
         }
 
