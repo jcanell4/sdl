@@ -5,8 +5,8 @@
  */
 package org.elsquatrecaps.jig.sdl.searcher;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import org.elsquatrecaps.jig.sdl.exception.UnsupportedFormat;
@@ -46,15 +46,21 @@ public class FormatedResourceUtils {
         String formatDef = null;
         boolean found = false;
         LinkedList<String> formats = new LinkedList<>();
+        HashSet<String> triedFormats = new HashSet<>();
         formats.add(format);
         while (!found && !formats.isEmpty()) {
             formatDef = formats.pop();
+            triedFormats.add(formatDef);
             found = isFormatSupported(formatDef, supportedFormats);
             if (!found) {
                 logger.debug("Cercant un format de fitxer alternatiu");
                 String[] alternativeFormats = getAlternativeFormats(formatDef);
                 if (alternativeFormats != null) {
-                    formats.addAll(Arrays.asList(alternativeFormats));
+                    for(String f: alternativeFormats){
+                        if(!triedFormats.contains(f) && !formats.contains(f)){
+                            formats.add(f);
+                        }
+                    }
                 } 
                 
             }

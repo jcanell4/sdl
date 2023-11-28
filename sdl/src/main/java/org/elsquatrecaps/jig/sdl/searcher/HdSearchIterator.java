@@ -39,7 +39,7 @@ public class HdSearchIterator extends SearchIterator<HdResource>{
     @XmlElement
     private String titleFilter = "strong span.name-part";
     @XmlElement
-    private String pageNumFilter = "span.name-part:nth-child(3)";
+    private String pageNumFilter = "p > span.name-part:last-child";
     @XmlElement
     private String editionDateFilter = "span.name-part:nth-child(2)";
     @XmlElement

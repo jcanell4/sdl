@@ -98,7 +98,7 @@ public class ExportService {
         }
 
         String fileExportPath;
-        fileExportPath = this.dp.getLocalExportPath();
+        fileExportPath = this.dp.getLocalExportPath().trim();
 
         FileOutputStream fileOutputStream = null;
         File path = new File(fileExportPath);
