@@ -19,6 +19,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
 
 @Entity
 @Access(AccessType.FIELD)
@@ -108,7 +109,23 @@ public class Search implements Serializable {
         }        
     }
     
-    public SearchResource addResource(Resource resource) {
+    public SearchResource addResource(SearcherResource sr) {
+        SearchResource ret;
+        String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
+//        resource.setSearchDate(date);
+        ret = new SearchResource(this, sr);
+        ret.setSearchDate(date);
+        return ret;
+    }
+    
+    public SearchResource addResource(Resource resource, String[] fragments) {
+        SearchResource ret;
+        ret = this.addResource(resource);
+        ret.addAllFragments(fragments);
+        return ret;
+    }
+    
+    private SearchResource addResource(Resource resource) {
         SearchResource ret;
         String date = (this.updateDate==null || this.updateDate.isEmpty())?this.originalDate:this.updateDate;
 //        resource.setSearchDate(date);

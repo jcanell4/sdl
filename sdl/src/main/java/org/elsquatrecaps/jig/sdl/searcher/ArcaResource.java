@@ -16,11 +16,20 @@ public class ArcaResource extends BvphTypeResource{
 //    protected ArrayList<String> supportedFormats = new ArrayList<>();
     protected HashMap<String, String> contentTypeAndSupportedFormats = new HashMap();    
     private String pdfTemporalUrl;
-
+    private Element toDonwloading;
+    private String previousPageFilter;
+    private String nextPageFilter;
+    private String downloadJpgFromPagesMenu;
+    private String imageID;
+    private String pageIdFilter;
+    
     public ArcaResource() {
     }
     
-    public ArcaResource(String fragmentsFilter, String actionsFilter, String downloadJpg, String downloadPdf, String titleFilter, String editionDateBloc, String patterToExtractDateFromTitle) {
+    public ArcaResource(String fragmentsFilter, String actionsFilter, String downloadJpg, 
+            String downloadPdf, String titleFilter, String editionDateBloc, String pageIdFilter,
+            String patterToExtractDateFromTitle, String downloadJpgFromPagesMenu,
+            String previousPageFilter, String nextPageFilter) {
         this.fragmentsFilter = fragmentsFilter;
         this.actionsFilter = actionsFilter;
         this.jpgTemporalUrl = downloadJpg;
@@ -28,6 +37,75 @@ public class ArcaResource extends BvphTypeResource{
         this.titleFilter = titleFilter;
         this.editionDateBlocFilter = editionDateBloc;
         this.patterToExtractDateFromTitle = patterToExtractDateFromTitle;
+        this.downloadJpgFromPagesMenu = downloadJpgFromPagesMenu;
+        this.previousPageFilter = previousPageFilter;
+        this.nextPageFilter = nextPageFilter;
+        this.pageIdFilter = pageIdFilter;                
+    }
+    
+    public ArcaResource(ArcaResource sibling){
+        this.setEditionDate(sibling.getEditionDate());
+        this.setProcessDateResult(sibling.getProcessDateResult());
+        this.setPublicationId(sibling.getPublicationId());
+        this.setTitle(sibling.getTitle());
+        this.pdfTemporalUrl = sibling.pdfTemporalUrl;
+        this.previousPageFilter = sibling.previousPageFilter;
+        this.nextPageFilter = sibling.nextPageFilter;
+        this.downloadJpgFromPagesMenu = sibling.downloadJpgFromPagesMenu;
+        this.actionsFilter = sibling.actionsFilter;
+        this.pageIdFilter = sibling.pageIdFilter;
+    }
+    
+    @Override
+    public boolean hasNextPage(){
+        return toDonwloading.selectFirst(nextPageFilter)!=null;
+    }
+    
+    @Override
+    public boolean hasPrevioiusPage(){
+        return toDonwloading.selectFirst(previousPageFilter)!=null;
+    }
+    
+    public boolean updateFromPagesMenuSiblingElement(ArcaResource res, int prevOrNext, String context, Map<String, String> cookies){
+        boolean ret;
+        String href=null;
+        if(prevOrNext==PREVIOUS_SIBLING){
+            Element aPrevious = res.toDonwloading.selectFirst(previousPageFilter);
+            if(aPrevious!=null){
+                href = Utils.urlQueryPath(aPrevious.attr("href"));
+                GetRemoteProcessWithoutParams rp = new GetRemoteProcessWithoutParams(
+                        Utils.relativeToAbsoluteUrl(context, aPrevious.attr("href")), cookies);
+                toDonwloading = rp.get();
+            }
+        }else{
+            Element aNext = res.toDonwloading.selectFirst(nextPageFilter);
+            if(aNext!=null){
+                href = Utils.urlQueryPath(aNext.attr("href"));
+                GetRemoteProcessWithoutParams rp = new GetRemoteProcessWithoutParams(
+                        Utils.relativeToAbsoluteUrl(context, aNext.attr("href")), cookies);
+                toDonwloading = rp.get();
+            }
+        }
+        ret = toDonwloading!=null;
+        if(ret){
+            setPageId("P".concat(toDonwloading.selectFirst(pageIdFilter).attr("value")));
+            Elements actions = toDonwloading.select(actionsFilter);
+            if(!actions.isEmpty()){
+                ocrtextUrl = actions.get(0).child(0).attr("href");
+                ocrtextUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, ocrtextUrl + "&aceptar=Aceptar");
+            }else{
+                ocrtextUrl=null;
+            }
+            if(actions.size()>1){
+                altoXmlUrl = actions.get(1).child(0).attr("href");
+                altoXmlUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, altoXmlUrl + "&aceptar=Aceptar");
+            }else{
+                altoXmlUrl=null;
+            }
+            jpgTemporalUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, downloadJpgFromPagesMenu.concat(href));
+            this.updateSupportedFormats();
+        }
+        return ret;
     }
     
     public void updateFromElement(Element elem, String context, Map<String, String> cookies) {
@@ -39,16 +117,26 @@ public class ArcaResource extends BvphTypeResource{
             setTitle(dlElement.selectFirst(titleFilter).text());
             //            setPageId(elem.child(0).attr("id"));
             //            setPage(elem.selectFirst(pageFilter).text());
-            setPageId(elem.child(1).attr("id"));
+//            setPageId(elem.child(1).attr("id"));
+//            String strPageNumber = elem.child(1).text();
+//            Integer iPageNumber = Integer.valueOf(strPageNumber.replaceAll("[^0-9]", ""));
+//            setPageId(Utils.getNormalizedText("P".concat(iPageNumber.toString())));
             setPage(elem.child(1).text());
             setEditionDate(getDateFromDbiOrTitle(dlElement.selectFirst(editionDateBlocFilter)));
+            setImageID(elem.child(1).attr("id"));
             frags = new ArrayList<>(elem.select(fragmentsFilter));
             for (int i = 0; i < frags.size(); i++) {
                 addFragment(frags.get(i).text());
             }
             String relativeUrl = elem.child(0).attr("href");
             String url = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, relativeUrl);
-            Element toDonwloading = getToDownloading(url, cookies);
+            toDonwloading = getToDownloading(url, cookies);
+            Element elementPageId = toDonwloading.selectFirst(pageIdFilter);
+            if(elementPageId!=null){
+                setPageId("P".concat(elementPageId.attr("value")));
+            }else{
+                setPageId("");
+            }
             Elements actions = toDonwloading.select(actionsFilter);
             if(actions.size()>0){
                 ocrtextUrl = actions.get(0).child(0).attr("href");
@@ -63,8 +151,12 @@ public class ArcaResource extends BvphTypeResource{
                 altoXmlUrl=null;
             }
             //            jpgTemporalUrl = toDonwloading.select(saveJpgFilter).last().attr("href");
-            jpgTemporalUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, jpgTemporalUrl);
-            pdfTemporalUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, pdfTemporalUrl);
+            if(jpgTemporalUrl!= null){
+                jpgTemporalUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, jpgTemporalUrl);
+            }
+            if(pdfTemporalUrl!=null){
+                pdfTemporalUrl = AbstractGetRemoteProcess.relativeToAbsoluteUrl(context, pdfTemporalUrl);
+            }
             this.updateSupportedFormats();
             
         } catch (Exception ex) {
@@ -99,7 +191,7 @@ public class ArcaResource extends BvphTypeResource{
     }
     
     private void updateSupportedFormats(){
-        if(Utils.isCorrectContentType(jpgTemporalUrl, "jpeg")){
+        if(jpgTemporalUrl!=null && Utils.isCorrectContentType(jpgTemporalUrl, "jpeg")){
             if(ocrtextUrl!=null){
                 this.contentTypeAndSupportedFormats.put("txt", "P");
             }
@@ -108,8 +200,11 @@ public class ArcaResource extends BvphTypeResource{
             }
             this.contentTypeAndSupportedFormats.put("jpg", "P");
         }
-        if(Utils.isCorrectContentType(pdfTemporalUrl, "pdf")){
+        if(pdfTemporalUrl!= null && Utils.isCorrectContentType(pdfTemporalUrl, "pdf")){
             this.contentTypeAndSupportedFormats.put("pdf", "D");
+            if(this.contentTypeAndSupportedFormats.size()==1){
+                this.setPageId("");
+            }
         }
     }
     
@@ -163,4 +258,22 @@ public class ArcaResource extends BvphTypeResource{
 //        strBuffer.append(Utils.buildNormalizedFilename(this.getTitle()));
 //        return strBuffer.toString().substring(0,Math.min(60, strBuffer.length()));        
 //    }
+
+    public String getImageID() {
+        return imageID;
+    }
+
+    public void setImageID(String imageID) {
+        this.imageID = imageID;
+    }
+    
+    @Override
+    public String getOldId(){
+        return this.getPublicationId().concat("_").concat(imageID);
+    }
+    
+    @Override
+    public boolean isIdRewritten() {
+        return !(this.imageID==null || this.imageID.isEmpty());
+    }
 }

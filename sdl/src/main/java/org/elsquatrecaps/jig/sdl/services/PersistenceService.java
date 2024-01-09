@@ -68,7 +68,7 @@ public class PersistenceService {
                 String[] oldFormats = oldResource.getSupportedFormats();
                 List<String> newFormats = Arrays.asList(newResource.getSupportedFormats());
 
-                updateFormats = newFormats.size()>0;
+                updateFormats = !newFormats.isEmpty();
                 if(updateFormats){
                     for(int i=0; i<oldFormats.length; i++){
                         String oldFileName = oldResource.getFileName(oldFormats[i]);
@@ -89,22 +89,7 @@ public class PersistenceService {
             resourceRepository.saveAndFlush(oldResource);
         }
     }
-    
-    private void saveResources(List<SearchResource> resources){
-        if(resources!=null && resources.size()>0){
-            for(SearchResource sr: resources){
-                String rId = sr.getResource().getId();
-                if(!resourceRepository.existsById(rId)){
-                    resourceRepository.saveAndFlush(sr.getResource());
-                }else{
-                    Resource resource = resourceRepository.findById(rId).get();
-                    resource.updateSingleData(sr.getResource());
-                    resourceRepository.saveAndFlush(resource);
-                }
-            }
-        }
-    }
-    
+     
     public void saveSearchResource(SearchResource searchResource){
         SearchResourceId id = searchResource.getId();
         saveResource(searchResource);
@@ -125,35 +110,7 @@ public class PersistenceService {
         }
         searchRepository.saveAndFlush(toSave);
     }
-    
-//    public Search saveSearch(Search search){
-//        saveResources(search.getResourceList());
-//        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
-//        return transaction.execute((TransactionStatus status) -> {
-//            Search toSave;
-//            Optional<Search> optional = searchRepository.findOne(search.getRepository(), search.getSearchCriteria());
-//            if(optional.isPresent()){
-//                String updateDate = search.getOriginalDate();
-//                List<SearchResource> resources = search.getResourceList();
-//                toSave = optional.get();
-//                toSave.setUpdateDate(updateDate);
-//                if(resources!=null && resources.size()>0){
-//                    for(SearchResource sr: resources){
-//                        toSave.addResource(sr);
-//                        status.flush();
-//                    }
-//                }
-//            }else{
-//                toSave = search;
-//                for(SearchResource sr: toSave.getResourceList()){
-//                    resourceRepository.saveAndFlush(sr.getResource());
-//                }
-//                searchRepository.saveAndFlush(toSave);
-//            }
-//            return toSave;
-//        });
-//    }
-    
+       
     //resources
     public List<SearchResource> findAllResourceBySearch(SearchId id){
         return searchResourceRepository.findBySearchId(id);
@@ -170,8 +127,8 @@ public class PersistenceService {
     public Page<SearchResource> findAllResourceBySearch(Search search, int pageNum,  int maxElements){
         return searchResourceRepository.findBySearchId(search.getId(), PageRequest.of(pageNum, maxElements));
     }
-    
-    public SearchResource findResourceById(SearchResourceId id){
+       
+    public SearchResource findSearchResourceById(SearchResourceId id){
         SearchResource ret;
         Optional<SearchResource> optional = searchResourceRepository.findById(id);
         if(optional.isPresent()){
@@ -200,5 +157,27 @@ public class PersistenceService {
 
     public void setFileRepositoryPath(String fileRepositoryPath) {
         this.fileRepositoryPath = fileRepositoryPath;
+    }
+    
+    private boolean existsResourceById(String id){
+        return resourceRepository.existsById(id);
+    }
+
+    public boolean existsSearchResourceById(SearchResourceId id){
+        return searchResourceRepository.existsById(id);
+    }
+    
+    public void changeIdResourceOnSearchResource(String resourceId, Resource newResource){
+        List<SearchResource> srList;
+        if(resourceRepository.existsById(resourceId)){
+            srList = searchResourceRepository.findByResourceId(resourceId);
+            for(SearchResource sr: srList){
+                SearchResource newSr = new SearchResource(sr, newResource);
+                searchResourceRepository.delete(sr);
+                searchResourceRepository.flush();
+                saveSearchResource(newSr);
+            }
+            resourceRepository.deleteById(resourceId);  
+        }
     }
 }

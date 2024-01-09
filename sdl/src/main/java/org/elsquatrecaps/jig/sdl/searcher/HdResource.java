@@ -22,7 +22,7 @@ public class HdResource extends SearcherResource{
     private String urlDownloadJpgFile;
     private String urlDownloadTxtFile;
 //    private String savePdfFilter;
-    private Integer iPageNumber;
+//    private Integer iPageNumber;
 //    private String textKey;
 
 
@@ -53,7 +53,7 @@ public class HdResource extends SearcherResource{
             String title = basicInfoElem.selectFirst(titleFilter).text().trim();
             String editionDate = basicInfoElem.selectFirst(editionDateFilter).text().trim();
             String strPageNumber = basicInfoElem.selectFirst(pageNumFilter).text().trim();
-            iPageNumber = Integer.valueOf(strPageNumber.replaceAll("[^0-9]", ""));
+            Integer iPageNumber = Integer.valueOf(strPageNumber.replaceAll("[^0-9]", ""));
             String fragmentsText = contentDocum.selectFirst(fragmentsFilter).text().trim();            
             setPublicationId(Utils.getNormalizedText(id));
             setTitle(title);
@@ -137,16 +137,22 @@ public class HdResource extends SearcherResource{
         String urlFile=null;
         switch (format) {
             case "pdf":
+//                urlFile = urlDownloadPdfFile.concat("?id=").concat(getPublicationId()).concat("&page=")
+//                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".pdf");
                 urlFile = urlDownloadPdfFile.concat("?id=").concat(getPublicationId()).concat("&page=")
-                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".pdf");
+                        .concat(getPageId().substring(1)).concat("&attachment=").concat(getFileName(format)).concat(".pdf");
                 break;
             case "txt":
+//                urlFile = urlDownloadTxtFile.concat("?id=").concat(getPublicationId()).concat("&page=")
+//                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".txt");
                 urlFile = urlDownloadTxtFile.concat("?id=").concat(getPublicationId()).concat("&page=")
-                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".txt");
+                        .concat(getPageId().substring(1)).concat("&attachment=").concat(getFileName(format)).concat(".txt");
                 break;
             case "jpg":
+//                urlFile = urlDownloadJpgFile.concat("&id=").concat(getPublicationId()).concat("&page=")
+//                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".jpg");
                 urlFile = urlDownloadJpgFile.concat("&id=").concat(getPublicationId()).concat("&page=")
-                        .concat(iPageNumber.toString()).concat("&attachment=").concat(getFileName(format)).concat(".jpg");
+                        .concat(getPageId().substring(1)).concat("&attachment=").concat(getFileName(format)).concat(".jpg");
                 break;
         }        
         return getFormatedFileInstance(urlFile, format);

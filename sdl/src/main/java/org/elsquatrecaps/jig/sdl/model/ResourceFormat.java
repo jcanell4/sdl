@@ -42,6 +42,7 @@ public class ResourceFormat implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        return this.format.equalsIgnoreCase(((ResourceFormat) o).format);
+        return this.format.equalsIgnoreCase(((ResourceFormat) o).format)
+                && this.contentType.equalsIgnoreCase(((ResourceFormat) o).contentType);
     }
 }

@@ -19,6 +19,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SearchResourceRepository extends JpaRepository<SearchResource, SearchResourceId>{
 
+    @Query("SELECT sr FROM SearchResource sr WHERE sr.resource.id= :resourceid")
+    List<SearchResource> findByResourceId(@Param("resourceid") String id);
+
     @Query("SELECT r FROM Search s INNER JOIN  s.resources r WHERE s.id = :searchId")
     List<SearchResource> findBySearchId(@Param("searchId") SearchId id);
 

@@ -35,6 +35,8 @@ public abstract class BvphTypeSearchIterator<T extends SearcherResource> extends
     protected String pubYearPaginatedRegistersNextPageFilter = "a#boton_siguiente";
     protected String fragmentsFilter = "ul.texto_ocurrencias li";
     protected String actionsFilter = "div#tab_acciones ul li";
+    protected String previousPageFilter = "a#boton_anterior";
+    protected String nextPageFilter = "a#boton_siguiente";
     protected String saveJpgFilter = "ol#nav_registros div.visualizador_menu span#grupo_1 a";
     protected String titleFilter = "dt span span.titulo a bdi";
     protected String pageFilter = "p strong a";
@@ -58,6 +60,8 @@ public abstract class BvphTypeSearchIterator<T extends SearcherResource> extends
     protected int currentBiggerYear = -1;
     protected int currentSmallerYear = -1;
     protected String lastDataProcessed = "01/01/1000";
+    protected int pagesBefore = 0;
+    protected int pagesAfeter = 0;
 
     public BvphTypeSearchIterator() {
     }

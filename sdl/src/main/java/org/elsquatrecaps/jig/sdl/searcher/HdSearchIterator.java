@@ -136,6 +136,16 @@ public class HdSearchIterator extends SearchIterator<HdResource>{
     private String relativeToAbsoluteUrl(String relative){
         return  AbstractGetRemoteProcess.relativeToAbsoluteUrl(getRemoteProcess.getUrl(), relative);
     }
+
+    @Override
+    public SearcherResource getNextSiblingPage(SearcherResource sr) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public SearcherResource getPreviousSiblingPage(SearcherResource sr) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
 ///// ------ CLASS HdBlockSearhIterator  ---------------------//
 

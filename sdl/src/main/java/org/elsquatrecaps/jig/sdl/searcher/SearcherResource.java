@@ -5,8 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.elsquatrecaps.jig.sdl.model.FormatedFile;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.elsquatrecaps.jig.sdl.util.Utils;
@@ -15,7 +13,8 @@ import org.slf4j.LoggerFactory;
 
 public abstract class SearcherResource{
     protected static final Logger logger = LoggerFactory.getLogger(SearcherResource.class);
-
+    public static final int PREVIOUS_SIBLING = -1;
+    public static final int NEXT_SIBLING = 1;
     public static final String PR_DATE_RES_SENSE_CLASSIFICAR = "SCL";
     public static final String PR_DATE_RES_FIABLE = "FIA";
     public static final String PR_DATE_RES_APROXIMADA = "APR";
@@ -24,13 +23,12 @@ public abstract class SearcherResource{
     private String title = "No s'ha pogut extreure el títol";
     private String page = "Pàgina desconeguda. No s'ha trobat la informació";
     private String publicationId = "Identificador de la publicació desconegut. No s'ha trobat la informació";
-    private String pageId = "Identificador de la pàgina desconegut. No s'ha trobat la informació";
+    private String pageId = ""; //"Identificador de la pàgina desconegut. No s'ha trobat la informació";
     private String editionDate = "00/00/0000";
     private ArrayList<String> fragments= new ArrayList<String>();
     private String processDateResult = PR_DATE_RES_SENSE_CLASSIFICAR; //SENSE CLASSIFICAR
 
 
-  
     public String getFileName(String format){
         return Utils.getFilename(this, format);
     }
@@ -145,6 +143,14 @@ public abstract class SearcherResource{
         }
         return ret;        
     }    
+    
+    public boolean hasNextPage(){
+        return false;
+    }
+
+    public boolean hasPrevioiusPage(){
+        return false;
+    }
 
     private String checkDate(String editionDate) {
         String ret;
@@ -180,5 +186,13 @@ public abstract class SearcherResource{
 
     public void setProcessDateResult(String pdr) {
         this.processDateResult = pdr;
+    }
+
+    public boolean isIdRewritten() {
+        return false;
+    }
+
+    public String getOldId(){
+        throw new RuntimeException("Method 'getOldId' can't be called");
     }
 }

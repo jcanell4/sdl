@@ -139,7 +139,7 @@ public class SdlController {
         String view = "new :: resourceDetail";
         ModelAndView ret = new ModelAndView(view);
 
-        SearchResource resource = instance.findResourceById(new SearchResourceId(aId[0], aId[1], aId[2]));
+        SearchResource resource = instance.findSearchResourceById(new SearchResourceId(aId[0], aId[1], aId[2]));
         ret.addObject("resource", resource);
 
         return ret;
@@ -156,7 +156,10 @@ public class SdlController {
             @RequestParam(defaultValue = "BVPH", name = "repository") String repository,
             @RequestParam(defaultValue = "", name = "date-end") String dateEnd,
             @RequestParam(defaultValue = "", name = "date-start") String dateStart,
-            @RequestParam(defaultValue = "", name = "title") String title){
+            @RequestParam(defaultValue = "0", name = "pagesBeforeEachFind") int pagesBeforeEachFind,
+            @RequestParam(defaultValue = "0", name = "pagesAfterEachFind") int pagesAfterEachFind,
+            @RequestParam(defaultValue = "", name = "title") String title
+    ){
 
         ModelAndView ret = new ModelAndView("new :: searches");
         
@@ -169,9 +172,9 @@ public class SdlController {
             String[] aDate = dateEnd.split("[\\/\\-]");
             dateEnd = aDate[2].concat("/").concat(aDate[1]).concat("/").concat(aDate[0]);
         }
-        
+        criteria = criteria.trim();
         if (criteria.length()>0) {
-            if(!iterate(criteria, repository, dateStart, dateEnd, title)){
+            if(!iterate(criteria, repository, dateStart, dateEnd, title.trim(), pagesBeforeEachFind, pagesAfterEachFind)){
                 // TODO[Xavi] Enviar un dialeg amb un missatge d'error indicant que no s'ha pogut completar la baixada i que es miri el registre de logs
                 logger.debug("S'interromp la cerca degut a una excepció que no permet continuar.");
             }
@@ -209,7 +212,61 @@ public class SdlController {
         return ret;
     }
     
-    private boolean iterate(String criteria, String repository, String dateStart, String dateEnd, String title){
+    private SearchResource createAndSaveResourceFromSearcherResource(SearcherResource res, Search search, String fileRepositoryPath, PersistenceService pService, Resource pnres, int prevOrNext){
+        SearchResource searchResource = createAndSaveResourceFromSearcherResource(res, search, fileRepositoryPath);
+        if(prevOrNext==SearcherResource.PREVIOUS_SIBLING){
+            searchResource.getResource().setPreviousPage(pnres);
+        }else{
+            searchResource.getResource().setNextPage(pnres);
+        }
+        return searchResource;
+    }        
+
+    private SearchResource createAndSaveResourceFromSearcherResource(SearcherResource res, Search search, String fileRepositoryPath){
+        SearchResource searchResource;
+        Resource resource = new Resource(res);
+        searchResource = search.addResource(resource, res.getFragments());
+        String[] formats = resource.getSupportedFormats();
+
+        for(String format: formats){
+            boolean error=false;
+            FileOutputStream fileOutputStream = null;
+            File path = new File(fileRepositoryPath);
+            File file = new File(fileRepositoryPath, res.getFileName(format).concat(".").concat(format));
+            FormatedFile ff = res.getFormatedFile(format);
+            if(!path.exists()){
+                path.mkdirs();
+            }
+            if(!file.exists()){
+                try {
+                    fileOutputStream = new FileOutputStream(file);
+                    try{
+                        Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
+                    } catch (ErrorGettingRemoteResource | ErrorCopyingFileFormaException ex) {
+                        logger.error(ex.getMessage(), ex);
+                        error = true;
+                    }
+                } catch (FileNotFoundException ex) {
+                    logger.error(ex.getMessage(), ex);
+                    error = true;
+                }
+                if(error){
+                    resource.deleteSupportedFormat(format);
+                    if(file.exists()){
+                        file.delete();
+                    }
+                    logger.info(String.format("Fitxer %s NO copiat", ff.getFileName()));
+                }else{
+                    logger.info(String.format("Fitxer %s copiat.", ff.getFileName()));
+                }
+            }else{
+                logger.info(String.format("Fitxer %s copiat anteriorment.", ff.getFileName()));
+            }
+        }
+        return searchResource;
+    }
+        
+    private boolean iterate(String criteria, String repository, String dateStart, String dateEnd, String title, int pagesBeforeEachFind, int pagesAfterEachFind){
         SearcherResource res = null;
         boolean ret = true;
         String fileRepositoryPath = this.dp.getLocalReasourceRepo();
@@ -228,56 +285,46 @@ public class SdlController {
         pService.setFileRepositoryPath(fileRepositoryPath);
         
         pService.saveSearch(search);
-        logger.debug("Registre principal de la cerca emmagatzemat");
-        
+        logger.debug("Registre principal de la cerca emmagatzemat");        
         try{
             while((quantity<=0 || c<quantity) && iterator.hasNext()){
-                SearchResource searchResource;
                 c++;
                 try{
+                    SearchResource searchResource;
                     res = iterator.next();
                     logger.info(String.format("%d.- Recurs obtingut: %s (%s)", c, res.getTitle(), res.getEditionDate()));
-                    Resource resource = new Resource(res);
-                    searchResource = search.addResource(resource);
-                    String[] formats = resource.getSupportedFormats();
-
-                    for(String format: formats){
-                        boolean error=false;
-                        FileOutputStream fileOutputStream = null;
-                        File path = new File(fileRepositoryPath);
-                        File file = new File(fileRepositoryPath, res.getFileName(format).concat(".").concat(format));
-                        FormatedFile ff = res.getFormatedFile(format);
-                        if(!path.exists()){
-                            path.mkdirs();
-                        }
-                        if(!file.exists()){
-                            try {
-                                fileOutputStream = new FileOutputStream(file);
-                                try{
-                                    Utils.copyToFile(ff.getImInputStream(), fileOutputStream);
-                                } catch (ErrorGettingRemoteResource | ErrorCopyingFileFormaException ex) {
-                                    logger.error(ex.getMessage(), ex);
-                                    error = true;
-                                }
-                            } catch (FileNotFoundException ex) {
-                                logger.error(ex.getMessage(), ex);
-                                error = true;
-                            }
-                            if(error){
-                                resource.deleteSupportedFormat(format);
-                                if(file.exists()){
-                                    file.delete();
-                                }
-                                logger.info(String.format("Fitxer %s NO copiat", ff.getFileName()));
-                            }else{
-                                logger.info(String.format("Fitxer %s copiat.", ff.getFileName()));
-                            }
-                        }else{
-                            logger.info(String.format("Fitxer %s copiat anteriorment.", ff.getFileName()));
-                        }
+                    searchResource = createAndSaveResourceFromSearcherResource(res, search, fileRepositoryPath);
+                    if(res.isIdRewritten()){
+                        pService.changeIdResourceOnSearchResource(res.getOldId(), searchResource.getResource());
+//                        if(pService.existsResourceById(res.getOldId())){
+//                            SearchResourceId srid = new SearchResourceId(searchResource.getId().getSerachId(), res.getOldId());
+//                            if(pService.existsSearchResourceById(srid)){
+//                                SearchResource aux = pService.findSearchResourceById(srid);
+//                                pService.deleteSearchResource(aux);
+//                            }else{
+////                                Resource raux = pService.
+//                                pService.deleteResource(res.getOldId());
+//                            }
+//                        }
                     }
                     pService.saveSearchResource(searchResource);
-                    logger.debug("Registre del recurs emmagatzemat");
+                    logger.debug("Registre del recurs emmagatzemat");   
+
+                    SearcherResource aux = res;
+                    for(int i=0; aux.hasPrevioiusPage() && i<pagesBeforeEachFind; i++){
+                        aux = iterator.getPreviousSiblingPage(aux);
+                        logger.info(String.format("%d(-%d).- Recurs de pàgina prèvia obtingut: %s (%s)", c, i+1, res.getTitle(), res.getEditionDate()));
+                        searchResource = createAndSaveResourceFromSearcherResource(aux, search, fileRepositoryPath, pService, searchResource.getResource(), SearcherResource.PREVIOUS_SIBLING);
+                        pService.saveSearchResource(searchResource);
+                        logger.debug("Registre del recurs emmagatzemat");   
+                    }
+                    for(int i=0; res.hasNextPage() && i<pagesAfterEachFind; i++){
+                        res = iterator.getNextSiblingPage(res);
+                        logger.info(String.format("%d(+%d).- Recurs de pàgina següent obtingut: %s (%s)", c, i+1, res.getTitle(), res.getEditionDate()));
+                        searchResource = createAndSaveResourceFromSearcherResource(res, search, fileRepositoryPath, pService, searchResource.getResource(), SearcherResource.NEXT_SIBLING);
+                        pService.saveSearchResource(searchResource);
+                        logger.debug("Registre del recurs emmagatzemat");   
+                    }
                 }catch(ErrorGettingRemoteResource ex){
                     if(res!=null){
                         errorList.info(res.toString());

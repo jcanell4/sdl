@@ -40,6 +40,8 @@ public class BvphSearchIterator extends BvphTypeSearchIterator<BvphResource>{
         pubYearPaginatedRegistersNextPageFilter = "a#boton_siguiente";
         fragmentsFilter = "ul.texto_ocurrencias li";
         actionsFilter = "div#tab_acciones ul li";
+        previousPageFilter = "a#boton_anterior";
+        nextPageFilter = "a#boton_siguiente";
         saveJpgFilter = "ol#nav_registros div.visualizador_menu span#grupo_1 a";
         titleFilter = "dt span span.titulo a bdi";
         pageFilter = "p strong a";
@@ -123,4 +125,14 @@ public class BvphSearchIterator extends BvphTypeSearchIterator<BvphResource>{
 //            return ret;
 //        }
 //    }
+
+    @Override
+    public SearcherResource getNextSiblingPage(SearcherResource sr) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public SearcherResource getPreviousSiblingPage(SearcherResource sr) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

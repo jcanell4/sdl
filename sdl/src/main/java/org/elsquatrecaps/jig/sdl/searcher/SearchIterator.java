@@ -13,4 +13,6 @@ import java.util.Iterator;
  */
 public abstract class SearchIterator<T extends SearcherResource> implements Iterator<T>{
     public abstract void init(AbstractGetRemoteProcess getRemoteProcess);
+    public abstract SearcherResource getNextSiblingPage(SearcherResource sr);
+    public abstract SearcherResource getPreviousSiblingPage(SearcherResource sr);
 }

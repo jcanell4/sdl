@@ -14,11 +14,11 @@ import java.util.List;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CollectionTable;
-import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
@@ -43,13 +43,19 @@ public class Resource implements Serializable{
     @CollectionTable(name="RESOURCE_FORMAT")
     @OrderColumn
     private List<ResourceFormat> resourceFormats=new ArrayList<>();
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="RESOURCE_FRAGMENT")
-    @Column(length = 500)
-    @OrderColumn
-    private List<String> fragments= new ArrayList<String>();
+//    @ElementCollection(fetch = FetchType.EAGER)
+//    @CollectionTable(name="RESOURCE_FRAGMENT")
+//    @Column(length = 500)
+//    @OrderColumn
+//    private List<String> fragments= new ArrayList<String>();
     @Transient
     private String localFilePath="";
+    @OneToOne
+    @JoinColumn(name="PREVIOUS_PAGE")
+    private Resource nextPage;
+    @OneToOne
+    @JoinColumn(name="NEXT_PAGE")
+    private Resource previousPage;
 
     public Resource() {        
     }
@@ -82,9 +88,9 @@ public class Resource implements Serializable{
         title = resource.getTitle();
         page = resource.getPage();
         editionDate = resource.getEditionDate();
-        setCalcDate(resource.getProcessDateResult());
+        __setCalcDate(resource.getProcessDateResult());
         _addAllSupportedFormat(resource);
-        _addAllFragments(resource.getFragments());        
+//        _addAllFragments(resource.getFragments());        
     }
     
     public String getId() {
@@ -116,8 +122,13 @@ public class Resource implements Serializable{
     }
     
     protected void setCalcDate(String calcDate) {
+        this.__setCalcDate(calcDate);
+    }
+    
+    private void __setCalcDate(String calcDate) {
         this.calcDate = new CalcDateMap(calcDate);
     }
+
     
     public String getEditionDate() {
         return this.editionDate;
@@ -133,29 +144,6 @@ public class Resource implements Serializable{
     
     public String getCalcDateId() {
         return this.calcDate.getId();
-    }
-    
-    public String[] getFragments() {
-        String[] ret = new String[fragments.size()];
-        return fragments.toArray(ret);
-    }
-
-    public String getFragment(int idx) {
-        return fragments.get(idx);
-    }
-
-    protected void addFragment(String fragment) {
-        this.fragments.add(fragment);
-    }
-
-    protected void addAllFragments(String[] fragment) {
-        _addAllFragments(fragment);
-    }
-    
-    private void _addAllFragments(String[] fragment) {
-        for(String frg: fragment){
-            this.fragments.add(frg);
-        }
     }
     
     public String getSupportedFormatsAsSingleString() {
@@ -211,12 +199,15 @@ public class Resource implements Serializable{
     private void _addAllSupportedFormat(SearcherResource sr) {
         String[] formats = sr.getSupportedFormats();
         for(String format: formats){
-            this.resourceFormats.add(new ResourceFormat(format, sr.getContentTypeFormat(format)));
+            addResourceFormat(format, sr.getContentTypeFormat(format));
         }
     }
     
     protected void addResourceFormat(String format, String type) {
-        this.resourceFormats.add(new ResourceFormat(format, type));
+        ResourceFormat rf = new ResourceFormat(format, type);
+        if(!this.resourceFormats.contains(rf)){
+            this.resourceFormats.add(rf);
+        }
     }
 
     protected void addAllResourceFormat(SimpleImmutableEntry<String,String>[] formats) {
@@ -356,4 +347,52 @@ public class Resource implements Serializable{
     public void updateSingleData(Resource res){
         updateSingleData(res, true);
     }    
+
+//    /**
+//     * @return the associatedPages
+//     */
+//    public List<AssociatedPage> getAssociatedPages() {
+//        return associatedPages;
+//    }
+
+    /**
+     * @return the nextPage
+     */
+    public Resource getNextPage() {
+        return nextPage;
+    }
+
+    /**
+     * @param nextPage the nextPage to set
+     */
+    public void setNextPage(Resource nextPage) {
+        if(this.nextPage!=null){
+            this.nextPage.previousPage= null;
+        }
+        this.nextPage = nextPage;
+        if(nextPage!=null){
+            nextPage.previousPage = this;
+        }
+    }
+
+    /**
+     * @return the previousPage
+     */
+    public Resource getPreviousPage() {
+        return previousPage;
+    }
+
+    /**
+     * @param previousPage the previousPage to set
+     */
+    public void setPreviousPage(Resource previousPage) {
+        if(this.previousPage!=null){
+            this.previousPage.nextPage=null;
+        }
+        this.previousPage = previousPage;
+        if(previousPage!=null){
+            previousPage.nextPage= this;
+        }
+        
+    }
 }

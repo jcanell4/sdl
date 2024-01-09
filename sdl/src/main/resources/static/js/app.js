@@ -40,6 +40,24 @@ var bibliotequesAPI = (function () {
                     type: "date",
                     label: "Data final",
                     placeholder: "Data final"
+                },
+                "pagesAfterAndBefor":{
+                    "pagesBeforeEachFind": {
+                        type: "number",
+                        label: "Pàgines anteriors a cada pàgina trobada",
+                        attributes:{
+                            min:"0",
+                            value:"0"
+                        }
+                    },
+                    "pagesAfterEachFind": {
+                        type: "number",
+                        label: "Pàgines posteriors a cada pàgina trobada",
+                        attributes:{
+                            min:"0",
+                            value:"0"
+                        }
+                    }
                 }
             }
         },
@@ -332,6 +350,36 @@ var bibliotequesAPI = (function () {
 
     
 
+    var __updateOneSearchGroupForm = function($field, field, extraQueryParams){
+            var $label = $('<label>');
+            $label.attr('for', field);
+            $label.html(extraQueryParams[field].label);
+            $field.append($label);
+
+            var $input;
+
+            switch (extraQueryParams[field].type) {
+                // TODO[Xavi]: si es necessari afegir altres tipus
+
+                default:
+                    $input = $('<input>');
+                    $input.attr('type', extraQueryParams[field].type);
+            }
+
+            $input.attr('name', field);
+            $input.attr('id', field);
+            if("placeholder" in extraQueryParams[field]){
+                $input.attr('placeholder', extraQueryParams[field].placeholder);
+            }
+            if("attributes" in extraQueryParams[field]){
+                for(var att in extraQueryParams[field].attributes){
+                    $input.attr(att, extraQueryParams[field].attributes[att]);
+                }
+            }
+            $input.addClass('form-control');
+
+            $field.append($input);                
+    };
 
     var updateSearchForm = function () {
 
@@ -348,29 +396,50 @@ var bibliotequesAPI = (function () {
 
         for (var field in repository.extraQueryParams) {
             var $field = $("<div>");
-            $field.addClass('form-group');
-
-            var $label = $('<label>');
-            $label.attr('for', field);
-            $label.html(repository.extraQueryParams[field].label);
-            $field.append($label);
-
-            var $input;
-
-            switch (repository.extraQueryParams[field].type) {
-                // TODO[Xavi]: si es necessari afegir altres tipus
-
-                default:
-                    $input = $('<input>');
-                    $input.attr('type', repository.extraQueryParams[field].type);
+            if ("type" in repository.extraQueryParams[field]){
+                $field.addClass('form-group');
+                __updateOneSearchGroupForm($field, field, repository.extraQueryParams);
+            }else{
+                $field.addClass('form-group');
+                $field.addClass('row');
+                var cssclass0 = "col-sm" ;
+                var cssclass = "col-sm-" + Math.trunc(12/Object.keys(repository.extraQueryParams[field]).length);
+                var i=0;
+                for(var ff in repository.extraQueryParams[field]){
+                    var $divCol = $("<div>");
+                    if(i===0){
+                        $divCol.addClass(cssclass0);
+                        __updateOneSearchGroupForm($divCol, ff, repository.extraQueryParams[field]);
+                        i++;
+                    }else{
+                        $divCol.addClass(cssclass);
+                        __updateOneSearchGroupForm($divCol, ff, repository.extraQueryParams[field]);
+                    }
+                    $field.append($divCol);
+                }
             }
 
-            $input.attr('name', field);
-            $input.attr('id', field);
-            $input.attr('placeholder', repository.extraQueryParams[field].placeholder);
-            $input.addClass('form-control');
-
-            $field.append($input);
+//            var $label = $('<label>');
+//            $label.attr('for', field);
+//            $label.html(repository.extraQueryParams[field].label);
+//            $field.append($label);
+//
+//            var $input;
+//
+//            switch (repository.extraQueryParams[field].type) {
+//                // TODO[Xavi]: si es necessari afegir altres tipus
+//
+//                default:
+//                    $input = $('<input>');
+//                    $input.attr('type', repository.extraQueryParams[field].type);
+//            }
+//
+//            $input.attr('name', field);
+//            $input.attr('id', field);
+//            $input.attr('placeholder', repository.extraQueryParams[field].placeholder);
+//            $input.addClass('form-control');
+//
+//            $field.append($input);
             $extraParams.append($field);
 
         }

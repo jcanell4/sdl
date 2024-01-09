@@ -239,7 +239,8 @@ public class Utils {
             URL url = new URL(urlname);
             connection = url.openConnection();
             connection.connect();    
-            ret = connection.getContentType().indexOf(contentType)>-1;
+            ret = connection.getContentType().contains(contentType)
+                    || connection.getContentType().contains("download");
         } catch (MalformedURLException ex) {
             Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -279,18 +280,18 @@ public class Utils {
         }else{
             strBuffer.append("0000_00_00");
         }
-        strBuffer.append("_");
+        strBuffer.append("__");
         strBuffer.append(calcDate);
-        strBuffer.append("_");
+        strBuffer.append("__");        
+        strBuffer.append(Utils.buildNormalizedFilename(title.trim().substring(0,Math.min(35, title.trim().length()))));
+        strBuffer.append("__");        
         strBuffer.append(docId);            
         if(!contentType.equals("D")){
-            strBuffer.append("_");
+            strBuffer.append("__");
             strBuffer.append(pageId.trim());                        
-            strBuffer.append("_");
+            strBuffer.append("__");
             strBuffer.append(Utils.buildNormalizedFilename(page.trim()));            
         }
-        strBuffer.append("_");
-        strBuffer.append(Utils.buildNormalizedFilename(title.trim()));
-        return strBuffer.toString().substring(0,Math.min(75, strBuffer.length()));        
+        return strBuffer.toString();        
     }
 }

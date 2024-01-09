@@ -2,13 +2,19 @@ package org.elsquatrecaps.jig.sdl.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
+import javax.persistence.OrderColumn;
+import org.elsquatrecaps.jig.sdl.searcher.SearcherResource;
 
 @Entity
 public class SearchResource implements Serializable {
@@ -27,11 +33,39 @@ public class SearchResource implements Serializable {
     @JoinColumn(name="RESOURCEID", insertable = false, updatable = false)
     //@MapsId("resourceId")
     private Resource resource;
+    
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="RESOURCE_FRAGMENT")
+    @Column(length = 500)
+    @OrderColumn
+    private List<String> fragments= new ArrayList<String>();
+
 
     private String processingAnalysis;
     private String searchDate;
 
     public SearchResource() {
+    }
+    
+    public SearchResource(SearchResource sr, Resource newResource) {
+        this.search = sr.search;
+        this.resource=newResource;
+        this.id = new SearchResourceId(search.getId(), resource.getId());
+        this.processingAnalysis = sr.processingAnalysis;
+        this.searchDate = sr.searchDate;
+        this._addAllFragments(sr.getFragments());
+    }
+    
+    public SearchResource(Search search, SearcherResource sr) {
+        this.search=search;
+        this.resource = new Resource(sr);
+        this.id = new SearchResourceId(search.getId(), resource.getId());
+        this._addAllFragments(sr.getFragments());
+    }
+    
+    public SearchResource(Search search, Resource resource, String[] fragments){
+        this(search, resource);
+        this._addAllFragments(fragments);
     }
     
     public SearchResource(Search search, Resource resource){
@@ -110,13 +144,30 @@ public class SearchResource implements Serializable {
     }
     
     public String[] getFragments() {
-        return resource.getFragments();                
+        String[] ret = new String[fragments.size()];
+        return fragments.toArray(ret);
     }
 
     public String getFragment(int idx) {
-        return resource.getFragment(idx);                
+        return fragments.get(idx);
     }
 
+    protected void addFragment(String fragment) {
+        if(!this.fragments.contains(fragment)){
+            this.fragments.add(fragment);
+        }
+    }
+
+    protected void addAllFragments(String[] fragment) {
+        _addAllFragments(fragment);
+    }
+    
+    private void _addAllFragments(String[] fragment) {
+        for(String frg: fragment){
+            this.addFragment(frg);
+        }
+    }
+    
     public String getSupportedFormatsAsSingleString() {
         return resource.getSupportedFormatsAsSingleString();                
     }
